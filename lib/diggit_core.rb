@@ -13,6 +13,7 @@ module Diggit
 
 	SOURCES_FOLDER = 'sources'
 	INCLUDES_FOLDER = 'includes'
+	DIGGIT_FOLDER = ".diggit"
 
 	class Addon
 
@@ -264,8 +265,14 @@ module Diggit
 		end
 
 		def load_plugins
-			globals = File.expand_path(INCLUDES_FOLDER,File.expand_path('..',File.dirname(File.realpath(__FILE__))))
-			Dir.glob("#{globals}/**/*.rb").each{ |f| require f }
+			global = File.expand_path(INCLUDES_FOLDER,File.expand_path('..',File.dirname(File.realpath(__FILE__))))
+			Dir["#{global}/**/*.rb"].each{ |f| require f }
+
+			home = File.expand_path(INCLUDES_FOLDER,File.expand_path(DIGGIT_FOLDER,Dir.home))
+			Dir["#{home}/**/*.rb"].each{ |f| require f }
+
+			local = File.expand_path(INCLUDES_FOLDER)
+			Dir["#{local}/**/*.rb"].each{ |f| require f }
 		end
 
 	end
