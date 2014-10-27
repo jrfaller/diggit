@@ -30,6 +30,12 @@ RSpec.describe Diggit::Cli::DiggitCli do
 		expect(sources).to include(WRONG_URL)
 	end
 
+	it "should list the sources" do
+		result = capture(:stdout) { Diggit::Cli::DiggitCli.start(["sources", "list"]) }
+		expect(result).to include(TEST_URL)
+		expect(result).to include(WRONG_URL)
+	end
+
 	it "should display the status" do
 		result = capture(:stdout) { Diggit::Cli::DiggitCli.start(["status"]) }
 		expect(result).to include("2 new (0 errors)")

@@ -32,7 +32,7 @@ module Diggit
 		end
 
 		def status_color(status)
-			if status == DONE
+			if status == Cli::DONE
 				return :green
 			else
 				return :red
@@ -59,7 +59,7 @@ module Diggit
 					say_status("[#{s[:log][:state]}]", "#{idx}: #{s[:url]}", source_color(s))
 					idx += 1
 				end
-				errors = diggit.sources.errors.size
+				errors = diggit.sources.get_all(nil, {error: true}).size
 				status = (errors== 0 && DONE) || ERROR
 				say_status(status, "listed #{diggit.sources.size} sources including #{errors} errors", status_color(status))
 			end
