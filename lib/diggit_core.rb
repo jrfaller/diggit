@@ -269,10 +269,10 @@ module Diggit
 			Dir["#{global}/**/*.rb"].each{ |f| require f }
 
 			home = File.expand_path(INCLUDES_FOLDER,File.expand_path(DIGGIT_FOLDER,Dir.home))
-			Dir["#{home}/**/*.rb"].each{ |f| require f }
+			Dir["#{home}/**{,/*/**}/*.rb"].each{ |f| require f }
 
 			local = File.expand_path(INCLUDES_FOLDER)
-			Dir["#{local}/**/*.rb"].each{ |f| require f }
+			Dir["#{local}/**{,/*/**}/*.rb"].each{ |f| require f }
 		end
 
 	end
