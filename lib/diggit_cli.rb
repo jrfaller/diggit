@@ -259,11 +259,13 @@ module Diggit
 			def initialize(*args)
 				super
 				cmd = args[2][:current_command].name
-				unless 'init'.eql?(cmd) || 'help'.eql?(cmd) || File.exist?(DIGGIT_RC)
-					say_status(ERROR, "this is not a diggit directory", :red)
-					exit
+				unless 'init'.eql?(cmd) || 'help'.eql?(cmd)
+					unless File.exist?(DIGGIT_RC)
+						say_status(ERROR, "this is not a diggit directory", :red)
+					else
+						diggit
+					end
 				end
-				diggit
 			end
 
 			desc "init", "Initialize the current folder as a diggit folder."
