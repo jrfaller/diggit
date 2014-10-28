@@ -79,7 +79,7 @@ module Diggit
 
 			desc "errors", "Display informations on all source that have encountered an error."
 			def errors
-				diggit.sources.get_all(nil, {error: true}).each{|s| invoke :info, [s[:url]]}
+				diggit.sources.get_all(nil, {error: true}).each{|s| info s[:url] }
 			end
 
 			desc 'import [FILE]', "Import a list of sources from a file (one URL per line)."
