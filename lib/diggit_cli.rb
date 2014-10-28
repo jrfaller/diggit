@@ -191,7 +191,7 @@ module Diggit
 					rescue Rugged::InvalidError
 						# In case of InvalidError, check if the source has already been cloned, e.g. copied from a previous diggit workspace.
 						begin
-							repo = Rugged::Repository::new(s[:folder])
+							Rugged::Repository::new(s[:folder]) # will raise an exception if there is no valid repository here
 						rescue => e
 							clone_error(s,e)
 						else
