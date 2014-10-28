@@ -251,9 +251,9 @@ module Diggit
 
 		def url(source_def)
 			url = source_def
-			if /\d+/.match(source_def)
+			if /^\d+$/.match(source_def)
 				idx = source_def.to_i - 1
-				raise "Wrong source identifier" if idx < 0 || idx >= @sources.size
+				raise "Wrong source identifier: #{source_def}" if idx < 0 || idx >= @sources.size
 				url = @sources[source_def.to_i - 1]
 			end
 			url
