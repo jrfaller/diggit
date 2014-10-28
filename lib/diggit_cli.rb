@@ -41,6 +41,21 @@ module Diggit
 
 	end
 
+	module CloneUtils
+
+		def clone_error(source, e)
+			source[:log][:error] = dump_error(e)
+			say_status(Cli::ERROR, "error cloning #{source[:url]}", :red)
+		end
+
+		def clone_done(source)
+			source[:log][:state] = :cloned
+			source[:log][:error] = {}
+			say_status(Cli::DONE, "#{source[:url]} cloned", :blue)
+		end
+
+	end
+
 	module Cli
 
 		DONE = '[done]'
@@ -166,20 +181,26 @@ module Diggit
 
 		class PerformCli < Thor
 			include Thor::Actions
-			include Utils
+			include Utils, CloneUtils
 
 			desc "clones [SOURCE_DEFS*]", "Clone the sources corresponding to the provided source definitions (id or URL). Clone all sources if no source definitions are provided."
 			def clones(*source_defs)
 				diggit.sources.get_all(source_defs, {state: :new}).each do |s|
 					begin
 						Rugged::Repository::clone_at(s[:url], s[:folder])
+					rescue Rugged::InvalidError
+						# In case of InvalidError, check if the source has already been cloned, e.g. copied from a previous diggit workspace.
+						begin
+							Rugged::Repository::new(s[:folder]) # will raise an exception if there is no valid repository here
+						rescue => e
+							clone_error(s,e)
+						else
+							clone_done(s)
+						end
 					rescue => e
-						s[:log][:error] = dump_error(e)
-						say_status(ERROR, "error cloning #{s[:url]}", :red)
+						clone_error(s,e)
 					else
-						s[:log][:state] = :cloned
-						s[:log][:error] = {}
-						say_status(DONE, "#{s[:url]} cloned", :blue)
+						clone_done(s)
 					ensure
 						diggit.sources.update(s)
 					end
