@@ -1,5 +1,13 @@
 # encoding: utf-8
 
+# A output addon for Diggit. The name of the addon is :output, and can be reached in the
+# addons hash. This addon might use an :output hash in the global options. In this hash, the
+# :out key allows to configure the name of the output folder and :tmp the name of the temporary output
+# folder.
+# @!attribute [r] out
+# 	@return [String] the absolute path of the output folder.
+# @!attribute [r] tmp
+# 	@return [String] the absolute path of the temporary output folder.
 class Output < Diggit::Addon
 
 	attr_reader :out, :tmp
