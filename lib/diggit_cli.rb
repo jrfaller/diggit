@@ -172,7 +172,11 @@ module Diggit
 			def clones(*source_defs)
 				diggit.sources.get_all(source_defs, {state: :new}).each do |s|
 					begin
-						Rugged::Repository::clone_at(s[:url], s[:folder])
+						if File.exist?(s[:folder])
+							Rugged::Repository::new(s[:folder])
+						else
+							Rugged::Repository::clone_at(s[:url], s[:folder])
+						end
 					rescue => e
 						s[:log][:error] = dump_error(e)
 						say_status(ERROR, "error cloning #{s[:url]}", :red)
