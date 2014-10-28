@@ -3,7 +3,6 @@
 
 require 'rugged'
 require 'oj'
-require 'singleton'
 
 module Diggit
 
