@@ -15,19 +15,52 @@ module Diggit
 	INCLUDES_FOLDER = 'includes'
 	DIGGIT_FOLDER = ".diggit"
 
+	# Base class for Diggit addons.
+	# @abstract Subclass and override name to implement custom Diggit addons.
+	#
+	# @!attribute [r] options
+	# 	@return [Hash] the Diggit options.
 	class Addon
 
+		# Create a new addon.
+		#
+		# @param options [Hash] a hash containing the Diggit options.
 		def initialize(options)
 			@options = options
 		end
 
+		# Returns the name of the addon.
+		# @abstract The name must be overrided.
+		#
+		# @return [Symbol] the name of the addon.
 		def name
+			raise NoMethodError.new "Subclass responsability"
 		end
 
 	end
 
+	# Base class for Diggit analyses. Diggit Analyses are applied on each source that has been succesfully cloned
+	# @abstract Subclass and override run and clean to implement
+	# 	a custom analysis class.
+	# @!attribute [r] source
+	# 	@return [String] the URL of the source to be analyzed.
+	# @!attribute [r] repo
+	# 	@return [Rugged::Repository] the Rugged Repository object corresponding to the source.
+	# @!attribute [r] options
+	# 	@return [Hash] a hash containing the Diggit options.
+	# @!attribute [r] addons
+	# 	@return [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+	# @!attribute globs
+	# 	@return [Hash] a hash shared between all analyses of a source.
 	class Analysis
 
+		# Create a new analysis.
+		#
+		# @param source [String] the URL of the source to be analyzed.
+		# @param repo [Rugged::Repository] the Rugged Repository object corresponding to the source.
+		# @param options [Hash] a hash containing the Diggit options.
+		# @param addons [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+		# @param globs [Hash] a hash shared between all analyses of a source.
 		def initialize(source, repo, options, addons, globs)
 			@source = source
 			@repo = repo
@@ -36,17 +69,38 @@ module Diggit
 			@globs = globs
 		end
 
+		# Run the analysis.
+		# @abstract
 		def run
 			raise NoMethodError.new "Subclass responsability"
 		end
 
+		# Clean the data produced by the analysis.
+		# @abstract
 		def clean
 			raise NoMethodError.new "Subclass responsability"
 		end
 
 	end
 
+	# Base class for Diggit joins. Joins are applied after each source have been analyzed.
+	# @abstract Subclass and override cleand and run to implement custom Diggit join.
+	# @!attribute [r] sources
+	# 	@return [Array]  an array containing the finished sources.
+	# @!attribute [r] options
+	# 	@return [Hash] a hash containing the Diggit options.
+	# @!attribute [r] addons
+	# 	@return [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+	# @!attribute globs
+	# 	@return [Hash] a hash shared between all analyses of a source.
 	class Join
+
+		# Create a new join.
+		#
+		# @param sources [Array] an array containing the finished sources.
+		# @param options [Hash] a hash containing the Diggit options.
+		# @param addons [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+		# @param globs [Hash] a hash shared between all analyses of a source.
 		def initialize(sources, options, addons, globs)
 			@sources = sources
 			@options = options
@@ -54,10 +108,14 @@ module Diggit
 			@globs = globs
 		end
 
+		# Run the join
+		# @abstract
 		def run
 			raise NoMethodError.new "Subclass responsability"
 		end
 
+		# Clean the data produced by the join
+		# @abstract
 		def clean
 			raise NoMethodError.new "Subclass responsability"
 		end

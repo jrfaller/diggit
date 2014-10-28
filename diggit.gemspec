@@ -19,4 +19,5 @@ END
 	spec.add_runtime_dependency 'oj', '~> 2.10'
 	spec.add_runtime_dependency 'thor', '~> 0.19'
 	spec.add_development_dependency 'rspec', '~> 3.1'
+	spec.add_development_dependency 'yard', '~> 0.8'
 end
