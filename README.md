@@ -16,7 +16,7 @@ The diggit tool is in the lib folder. Don't hesitate to create a link to diggit.
 
 ## Configuration
 
-The diggit tool is designed to help you analyze software repositories. Firstly you have to create a new folder in which you launch the `diggit init` command. This way, the folder becomes a diggit folder in which you can configure repositories and analyses.
+The diggit tool is designed to help you analyze software repositories. Firstly you have to create a new folder in which you launch the `dgit init` command. This way, the folder becomes a diggit folder in which you can configure repositories and analyses.
 
 ### Setting-up the repositories
 
@@ -38,7 +38,7 @@ A join is performed after all analyses of all repositories have been performed. 
 
 Once diggit is configured you can perform the analyses. First you have to perform the clone by using `dgit perform clones`. Then you can launch the analyses by using `dgit perform analyses`. Finally, the joins are executed via the command `dgit perform joins`.
 
-At all time, you can check the status of your diggit folder by using `diggit status`. If you want more info on the status of a given repository, you can use the `dgit sources info https://github.com/jrfaller/diggit.git` command.
+At all time, you can check the status of your diggit folder by using `dgit status`. If you want more info on the status of a given repository, you can use the `dgit sources info https://github.com/jrfaller/diggit.git` command.
 
 ## Cleaning up
 
