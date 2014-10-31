@@ -266,11 +266,15 @@ module Diggit
 		end
 
 		def hash(url)
-			{url: url, folder: folder(url), log: @log.log(url)}
+			{url: url, id: id(url), folder: folder(url), log: @log.log(url)}
+		end
+
+		def id(url)
+			url.gsub(/[^[\w-]]+/, "_")
 		end
 
 		def folder(url)
-				File.expand_path(url.gsub(/[^[\w-]]+/, "_"), SOURCES_FOLDER)
+			File.expand_path(id(url), SOURCES_FOLDER)
 		end
 
 	end
