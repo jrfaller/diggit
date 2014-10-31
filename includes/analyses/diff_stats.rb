@@ -2,7 +2,7 @@
 
 class DiffStats < Diggit::Analysis
 
-	ACCEPTED_EXTENSIONS = [".java", ".c", ".h", ".js", ".javascrip" ]
+	ACCEPTED_EXTENSIONS = [".java", ".c", ".h", ".js", ".javascript" ]
 
 	def run
 		col = @addons[:db].db['diffstats']
