@@ -6,7 +6,7 @@ require 'oj'
 
 module Diggit
 
-	DIGGIT_RC = '.dgitrrc'
+	DIGGIT_RC = '.dgitrc'
 	DIGGIT_LOG = '.dgitlog'
 	DIGGIT_SOURCES = '.dgitsources'
 
