@@ -16,9 +16,9 @@ module Diggit
 			{ name: e.class.name, message: e.to_s, backtrace: e.backtrace }
 		end
 
-		def class_exist?(class_name)
-			obj = Object::const_get(class_name)
-			return obj.is_a?(Class)
+		def plugin_ok?(name, type)
+			obj = Object::const_get(name)
+			return obj < type
 		rescue NameError
 			return false
 		end
@@ -105,10 +105,10 @@ module Diggit
 			desc "add [ADDON*]", "Add the provided addons to the list of active addons."
 			def add(*addons)
 				addons.each do |a|
-					if class_exist?(a)
+					if plugin_ok?(a, Addon)
 						diggit.config.add_addon(a)
 					else
-						say_status(ERROR, "addon #{a} not found", :red)
+						say_status(ERROR, "error loading addon #{a}", :red)
 					end
 				end
 			end
@@ -127,10 +127,10 @@ module Diggit
 			desc "add [JOIN*]", "Add the provided joins to the list of active joins."
 			def add(*joins)
 				joins.each do |j|
-					if class_exist?(j)
+					if plugin_ok?(j, Join)
 						diggit.config.add_join(j)
 					else
-						say_status(ERROR, "join #{j} not found", :red)
+						say_status(ERROR, "error loading join #{j}", :red)
 					end
 				end
 			end
@@ -149,10 +149,10 @@ module Diggit
 			desc "add [ANALYSIS*]", "Add the provided analyses to the list of active analyses."
 			def add(*analyses)
 				analyses.each do |a|
-					if class_exist?(a)
+					if plugin_ok?(a, Analysis)
 						diggit.config.add_analysis(a)
 					else
-						say_status(ERROR, "analysis #{a} not found", :red)
+						say_status(ERROR, "error loading analysis #{a}", :red)
 					end
 				end
 			end
