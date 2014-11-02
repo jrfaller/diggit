@@ -7,6 +7,11 @@ module Diggit
 
 	module Utils
 
+		DONE = '[done]'
+		WARNING = '[warning]'
+		ERROR = '[error]'
+		INFO = '[info]'
+
 		def diggit
 			@diggit = Diggit.new if @diggit.nil?
 			return @diggit
@@ -39,14 +44,21 @@ module Diggit
 			end
 		end
 
+		def say_error(msg)
+			say_status(ERROR, msg, :red)
+		end
+
+		def say_info(msg)
+			say_status(INFO, msg, :blue)
+		end
+
+		def say_done(msg)
+			say_status(DONE, msg, :green)
+		end
+
 	end
 
 	module Cli
-
-		DONE = '[done]'
-		WARNING = '[warning]'
-		ERROR = '[error]'
-		INFO = '[info]'
 
 		class SourcesCli < Thor
 			include Thor::Actions
@@ -70,7 +82,7 @@ module Diggit
 				say_status("[#{s[:log][:state]}]", "#{s[:url]}", source_color(s))
 				say_status('[folder]', "#{s[:folder]}", :blue)
 				unless s[:log][:error].empty?
-					say_status(ERROR, "#{s[:log][:error][:name]}", :red)
+					say_error("#{s[:log][:error][:name]}")
 					say_status('[message]', "#{s[:log][:error][:message]}", :red)
 					say_status('[backtrace]', "", :red)
 					say(s[:log][:error][:backtrace].join("\n"))
@@ -108,7 +120,7 @@ module Diggit
 					if plugin_ok?(a, Addon)
 						diggit.config.add_addon(a)
 					else
-						say_status(ERROR, "error loading addon #{a}", :red)
+						say_error("error loading addon #{a}")
 					end
 				end
 			end
@@ -130,7 +142,7 @@ module Diggit
 					if plugin_ok?(j, Join)
 						diggit.config.add_join(j)
 					else
-						say_status(ERROR, "error loading join #{j}", :red)
+						say_error("error loading join #{j}")
 					end
 				end
 			end
@@ -152,7 +164,7 @@ module Diggit
 					if plugin_ok?(a, Analysis)
 						diggit.config.add_analysis(a)
 					else
-						say_status(ERROR, "error loading analysis #{a}", :red)
+						say_error("error loading analysis #{a}")
 					end
 				end
 			end
@@ -179,11 +191,11 @@ module Diggit
 						end
 					rescue => e
 						s[:log][:error] = dump_error(e)
-						say_status(ERROR, "error cloning #{s[:url]}", :red)
+						say_error("error cloning #{s[:url]}")
 					else
 						s[:log][:state] = :cloned
 						s[:log][:error] = {}
-						say_status(DONE, "#{s[:url]} cloned", :blue)
+						say_done("#{s[:url]} cloned")
 					ensure
 						diggit.sources.update(s)
 					end
@@ -206,12 +218,12 @@ module Diggit
 					rescue => e
 						s[:log][:error] = dump_error(e)
 						s[:log][:analyses] = performed_analyses[1..-2]
-						say_status(ERROR, "error performing #{performed_analyses.last} on #{s[:url]}", :red)
+						say_error("error performing #{performed_analyses.last} on #{s[:url]}")
 					else
 						s[:log][:analyses] = performed_analyses
 						s[:log][:state] = :finished
 						s[:log][:error] = {}
-						say_status(DONE, "source #{s[:url]} analyzed", :blue)
+						say_done("source #{s[:url]} analyzed")
 					ensure
 						FileUtils.cd(diggit.root)
 						diggit.sources.update(s)
@@ -224,7 +236,7 @@ module Diggit
 				addons = diggit.config.load_addons
 				globs = {}
 				diggit.config.load_joins(diggit.sources.get_all([], {state: :finished, error: false}), addons, globs).each{ |j| j.run }
-				say_status(DONE, "joins performed", :blue)
+				say_done("joins performed")
 			end
 
 		end
@@ -243,7 +255,7 @@ module Diggit
 					s[:log][:analyses] = []
 					s[:log][:error] = {}
 					diggit.sources.update(s)
-					say_status(DONE, "cleaned analyses on #{s[:url]}", :blue)
+					say_done("cleaned analyses on #{s[:url]}")
 				end
 			end
 
@@ -265,7 +277,7 @@ module Diggit
 				cmd = args[2][:current_command].name
 				unless 'init'.eql?(cmd) || 'help'.eql?(cmd)
 					unless File.exist?(DIGGIT_RC)
-						say_status(ERROR, "this is not a diggit directory", :red)
+						say_error("this is not a diggit directory")
 					else
 						diggit
 					end
@@ -277,7 +289,7 @@ module Diggit
 				FileUtils.touch(DIGGIT_SOURCES)
 				Oj.to_file(DIGGIT_LOG, {})
 				Oj.to_file(DIGGIT_RC, { addons: [], analyses: [], joins: [], options: {} })
-				say_status(DONE, "folder initialized")
+				say_done("Diggit folder successfully initialized")
 			end
 
 			desc 'status', "Display the status of the current diggit folder."
