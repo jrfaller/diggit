@@ -189,9 +189,12 @@ module Diggit
 						else
 							Rugged::Repository::clone_at(s[:url], s[:folder], {
   								transfer_progress: lambda { |total_objects, indexed_objects, received_objects, local_objects, total_deltas, indexed_deltas, received_bytes|
-    								$stderr.print "Transfer in progress : #{received_objects}/#{total_objects}\r"
+    								msg = "Clone of #{s[:url]} in progress : #{received_objects}/#{total_objects} objects received.\r"
+    								$stderr.print msg
+    								@last_message_length = msg.length
 							  }
 							})
+							print " " * @last_message_length + "\r" # clean the line used to output transfer progress
 						end
 					rescue => e
 						s[:log][:error] = dump_error(e)
