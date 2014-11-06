@@ -6,7 +6,7 @@ require 'oj'
 
 module Diggit
 
-	DIGGIT_RC = '.dgitrrc'
+	DIGGIT_RC = '.dgitrc'
 	DIGGIT_LOG = '.dgitlog'
 	DIGGIT_SOURCES = '.dgitsources'
 
@@ -38,7 +38,8 @@ module Diggit
 
 	end
 
-	# Base class for Diggit analyses. Diggit Analyses are applied on each source that has been succesfully cloned
+	# Base class for Diggit analyses. Diggit analyses are applied on each source that has been succesfully cloned. They can access the Diggit addons through the addons attribute.
+	# @see Addon
 	# @abstract Subclass and override run and clean to implement
 	# 	a custom analysis class.
 	# @!attribute [r] source
@@ -48,7 +49,7 @@ module Diggit
 	# @!attribute [r] options
 	# 	@return [Hash] a hash containing the Diggit options.
 	# @!attribute [r] addons
-	# 	@return [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+	# 	@return [Hash{Symbol => Addon}] a hash containing the loaded Diggit addons, indexed by names.
 	# @!attribute globs
 	# 	@return [Hash] a hash shared between all analyses of a source.
 	class Analysis
@@ -58,7 +59,7 @@ module Diggit
 		# @param source [String] the URL of the source to be analyzed.
 		# @param repo [Rugged::Repository] the Rugged Repository object corresponding to the source.
 		# @param options [Hash] a hash containing the Diggit options.
-		# @param addons [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+		# @param addons [Hash{Symbol => Addon}] a hash containing the loaded Diggit addons, indexed by names.
 		# @param globs [Hash] a hash shared between all analyses of a source.
 		def initialize(source, repo, options, addons, globs)
 			@source = source
@@ -82,14 +83,15 @@ module Diggit
 
 	end
 
-	# Base class for Diggit joins. Joins are applied after each source have been analyzed.
+	# Base class for Diggit joins. Joins are applied after each source have been analyzed. They can access the Diggit addons through the addons attribute.
+	# @see Addon
 	# @abstract Subclass and override cleand and run to implement custom Diggit join.
 	# @!attribute [r] sources
 	# 	@return [Array]  an array containing the finished sources.
 	# @!attribute [r] options
 	# 	@return [Hash] a hash containing the Diggit options.
 	# @!attribute [r] addons
-	# 	@return [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+	# 	@return [Hash{Symbol => Addon}] a hash containing the loaded Diggit addons, indexed by names.
 	# @!attribute globs
 	# 	@return [Hash] a hash shared between all analyses of a source.
 	class Join
@@ -98,7 +100,7 @@ module Diggit
 		#
 		# @param sources [Array] an array containing the finished sources.
 		# @param options [Hash] a hash containing the Diggit options.
-		# @param addons [Hash<Symbol, Addon>] a hash containing the loaded Diggit addons, indexed by names.
+		# @param addons [Hash{Symbol => Addon}] a hash containing the loaded Diggit addons, indexed by names.
 		# @param globs [Hash] a hash shared between all analyses of a source.
 		def initialize(sources, options, addons, globs)
 			@sources = sources
@@ -264,11 +266,15 @@ module Diggit
 		end
 
 		def hash(url)
-			{url: url, folder: folder(url), log: @log.log(url)}
+			{url: url, id: id(url), folder: folder(url), log: @log.log(url)}
+		end
+
+		def id(url)
+			url.gsub(/[^[\w-]]+/, "_")
 		end
 
 		def folder(url)
-				File.expand_path(url.gsub(/[^[\w-]]+/, "_"), SOURCES_FOLDER)
+			File.expand_path(id(url), SOURCES_FOLDER)
 		end
 
 	end

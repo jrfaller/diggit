@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
 	spec.name = 'diggit'
-	spec.version = '1.0.1'
+	spec.version = '1.0.2'
 	spec.summary = "A Git repository analysis tool."
 	spec.authors = ["Jean-Rémy Falleri", "Matthieu Foucault"]
 	spec.email = 'jr.falleri@gmail.com'
@@ -18,6 +18,7 @@ END
 	spec.add_runtime_dependency 'rugged', '~> 0.21'
 	spec.add_runtime_dependency 'oj', '~> 2.10'
 	spec.add_runtime_dependency 'thor', '~> 0.19'
+	spec.add_runtime_dependency 'mongo', '~> 1.11'
 	spec.add_development_dependency 'rspec', '~> 3.1'
 	spec.add_development_dependency 'yard', '~> 0.8'
 end
