@@ -25,10 +25,10 @@ end
 class ClocPerFileAnalysis < Diggit::Analysis
 
 	def run
-		commit_oid = @repo.head
-		commit_oid = @options[:cloc][:commit_oid] if options.has_key?(:cloc) && @options[:cloc].has_key?(:commit_oid)
+		commit_oid = @repo.head.to_s
+		commit_oid = @addons[:sources_options][@source]["cloc-commit-id"] if @addons.has_key?(:sources_options) && @addons[:sources_options].has_key?(@source) && @addons[:sources_options][@source].has_key?("cloc-commit-id")
 		@repo.checkout(commit_oid, {:strategy=>[:force,:remove_untracked]})
-		commit_oid.tree.walk_blobs do |root, entry|
+		@repo.lookup(commit_oid).tree.walk_blobs do |root, entry|
 			unless @repo.lookup(entry[:oid]).binary?
 				cloc = `cloc #{root}#{entry[:name]} --progress-rate=0 --quiet --yaml --script-lang=Python,python`
 				unless cloc.empty?
@@ -42,7 +42,7 @@ class ClocPerFileAnalysis < Diggit::Analysis
 		end
 	end
 
-	def clean(source)
-		@addons[:db].db['cloc'].remove({source: source})
+	def clean
+		@addons[:db].db['cloc'].remove({source: @source})
 	end
 end
