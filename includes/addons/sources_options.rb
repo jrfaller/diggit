@@ -14,8 +14,8 @@ class SourcesOptions < Diggit::Addon
 		:sources_options
 	end
 
-	def [](url)
-		@sources_options[url]
+	def method_missing(meth, *args, &block)
+		@sources_options.send meth, *args, &block
 	end
 
 end
