@@ -187,7 +187,11 @@ module Diggit
 						if File.exist?(s[:folder])
 							Rugged::Repository::new(s[:folder])
 						else
-							Rugged::Repository::clone_at(s[:url], s[:folder])
+							Rugged::Repository::clone_at(s[:url], s[:folder], {
+  								transfer_progress: lambda { |total_objects, indexed_objects, received_objects, local_objects, total_deltas, indexed_deltas, received_bytes|
+    								$stderr.print "Transfer in progress : #{received_objects}/#{total_objects}\r"
+							  }
+							})
 						end
 					rescue => e
 						s[:log][:error] = dump_error(e)
