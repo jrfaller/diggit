@@ -240,7 +240,7 @@ module Diggit
 			if source_defs.nil? || source_defs.empty?
 				sources = hashes
 			else
-				sources = source_defs.map{ |d| hash(d) }
+				sources = source_defs.map{ |d| get(d) }
 			end
 			sources = sources.select{ |s| s[:log][:state] == filter[:state] } if (filter.has_key?(:state))
 			sources = sources.select{ |s| s[:log][:error].empty? != filter[:error] } if (filter.has_key?(:error))
