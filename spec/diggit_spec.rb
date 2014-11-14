@@ -14,7 +14,7 @@ RSpec.describe Diggit::Cli::DiggitCli do
 
 	it "should init a diggit folder" do
 		result = capture(:stdout) { Diggit::Cli::DiggitCli.start(["init"]) }
-		expect(result).to include("folder initialized")
+		expect(result).to include("folder successfully initialized")
 		expect(sources).to be_empty
 		expect(log).to be_empty
 		expect(config).to eq({analyses: [], addons: [], joins: [],  options: {}})
