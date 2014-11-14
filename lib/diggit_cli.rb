@@ -37,7 +37,7 @@ module Diggit
 		end
 
 		def status_color(status)
-			if status == Cli::DONE
+			if status == DONE
 				return :green
 			else
 				return :red
