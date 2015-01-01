@@ -4,13 +4,13 @@ A ruby tool to analyse Git repositories
 
 # Installation
 
-Clone diggit using the following command.
+## From a gem
 
-```
-git clone https://github.com/jrfaller/diggit.git
-```
+Just run `gem install diggit`.
 
-The diggit tool is in the lib folder. Don't hesitate to create a link to diggit.rb to be able to launch it in any repository.
+## From the source
+
+Clone diggit using the following command: `git clone https://github.com/jrfaller/diggit.git`. The `dgit` tool is in the `bin` folder.
 
 # Usage
 
@@ -24,7 +24,7 @@ You can add some repositories to be analyzed with the following command: `dgit s
 
 ### Using addons
 
-Addons add features the the diggit tool: for instance capability of writing to a mondodb database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add TestAddon`.
+Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add TestAddon`.
 
 ### Setting-up analyses
 
@@ -36,10 +36,10 @@ A join is performed after all analyses of all repositories have been performed. 
 
 ## Running analyses
 
-Once diggit is configured you can perform the analyses. First you have to perform the clone by using `dgit perform clones`. Then you can launch the analyses by using `dgit perform analyses`. Finally, the joins are executed via the command `dgit perform joins`.
+Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit perform clones`. Then you can launch the analyses by using `dgit perform analyses`. Finally, the joins are executed via the command `dgit perform joins`.
 
 At all time, you can check the status of your diggit folder by using `dgit status`. If you want more info on the status of a given repository, you can use the `dgit sources info https://github.com/jrfaller/diggit.git` command.
 
 ## Cleaning up
 
-If something is going error, you can always delete the results of the joins by using the command `dgit clean joins` and of the analysis with the command `dgit clean analyses`.
+If something is going wrong, you can always delete the results of the joins by using the command `dgit clean joins` and of the analysis with the command `dgit clean analyses`.
