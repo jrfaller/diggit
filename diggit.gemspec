@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
 	spec.name = 'diggit'
-	spec.version = '1.0.2'
+	spec.version = '1.0.3'
 	spec.summary = "A Git repository analysis tool."
 	spec.authors = ["Jean-Rémy Falleri", "Matthieu Foucault"]
 	spec.email = 'jr.falleri@gmail.com'
