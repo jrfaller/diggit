@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-R = nil # fixing SIGPIPE erroe in some cases. See http://hfeild-software.blogspot.fr/2013/01/rinruby-woes.html
+R = nil # fixing SIGPIPE error in some cases. See http://hfeild-software.blogspot.fr/2013/01/rinruby-woes.html
 
 require "rinruby"
 
