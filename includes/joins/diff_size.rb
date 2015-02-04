@@ -24,7 +24,7 @@ class DiffSize < Diggit::Join
 			}
 
 			rubify <- function(data) {
-				return(cbind(data$old_path, data$old_commit, data$new_path, data$new_commit))
+				cbind(data$old_path, data$old_commit, data$new_path, data$new_commit)
 			}
 
 			db <- mongoDbConnect(dbname)
@@ -43,8 +43,6 @@ class DiffSize < Diggit::Join
 			rm_ruby <- rubify(rm)
 			rb_ruby <- rubify(rb)
 		EOS
-		    require "pry"
-    binding.pry
 		write_sample(src, @addons[:R].rs_ruby, 'small')
 		write_sample(src, @addons[:R].rm_ruby, 'medium')
 		write_sample(src, @addons[:R].rb_ruby, 'big')
