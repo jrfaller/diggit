@@ -1,5 +1,4 @@
 # encoding: utf-8
-require "rinruby"
 
 class DiffSize < Diggit::Join
 
@@ -10,26 +9,26 @@ class DiffSize < Diggit::Join
 	end
 
 	def sample(src)
-		R.src = src[:url]
-		R.size = SAMPLE_SIZE
-		R.eval <<-EOS
+    @addons[:R].src = src[:url]
+    @addons[:R].size = SAMPLE_SIZE
+    @addons[:R].dbname = @addons[:db].db.name
+    @addons[:R].eval <<-EOS
 			library(RMongo)
 
 			srcQuery <- function(src) {
-				return(paste('{"source": "', src, '"}', sep=""))
+				paste0('{"source": "', src, '"}')
 			}
 
 			noZeros <- function(data) {
-				return(subset(data,changes>0))
+				subset(data,changes>0)
 			}
 
 			rubify <- function(data) {
-				return(cbind(data$old_path, data$old_commit, data$new_path, data$new_commit))
+				cbind(data$old_path, data$old_commit, data$new_path, data$new_commit)
 			}
 
-			db <- mongoDbConnect('diffstats')
+			db <- mongoDbConnect(dbname)
 			d <- noZeros(dbGetQuery(db, 'diffstats', srcQuery(src), skip=0, limit=0))
-
 			q <- quantile(d$changes)
 
 			s <- subset(d,changes > 0 & changes <= q[3])
@@ -44,9 +43,9 @@ class DiffSize < Diggit::Join
 			rm_ruby <- rubify(rm)
 			rb_ruby <- rubify(rb)
 		EOS
-		write_sample(src, R.rs_ruby, 'small')
-		write_sample(src, R.rm_ruby, 'medium')
-		write_sample(src, R.rb_ruby, 'big')
+		write_sample(src, @addons[:R].rs_ruby, 'small')
+		write_sample(src, @addons[:R].rm_ruby, 'medium')
+		write_sample(src, @addons[:R].rb_ruby, 'big')
 	end
 
 	def write_sample(src, sample, type)
