@@ -15,8 +15,8 @@ class ClocAnalysis < Diggit::Analysis
 		end
 	end
 
-	def clean(source)
-		@addons[:db].db['cloc'].remove({source: source})
+	def clean
+		@addons[:db].db['cloc'].remove({source: @source})
 	end
 
 end
