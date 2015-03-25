@@ -69,6 +69,10 @@ module Diggit
 			@globs = globs
 		end
 
+		def id(url)
+			url.gsub(/[^[\w-]]+/, "_")
+		end
+
 		# Run the analysis.
 		# @abstract
 		def run
