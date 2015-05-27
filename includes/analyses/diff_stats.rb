@@ -25,7 +25,7 @@ class DiffStats < Diggit::Analysis
 						patch = @repo.lookup(sha_new).diff(@repo.lookup(sha_old))
 						changes = patch.changes
 						edit = {source: @source, old_path: old_path, new_path: new_path, old_commit: commit.oid, new_commit: parent1.oid, changes: changes}
-						col.insert(edit)
+						col.insert_one(edit)
 					end
 				end
 			end
@@ -33,7 +33,7 @@ class DiffStats < Diggit::Analysis
 	end
 
   def clean
-    @addons[:db].db['diffstats'].remove({source: @source})
+    @addons[:db].db['diffstats'].find({source: @source}).delete_many();
   end
 
 end

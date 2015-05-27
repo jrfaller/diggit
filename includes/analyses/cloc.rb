@@ -11,12 +11,12 @@ class ClocAnalysis < Diggit::Analysis
 			yaml.delete('header')
 			output = { source: @source, cloc: yaml }
 			col = @addons[:db].db['cloc']
-			col.insert(output)
+			col.insert_one(output)
 		end
 	end
 
 	def clean
-		@addons[:db].db['cloc'].remove({source: @source})
+		@addons[:db].db['cloc'].find({source: @source}).delete_many();
 	end
 
 end
@@ -41,11 +41,11 @@ class ClocPerFileAnalysis < Diggit::Analysis
 			end
 			output = { source: @source, commit_oid: commit_oid.to_s, cloc: cloc_a }
 			col = @addons[:db].db['cloc-file']
-			col.insert(output)
+			col.insert_one(output)
 		end
 	end
 
 	def clean
-		@addons[:db].db['cloc-file'].remove({source: @source})
+		@addons[:db].db['cloc-file'].find({source: @source}).delete_many();
 	end
 end
