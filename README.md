@@ -1,4 +1,5 @@
 # Diggit
+![Build status](https://travis-ci.org/jrfaller/diggit.svg?branch=master)
 
 A neat ruby tool to analyse Git repositories
 
