@@ -20,6 +20,7 @@ END
 	spec.add_runtime_dependency 'thor', '~> 0.19'
 	spec.add_runtime_dependency 'mongo', '~> 1.11'
   spec.add_runtime_dependency 'rinruby', '~> 2.0'
+  spec.add_development_dependency 'rake', '~> 10.4'
 	spec.add_development_dependency 'rspec', '~> 3.1'
 	spec.add_development_dependency 'yard', '~> 0.8'
 end
