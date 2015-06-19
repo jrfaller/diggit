@@ -1,6 +1,6 @@
 # Diggit
 
-A ruby tool to analyse Git repositories
+A neat ruby tool to analyse Git repositories
 
 # Installation
 
