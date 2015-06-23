@@ -1,5 +1,4 @@
-# Diggit
-![Build status](https://travis-ci.org/jrfaller/diggit.svg?branch=master)
+# Diggit ![Build status](https://travis-ci.org/jrfaller/diggit.svg?branch=master) [![Inline docs](http://inch-ci.org/github/jrfaller/diggit.svg?branch=master)](http://inch-ci.org/github/jrfaller/diggit)
 
 A neat ruby tool to analyse Git repositories
 
