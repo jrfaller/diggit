@@ -1,5 +1,7 @@
-require 'oj'
+require 'coveralls'
+Coveralls.wear!
 
+require 'oj'
 require_relative('../lib/diggit_cli')
 
 $0 = "grit"

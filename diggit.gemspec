@@ -23,4 +23,5 @@ END
   spec.add_development_dependency 'rake', '~> 10.4'
 	spec.add_development_dependency 'rspec', '~> 3.1'
 	spec.add_development_dependency 'yard', '~> 0.8'
+  spec.add_development_dependency 'coverall', '~> 0.8'
 end
