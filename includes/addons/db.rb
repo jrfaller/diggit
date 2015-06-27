@@ -13,10 +13,9 @@ class Db < Diggit::Addon
 
 	def initialize(*args)
 		super
-		client = Mongo::MongoClient.new
 		database = DEFAULT_DB
 		database = @options[:mongo][:database] if @options.has_key?(:mongo) && @options[:mongo].has_key?(:database)
-		@db = client[database]
+		@db = Mongo::Client.new(['127.0.0.1:27017'], :database => database);
 	end
 
 	def name
