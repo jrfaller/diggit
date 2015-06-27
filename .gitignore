@@ -5,6 +5,8 @@
 /InstalledFiles
 /pkg/
 /spec/reports/
+/spec/dgit/.dgit/
+/spec/dgit/sources/
 /test/tmp/
 /test/version_tmp/
 /tmp/

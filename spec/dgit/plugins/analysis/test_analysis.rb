@@ -1,13 +1,11 @@
 # encoding: utf-8
 
 class TestAnalysis < Diggit::Analysis
-
 	def run
-		puts "TestAnalysis performed"
+		@state = "runned"
 	end
 
 	def clean
-		puts "TestAnalysis cleaned on #{@source}"
+		@state = "cleaned"
 	end
-
 end

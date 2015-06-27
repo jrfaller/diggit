@@ -8,8 +8,7 @@
 # 	@return [String] the absolute path of the output folder.
 # @!attribute [r] tmp
 # 	@return [String] the absolute path of the temporary output folder.
-class Output < Diggit::Addon
-
+class Out < Diggit::Addon
 	attr_reader :out, :tmp
 
 	DEFAULT_OUT = 'out'
@@ -19,9 +18,9 @@ class Output < Diggit::Addon
 		super
 
 		out = DEFAULT_OUT
-		out = @options[:output][:out] if @options.has_key?(:output) && @options[:output].has_key?(:out)
+		out = @options[:output][:out] if @options.key?(:output) && @options[:output].key?(:out)
 		tmp = DEFAULT_TMP
-		tmp = @options[:output][:tmp] if @options.has_key?(:output) && @options[:output].has_key?(:tmp)
+		tmp = @options[:output][:tmp] if @options.key?(:output) && @options[:output].key?(:tmp)
 
 		@out = File.absolute_path(out)
 		@tmp = File.absolute_path(tmp)
@@ -29,9 +28,4 @@ class Output < Diggit::Addon
 		FileUtils.mkdir_p(@out) unless File.exist?(@out)
 		FileUtils.mkdir_p(@tmp) unless File.exist?(@tmp)
 	end
-
-	def name
-		:output
-	end
-
 end

@@ -1,13 +1,7 @@
 # encoding: utf-8
 
 class TestAddon < Diggit::Addon
-
-	def initialize(*args)
-		super
+	def foo
+		"Foo."
 	end
-
-	def name
-		:test
-	end
-
 end

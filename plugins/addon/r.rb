@@ -4,18 +4,13 @@ R = nil # fixing SIGPIPE error in some cases. See http://hfeild-software.blogspo
 
 require "rinruby"
 
-class RWrapper < Diggit::Addon
-
+class R < Diggit::Addon
 	def initialize(*args)
-		@r = RinRuby.new({:interactive=>false,:echo=>false})
-	end
-
-	def name
-		:R
+		super(args)
+		@r = RinRuby.new({ interactive: false, echo: true })
 	end
 
 	def method_missing(meth, *args, &block)
 		@r.send meth, *args, &block
 	end
-
 end

@@ -1,6 +1,6 @@
-# Diggit ![Build Status](https://travis-ci.org/jrfaller/diggit.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/jrfaller/diggit/badge.svg?branch=master)](https://coveralls.io/r/jrfaller/diggit?branch=master) [![Inline docs](http://inch-ci.org/github/jrfaller/diggit.svg?branch=master)](http://inch-ci.org/github/jrfaller/diggit)
+# Diggit
 
-A neat ruby tool to analyse Git repositories
+A ruby tool to analyze Git repositories
 
 # Installation
 
@@ -36,10 +36,6 @@ A join is performed after all analyses of all repositories have been performed. 
 
 ## Running analyses
 
-Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit perform clones`. Then you can launch the analyses by using `dgit perform analyses`. Finally, the joins are executed via the command `dgit perform joins`.
+Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit clones perform`. Then you can launch the analyses by using `dgit analyses perform`. Finally, the joins are executed via the command `dgit joins perform`. You can use the `mode` option to handle the cleaning of joins or analyses.
 
-At all time, you can check the status of your diggit folder by using `dgit status`. If you want more info on the status of a given repository, you can use the `dgit sources info https://github.com/jrfaller/diggit.git` command.
-
-## Cleaning up
-
-If something is going wrong, you can always delete the results of the joins by using the command `dgit clean joins` and of the analysis with the command `dgit clean analyses`.
+At all time, you can check the status of your diggit folder by using `dgit status`.
