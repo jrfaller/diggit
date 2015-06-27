@@ -14,6 +14,8 @@ Clone diggit using the following command: `git clone https://github.com/jrfaller
 
 # Usage
 
+Don't forget that dgit binary has an associated help that can be consulted using `dgit help`.
+
 ## Configuration
 
 The diggit tool is designed to help you analyze software repositories. Firstly you have to create a new folder in which you launch the `dgit init` command. This way, the folder becomes a diggit folder in which you can configure repositories and analyses.
