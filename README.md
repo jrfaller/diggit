@@ -1,4 +1,4 @@
-# Diggit [![Build Status](https://travis-ci.org/jrfaller/diggit.svg?branch=master)](https://travis-ci.org/jrfaller/diggit) [![Coverage Status](https://coveralls.io/repos/jrfaller/diggit/badge.svg?branch=master)](https://coveralls.io/r/jrfaller/diggit?branch=master) [![Inline docs](http://inch-ci.org/github/jrfaller/diggit.svg?branch=master)](http://inch-ci.org/github/jrfaller/diggit)
+# Diggit [![Build Status](https://travis-ci.org/jrfaller/diggit.svg?branch=master)](https://travis-ci.org/jrfaller/diggit) [![Coverage Status](https://coveralls.io/repos/jrfaller/diggit/badge.svg?branch=master)](https://coveralls.io/r/jrfaller/diggit?branch=master) [![Inline docs](http://inch-ci.org/github/jrfaller/diggit.svg?branch=master)](http://inch-ci.org/github/jrfaller/diggit) [![Requirements Status](https://requires.io/github/jrfaller/diggit/requirements.svg?branch=master)](https://requires.io/github/jrfaller/diggit/requirements/?branch=master)
 
 A ruby tool to analyze Git repositories
 
