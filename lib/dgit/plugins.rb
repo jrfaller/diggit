@@ -85,6 +85,21 @@ module Diggit
 	# @abstract Subclass and override run and clean to implement a custom join class.
 	# @!attribute [rw] sources
 	# 	@return [Array<Source>] the sources to be joined.
+	# @example A sample join using an addon.
+	# 	class JoinWithAddon < Diggit::Join
+	# 		require_addons "db"
+	#
+	# 		def run
+	# 			db.do_something
+	# 			puts @options
+	# 			puts @sources
+	# 			puts "Runned!"
+	# 		end
+	#
+	# 		def clean
+	# 			puts "Cleaned!"
+	# 		end
+	# 	end
 	class Join < Runnable
 		attr_accessor :sources
 
@@ -114,6 +129,21 @@ module Diggit
 	# @abstract Subclass and override run and clean to implement a custom analysis class.
 	# @!attribute [rw] source
 	# 	@return [Source] the source to be analyzed.
+	# @example A sample analysis using an addon
+	# 	class AnalysisWithAddon < Diggit::Analysis
+	# 		require_addons "db"
+	#
+	# 		def run
+	# 			db.do_something
+	# 			puts @options
+	# 			puts @source
+	# 			puts "Runned!"
+	# 		end
+	#
+	# 		def clean
+	# 			puts "Cleaned!"
+	# 		end
+	# 	end
 	class Analysis < Runnable
 		attr_accessor :source
 
