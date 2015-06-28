@@ -360,14 +360,15 @@ module Diggit
 		@diggit = nil
 
 		# Returns the diggit instance.
-		# @return Dig the instance.
+		# @return [Dig] the instance.
 		def self.it
 			fail "Diggit has not been initialized." if @diggit.nil?
 			@diggit
 		end
 
-		# Initialize and return the diggit instance.
-		# @return Dig the instance.
+		# Initialize and return the diggit instance into the given folder.
+		# @param folder the path to the folder.
+		# @return [Dig] the instance.
 		def self.init(folder = '.')
 			@diggit = Dig.new(folder)
 			@diggit.load_options
@@ -378,6 +379,7 @@ module Diggit
 
 		# Initialize a folder to be a diggit folder by creating an empty configuration.
 		# @param folder the path to the folder.
+		# @return [void]
 		def self.init_dir(folder = '.')
 			dgit_folder = File.expand_path(DGIT_FOLDER, folder)
 			FileUtils.mkdir(dgit_folder)
@@ -388,12 +390,15 @@ module Diggit
 			FileUtils.mkdir(File.expand_path('sources', folder))
 		end
 
+		# Constructor. Should not be called directly.
 		def initialize(folder)
 			fail "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
 			@plugin_loader = PluginLoader.instance
 			@folder = folder
 		end
 
+		# Load the journal from .dgit/journal
+		# @return [void]
 		def load_journal
 			url_array = []
 			IO.readlines(config_path(DGIT_SOURCES)).each { |l| url_array << l.strip }
@@ -402,24 +407,34 @@ module Diggit
 			@journal = Journal.new(hash)
 		end
 
+		# Save the journal to .dgit/journal
+		# @return [void]
 		def save_journal
 			hash = @journal.to_hash
 			File.open(config_path(DGIT_SOURCES), "w") { |f| hash[:urls].each { |u| f.puts(u) } }
 			Oj.to_file(config_path(DGIT_JOURNAL), { sources: hash[:sources], workspace: hash[:workspace] })
 		end
 
+		# Load the options from .dgit/options
+		# @return [void]
 		def load_options
 			@options = Oj.load_file(config_path(DGIT_OPTIONS))
 		end
 
+		# Save the options to .dgit/options
+		# @return [void]
 		def save_options
 			Oj.to_file(config_path(DGIT_OPTIONS), options)
 		end
 
+		# Load the config from .dgit/config
+		# @return [void]
 		def load_config
 			@config = Config.new(Oj.load_file(config_path(DGIT_CONFIG)))
 		end
 
+		# Save the config to .dgit/config
+		# @return [void]
 		def save_config
 			config_hash = @config.to_hash
 			Oj.to_file(config_path(DGIT_CONFIG), config_hash)
