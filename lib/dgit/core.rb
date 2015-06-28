@@ -331,6 +331,21 @@ module Diggit
 		end
 	end
 
+	# Main diggit class.
+	# It must be runned in a folder containing a `.dgit` folder with a proper configuration.
+	# Access configuration, options, sources and journal from this object.
+	# It implements the singleton pattern.
+	# You can initialize it via {.init} and retrieve the instance via {.it}.
+	# @!attribute [r] config
+	# 	@return [Config] the config (serialized in .dgit/config).
+	# @!attribute [r] options
+	# 	@return [Hash<String,Object>] the options (serialized in .dgit/options).
+	# @!attribute [r] journal
+	# 	@return [Journal] the journal (serialized in .dgit/journal).
+	# @!attribute [r] folder
+	# 	@return [String] the folder in which diggit is running.
+	# @!attribute [r] plugin_loader
+	# 	@return [PluginLoader] utility classes to load plugins.
 	class Dig
 		DGIT_FOLDER = ".dgit"
 		DGIT_SOURCES = "sources"
@@ -338,15 +353,21 @@ module Diggit
 		DGIT_OPTIONS = "options"
 		DGIT_JOURNAL = "journal"
 
+		private_constant :DGIT_SOURCES, :DGIT_CONFIG, :DGIT_OPTIONS, :DGIT_JOURNAL
+
 		attr_reader :config, :options, :journal, :plugin_loader, :folder
 
 		@diggit = nil
 
+		# Returns the diggit instance.
+		# @return Dig the instance.
 		def self.it
 			fail "Diggit has not been initialized." if @diggit.nil?
 			@diggit
 		end
 
+		# Initialize and return the diggit instance.
+		# @return Dig the instance.
 		def self.init(folder = '.')
 			@diggit = Dig.new(folder)
 			@diggit.load_options
@@ -355,6 +376,8 @@ module Diggit
 			@diggit
 		end
 
+		# Initialize a folder to be a diggit folder by creating an empty configuration.
+		# @param folder the path to the folder.
 		def self.init_dir(folder = '.')
 			dgit_folder = File.expand_path(DGIT_FOLDER, folder)
 			FileUtils.mkdir(dgit_folder)

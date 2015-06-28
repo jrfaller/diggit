@@ -51,25 +51,28 @@ module Diggit
 
 		# Run the runnable.
 		# @abstract This method must be overrided.
+		# @return [void]
 		def run
 		end
 
 		# Clean the runnable.
 		# @abstract This method must be overrided.
+		# @return [void]
 		def clean
-		end
-
-		def self.required_addons
-			return [] if @required_addons.nil?
-			@required_addons
 		end
 
 		# Add an addon as a required addon.
 		#
 		# @param names Array<String> the names of addons to require.
 		# 	They correspond to the name of their class with underscore case.
+		# @return [void]
 		def self.require_addons(*names)
 			@required_addons = names
+		end
+
+		def self.required_addons
+			return [] if @required_addons.nil?
+			@required_addons
 		end
 	end
 
@@ -90,17 +93,18 @@ module Diggit
 			@sources = []
 		end
 
-		def self.required_analyses
-			return [] if @required_analyses.nil?
-			@required_analyses
-		end
-
-		# Add an analysis as a required anlaisys.
+		# Add an analysis as a required analysis.
 		#
 		# @param names Array<String> the names of analyses to require.
 		# 	They correspond to the name of their class with underscore case.
+		# @return [void]
 		def self.require_analyses(*names)
 			@required_analyses = names
+		end
+
+		def self.required_analyses
+			return [] if @required_analyses.nil?
+			@required_analyses
 		end
 	end
 
