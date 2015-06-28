@@ -337,11 +337,11 @@ module Diggit
 	# It implements the singleton pattern.
 	# You can initialize it via {.init} and retrieve the instance via {.it}.
 	# @!attribute [r] config
-	# 	@return [Config] the config (serialized in .dgit/config).
+	# 	@return [Config] the config.
 	# @!attribute [r] options
-	# 	@return [Hash<String,Object>] the options (serialized in .dgit/options).
+	# 	@return [Hash<String,Object>] the options.
 	# @!attribute [r] journal
-	# 	@return [Journal] the journal (serialized in .dgit/journal).
+	# 	@return [Journal] the journal.
 	# @!attribute [r] folder
 	# 	@return [String] the folder in which diggit is running.
 	# @!attribute [r] plugin_loader
@@ -390,14 +390,30 @@ module Diggit
 			FileUtils.mkdir(File.expand_path('sources', folder))
 		end
 
+		# Return the path of the given config file
+		# @param name [String] name of the file
+		# @return [String] the path to the file.
+		def config_path(name)
+			File.expand_path(name, File.expand_path(DGIT_FOLDER, @folder))
+		end
+
+		# Return the path of the given file in the diggit folder
+		# @param name [String] name of the file
+		# @return [String] the path to the file.
+		def file_path(name)
+			File.expand_path(name, @folder)
+		end
+
 		# Constructor. Should not be called directly.
+		# Use {.init} and {.it} instead.
+		# @return [Dig] a diggit object.
 		def initialize(folder)
 			fail "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
 			@plugin_loader = PluginLoader.instance
 			@folder = folder
 		end
 
-		# Load the journal from .dgit/journal
+		# Load the journal from +.dgit/journal+
 		# @return [void]
 		def load_journal
 			url_array = []
@@ -407,7 +423,7 @@ module Diggit
 			@journal = Journal.new(hash)
 		end
 
-		# Save the journal to .dgit/journal
+		# Save the journal to +.dgit/journal+
 		# @return [void]
 		def save_journal
 			hash = @journal.to_hash
@@ -415,37 +431,45 @@ module Diggit
 			Oj.to_file(config_path(DGIT_JOURNAL), { sources: hash[:sources], workspace: hash[:workspace] })
 		end
 
-		# Load the options from .dgit/options
+		# Load the options from +.dgit/options+
 		# @return [void]
 		def load_options
 			@options = Oj.load_file(config_path(DGIT_OPTIONS))
 		end
 
-		# Save the options to .dgit/options
+		# Save the options to +.dgit/options+
 		# @return [void]
 		def save_options
 			Oj.to_file(config_path(DGIT_OPTIONS), options)
 		end
 
-		# Load the config from .dgit/config
+		# Load the config from +.dgit/config+
 		# @return [void]
 		def load_config
 			@config = Config.new(Oj.load_file(config_path(DGIT_CONFIG)))
 		end
 
-		# Save the config to .dgit/config
+		# Save the config to +.dgit/config+
 		# @return [void]
 		def save_config
 			config_hash = @config.to_hash
 			Oj.to_file(config_path(DGIT_CONFIG), config_hash)
 		end
 
+		# Clone the repository of all sources with the given source ids.
+		# @param source_ids [Array<Integer>] the ids of the sources.
+		# @return [void]
 		def clone(*source_ids)
 			@journal.sources_by_ids(*source_ids).select(&:new?).each(&:clone)
 		ensure
 			save_journal
 		end
 
+		# Perform the given analyses on sources with the given ids using the given mode.
+		# @param source_ids [Array<Integer>] the ids of the sources.
+		# @param analyses [Array<String>] the names of the analyses.
+		# @param mode [Symbol] the mode: +:run+, +:rerun+ or +:clean+.
+		# @return [void]
 		def analyze(source_ids = [], analyses = [], mode = :run)
 			@journal.sources_by_ids(*source_ids).select(&:cloned?).each do |s|
 				@config.get_analyses(*analyses).each do |klass|
@@ -457,6 +481,23 @@ module Diggit
 				end
 			end
 		end
+
+		# Perform the given joins on sources with the given ids using the given mode.
+		# @param source_ids [Array<Integer>] the ids of the sources.
+		# @param joins [Array<String>] the names of the analyses.
+		# @param mode [Symbol] the mode: +:run+, +:rerun+ or +:clean+.
+		# @return [void]
+		def join(source_ids = [], joins = [], mode = :run)
+			@config.get_joins(*joins).each do |klass|
+				j = klass.new(@options)
+				j.clean if clean_mode?(mode)
+				source_array = @journal.sources_by_ids(*source_ids)
+						.select { |s| s.cloned? && s.analyses_performed?(*klass.required_analyses) }
+				run_join(j, source_array) if run_mode?(mode) && !source_array.empty?
+			end
+		end
+
+			private
 
 		def clean_mode?(mode)
 			mode == :rerun || mode == :clean
@@ -485,16 +526,6 @@ module Diggit
 			save_journal
 		end
 
-		def join(source_ids = [], joins = [], mode = :run)
-			@config.get_joins(*joins).each do |klass|
-				j = klass.new(@options)
-				j.clean if clean_mode?(mode)
-				source_array = @journal.sources_by_ids(*source_ids)
-						.select { |s| s.cloned? && s.analyses_performed?(*klass.required_analyses) }
-				run_join(j, source_array) if run_mode?(mode) && !source_array.empty?
-			end
-		end
-
 		def run_join(j, source_array)
 			j.sources = source_array
 			j.run
@@ -504,14 +535,6 @@ module Diggit
 			@journal.join_error = e
 		ensure
 			save_journal
-		end
-
-		def config_path(name)
-			File.expand_path(name, File.expand_path(DGIT_FOLDER, @folder))
-		end
-
-		def file_path(name)
-			File.expand_path(name, @folder)
 		end
 	end
 end
