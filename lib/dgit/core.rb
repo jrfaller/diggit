@@ -6,16 +6,22 @@ require 'singleton'
 require_relative 'formatador'
 
 class String
+	# Returns a underscore cased version of the string.
+	# @return [String]
 	def underscore
 		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
 				.gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
 	end
 
+	# Returns a camel cased version of the string.
+	# @return [String]
 	def camel_case
 		return self if self !~ /_/ && self =~ /[A-Z]+.*/
 		split('_').map(&:capitalize).join
 	end
 
+	# Returns a version of the string that can be safely used as a folder name.
+	# @return [string]
 	def id
 		gsub(/[^[\w-]]+/, "_")
 	end
@@ -268,11 +274,23 @@ module Diggit
 		end
 	end
 
+	# Class to handle loading of diggit plugins.
+	# Diggit plugins are defined in camel cased classes derived from Plugin.
+	# Their name is the underscore cased version of the class name (example +MyPlugin+ becomes +my_plugin+).
+	# It uses a singleton pattern, so you have to create an instance like that:
+	# @example
+	# 	PluginLoader.instance
+	# @see Plugin
 	class PluginLoader
 		include Singleton
 
 		PLUGINS_TYPES = [:addon, :analysis, :join]
 
+		# Load the plugin with the given name and type.
+		# @param name [String] the name of the plugin
+		# @param type [Symbol] the type of the plugin: +:addon+, +:analysis+ or +:join+.
+		# @param instance [Boolean] +true+ for retrieving an instance or +false+ for retrieving the class.
+		# @return [Plugin, Class] the instance or class of the plugin.
 		def load_plugin(name, type, instance = false)
 			plugin = search_plugin(name, type)
 			if plugin
@@ -285,6 +303,18 @@ module Diggit
 				fail "Plugin #{name} not found."
 			end
 		end
+
+		def self.plugin_path(name, type, root)
+			File.expand_path("#{name}.rb", File.expand_path(type.to_s, File.expand_path('plugins', root)))
+		end
+
+		# Constructor. Should not be called directly. Use {.instance} instead.
+		# @return [PluginLoader]
+		def initialize
+			@plugins = {}
+		end
+
+			private
 
 		def search_plugin(name, type)
 			plugin = nil
@@ -320,14 +350,6 @@ module Diggit
 				found = false
 			end
 			found
-		end
-
-		def self.plugin_path(name, type, root)
-			File.expand_path("#{name}.rb", File.expand_path(type.to_s, File.expand_path('plugins', root)))
-		end
-
-		def initialize
-			@plugins = {}
 		end
 	end
 
