@@ -3,6 +3,7 @@
 ### Version 2.0.1
 * Added a lot of documentation
 * Now the `init` command creates the directory for plugins and skips creating already existing folders
+* RuboCop is now launched by the default rake task
 
 ## Version 2.0.0 (Beardfish)
 * huge refactoring of the code
