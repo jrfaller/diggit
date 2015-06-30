@@ -84,17 +84,18 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.config.add_analysis("test_analysis")
 		Diggit::Dig.it.analyze
 		# expect(TestAnalysis.state).to eq("runned")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to include("test_analysis")
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to include("test_analysis")
 	end
 
 	it "should handle analyses with error" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].error?).to be true
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].error[:message]).to eq("Error!")
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.all_analyses).to include("test_analysis")
+		expect(src.error?).to be true
+		expect(src.error[:message]).to eq("Error!")
 	end
 
 	it "should perform joins" do

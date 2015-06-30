@@ -74,45 +74,16 @@ module Diggit
 			@entry[:state] == :cloned
 		end
 
-		def add_performed_analysis(name)
-			@entry[:performed_analyses] << name
+		def all_analyses
+			performed_analyses + ongoing_analyses
 		end
 
-		def analysis_performed?(name)
-			@entry[:performed_analyses].include?(name)
+		def performed_analyses
+			@entry[:performed_analyses]
 		end
 
-		def analyses_performed?(*names)
-			(names - @entry[:performed_analyses]).empty?
-		end
-
-		def del_performed_analysis(name)
-			@entry[:performed_analyses].delete_if { |a| a == name }
-		end
-
-		def add_ongoing_analysis(name)
-			@entry[:ongoing_analyses].include?(name)
-		end
-
-		def del_ongoing_analysis(name)
-			@entry[:ongoing_analyses].delete_if { |a| a == name }
-		end
-
-		def analysis_ongoing?(name)
-			@entry[:ongoing_analyses].include?(name)
-		end
-
-		def analyses_ongoing?(*names)
-			(names - @entry[:ongoing_analyses]).empty?
-		end
-
-		def analysis?(name)
-			analysis_ongoing?(name) || analysis_performed?(name)
-		end
-
-		def del_analysis(name)
-			del_ongoing_analysis(name)
-			del_performed_analysis(name)
+		def ongoing_analyses
+			@entry[:ongoing_analyses]
 		end
 
 		def clone
@@ -510,8 +481,8 @@ module Diggit
 					a = klass.new(@options)
 					s.load_repository
 					a.source = s
-					clean_analysis(s, a) if clean_mode?(mode) && s.analysis?(a.name)
-					run_analysis(s, a) if run_mode?(mode) && !s.analysis_performed?(a.name)
+					clean_analysis(s, a) if clean_mode?(mode) && s.all_analyses.include?(a.name)
+					run_analysis(s, a) if run_mode?(mode) && !s.performed_analyses.include?(a.name)
 				end
 			end
 		end
@@ -525,8 +496,9 @@ module Diggit
 			@config.get_joins(*joins).each do |klass|
 				j = klass.new(@options)
 				j.clean if clean_mode?(mode)
-				source_array = @journal.sources_by_ids(*source_ids)
-						.select { |s| s.cloned? && s.analyses_performed?(*klass.required_analyses) }
+				source_array = @journal.sources_by_ids(*source_ids).select do |s|
+					s.cloned? && (klass.required_analyses - s.performed_analyses).empty?
+				end
 				run_join(j, source_array) if run_mode?(mode) && !source_array.empty?
 			end
 		end
@@ -549,10 +521,10 @@ module Diggit
 		end
 
 		def run_analysis(s, a)
-			s.add_ongoing_analysis(a.name)
+			s.ongoing_analyses << a.name
 			a.run
-			s.del_ongoing_analysis(a.name)
-			s.add_performed_analysis(a.name)
+			s.ongoing_analyses.pop
+			s.performed_analyses << a.name
 		rescue => e
 			Log.error "Error applying analysis #{a.name} on #{s.url}"
 			s.error = Journal.dump_error(e)

@@ -71,6 +71,16 @@ command :sources do |c|
 			File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
 		end
 	end
+	c.desc 'Display information on a source'
+	c.arg_name 'id'
+	c.command :info do |info|
+		info.action do |_global_options, _options, args|
+			src = Diggit::Dig.it.journal.sources_by_ids(args.to_i)
+			url = "URL: #{src.url}"
+			src.error? ? Log.error(url) : Log.info(url)
+			Log.info "State: #{src.state}"
+		end
+	end
 	c.default_command :list
 end
 
