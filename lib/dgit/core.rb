@@ -416,7 +416,7 @@ module Diggit
 				Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), {})
 			end
 			FileUtils.mkdir(File.expand_path('sources', folder)) unless File.exist?(File.expand_path('sources', folder))
-			unless File.exist?(File.expand_path("plugins",folder))
+			unless File.exist?(File.expand_path("plugins", folder))
 				FileUtils.mkdir_p(File.expand_path("plugins", folder))
 				FileUtils.mkdir_p(File.expand_path("plugins/analysis", folder))
 				FileUtils.mkdir_p(File.expand_path("plugins/addon", folder))
