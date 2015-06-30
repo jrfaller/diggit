@@ -4,6 +4,8 @@
 * Added a lot of documentation
 * Now the `init` command creates the directory for plugins and skips creating already existing folders
 * RuboCop is now launched by the default rake task
+* Fixed plugins not shipped with the gem
+* Removed useless dependency on `mongo`
 
 ## Version 2.0.0 (Beardfish)
 * huge refactoring of the code
