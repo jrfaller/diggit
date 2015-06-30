@@ -1,5 +1,9 @@
 # Changelog of Diggit
 
+### Version 2.0.1
+* Added a lot of documentation
+* Now the `init` command creates the directory for plugins and skips creating already existing folders
+
 ## Version 2.0.0 (Beardfish)
 * huge refactoring of the code
 * now addons are lazy loaded
