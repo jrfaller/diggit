@@ -354,7 +354,7 @@ module Diggit
 	end
 
 	# Main diggit class.
-	# It must be runned in a folder containing a `.dgit` folder with a proper configuration.
+	# It must be runned in a folder containing a +.dgit+ folder with a proper configuration.
 	# Access configuration, options, sources and journal from this object.
 	# It implements the singleton pattern.
 	# You can initialize it via {.init} and retrieve the instance via {.it}.
