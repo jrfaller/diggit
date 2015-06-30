@@ -400,16 +400,28 @@ module Diggit
 		end
 
 		# Initialize a folder to be a diggit folder by creating an empty configuration.
+		# It creates a +.dgit+ folder containing a +journal+, +config+, +options+ files.
+		# It creates a +sources+ folder.
+		# It creates a +plugins+ folder.
+		# Directory creation is skipped if folder already exist.
 		# @param folder the path to the folder.
 		# @return [void]
 		def self.init_dir(folder = '.')
 			dgit_folder = File.expand_path(DGIT_FOLDER, folder)
-			FileUtils.mkdir(dgit_folder)
-			Oj.to_file(File.expand_path(DGIT_CONFIG, dgit_folder), Config.empty_config)
-			Oj.to_file(File.expand_path(DGIT_OPTIONS, dgit_folder), {})
-			FileUtils.touch(File.expand_path(DGIT_SOURCES, dgit_folder))
-			Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), {})
-			FileUtils.mkdir(File.expand_path('sources', folder))
+			unless File.exist?(dgit_folder)
+				FileUtils.mkdir(dgit_folder)
+				Oj.to_file(File.expand_path(DGIT_CONFIG, dgit_folder), Config.empty_config)
+				Oj.to_file(File.expand_path(DGIT_OPTIONS, dgit_folder), {})
+				FileUtils.touch(File.expand_path(DGIT_SOURCES, dgit_folder))
+				Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), {})
+			end
+			FileUtils.mkdir(File.expand_path('sources', folder)) unless File.exist?(File.expand_path('sources', folder))
+			unless File.exist?(File.expand_path("plugins",folder))
+				FileUtils.mkdir_p(File.expand_path("plugins", folder))
+				FileUtils.mkdir_p(File.expand_path("plugins/analysis", folder))
+				FileUtils.mkdir_p(File.expand_path("plugins/addon", folder))
+				FileUtils.mkdir_p(File.expand_path("plugins/join", folder))
+			end
 		end
 
 		# Return the path of the given config file
