@@ -80,13 +80,14 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
 	end
 
-	it "should perform analyses" do
+	it "should perform analyses in order" do
 		Diggit::Dig.it.config.add_analysis("test_analysis")
+		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
 		Diggit::Dig.it.analyze
 		# expect(TestAnalysis.state).to eq("runned")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to include("test_analysis")
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to include("test_analysis")
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 	end
 
 	it "should handle analyses with error" do
