@@ -41,3 +41,10 @@ Style/Documentation:
 
 Style/MultilineOperationIndentation:
   EnforcedStyle: indented
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/Copyright:
+  Enabled: true
+  Notice: '^.*Copyright.*'
