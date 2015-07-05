@@ -21,28 +21,41 @@
 require 'formatador'
 
 class Formatador
-	def self.info_i(str, indent = 1)
-		info("#{'\t' * indent}#{str}")
+	@level = :normal
+
+	class << self
+		attr_accessor :level
 	end
 
 	def self.info(str)
-		Formatador.display_line(str)
+		Formatador.display_line(str) if visible(__method__)
 	end
 
-	def self.ok_i(str, indent = 1)
-		ok("#{'\t' * indent}#{str}")
+	def self.debug(str)
+		Formatador.display_line(str) if visible(__method__)
 	end
 
 	def self.ok(str)
-		Formatador.display_line("[green]#{str}[/]")
+		Formatador.display_line("[green]#{str}[/]") if visible(__method__)
 	end
 
-	def self.error_i(str, indent = 1)
-		error("#{'\t' * indent}#{str}")
+	def self.warn(str)
+		Formatador.display_line("[yellow]#{str}[/]") if visible(__method__)
 	end
 
 	def self.error(str)
-		Formatador.display_line("[red]#{str}[/]")
+		Formatador.display_line("[red]#{str}[/]") if visible(__method__)
+	end
+
+	def self.visible(method)
+		target  = method.to_sym
+		if target == :ok || target == :error || target == :info
+			true
+		elsif (target == :warn || target == :debug) && level == :fine
+			true
+		else
+			false
+		end
 	end
 end
 

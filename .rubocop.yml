@@ -27,6 +27,9 @@ Metrics/MethodLength:
 Metrics/CyclomaticComplexity:
   Max: 10
 
+Metrics/PerceivedComplexity:
+  Max: 10
+
 Style/ModuleFunction:
   Enabled: false
 

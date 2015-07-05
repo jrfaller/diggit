@@ -26,6 +26,8 @@ include GLI::App
 
 program_desc 'A git repository analysis tool.'
 
+switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
+
 version Diggit::VERSION
 
 subcommand_option_handling :normal
@@ -189,8 +191,10 @@ command :clone do |c|
 	c.default_command :perform
 end
 
-pre do |_global, _command, _options, _args|
+pre do |global, _command, _options, _args|
 	Diggit::Dig.init
+	Log.level = :fine if global[:v]
+	true
 end
 
 post do |_global, _command, _options, _args|

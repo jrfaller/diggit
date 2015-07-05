@@ -21,7 +21,7 @@
 require 'oj'
 require 'rugged'
 require 'singleton'
-require_relative 'formatador'
+require_relative 'log'
 
 class String
 	# Returns a underscore cased version of the string.
@@ -333,6 +333,9 @@ module Diggit
 			f_glob = PluginLoader.plugin_paths(name, type, File.expand_path('../..', File.dirname(File.realpath(__FILE__))))
 			f_home = PluginLoader.plugin_paths(name, type, File.join(Dir.home, Dig::DGIT_FOLDER))
 			f_local = PluginLoader.plugin_paths(name, type, Dig.it.folder)
+			Log.debug "Plugin files in global: #{f_glob}."
+			Log.debug "Plugin files in home: #{f_home}."
+			Log.debug "Plugin files in local directory: #{f_local}."
 			found = true
 			if !f_local.empty?
 				f_local.each { |f| require File.expand_path(f) }
