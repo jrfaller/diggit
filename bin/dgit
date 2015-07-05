@@ -166,6 +166,13 @@ command :analyses do |c|
 			Diggit::Dig.it.config.add_analysis args[0]
 		end
 	end
+	c.desc 'Delete an analysis.'
+	c.arg_name 'name'
+	c.command :del do |add|
+		add.action do |_global_options, _options, args|
+			Diggit::Dig.it.config.del_analysis args[0]
+		end
+	end
 	c.desc 'Perform analyses.'
 	c.command :perform do |perform|
 		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
