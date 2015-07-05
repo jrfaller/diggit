@@ -293,8 +293,8 @@ module Diggit
 			end
 		end
 
-		def self.plugin_path(name, type, root)
-			File.expand_path("#{name}.rb", File.expand_path(type.to_s, File.expand_path('plugins', root)))
+		def self.plugin_paths(name, type, root)
+			Dir.glob(File.join(root, 'plugins', type.to_s, '**', "#{name}.rb"))
 		end
 
 		# Constructor. Should not be called directly. Use {.instance} instead.
@@ -306,35 +306,31 @@ module Diggit
 			private
 
 		def search_plugin(name, type)
-			plugin = nil
-			if @plugins.key?(name)
-				plugin = @plugins[name]
-			else
-				fail "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
-				if load_file(name, type)
-					plugin = Object.const_get(name.camel_case)
-					base_class = Object.const_get("Diggit::#{type.to_s.camel_case}")
-					if plugin < base_class
-						@plugins[name] = plugin
-					else
-						fail "Plugin #{name} not of kind #{type}."
-					end
-				end
-			end
-			plugin
+			return @plugins[name] if @plugins.key?(name)
+			fail "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
+			fail "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
+
+			base_class = Object.const_get("Diggit::#{type.to_s.camel_case}")
+			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.to_s.gsub(/^.*::/, '') == name.camel_case }
+
+			fail "No plugin #{name} of kind #{type} found." if plugins.empty?
+			warn "Ambiguous plugin name: several plugins of kind #{type} named #{name} were found." if plugins.size > 1
+
+			@plugins[name] = plugins[0]
+			plugins[0]
 		end
 
 		def load_file(name, type)
-			f_glob = PluginLoader.plugin_path(name, type, File.expand_path('../..', File.dirname(File.realpath(__FILE__))))
-			f_home = PluginLoader.plugin_path(name, type, File.expand_path(Dig::DGIT_FOLDER, Dir.home))
-			f_local = PluginLoader.plugin_path(name, type, Dig.it.folder)
+			f_glob = PluginLoader.plugin_paths(name, type, File.expand_path('../..', File.dirname(File.realpath(__FILE__))))
+			f_home = PluginLoader.plugin_paths(name, type, File.join(Dir.home, Dig::DGIT_FOLDER))
+			f_local = PluginLoader.plugin_paths(name, type, Dig.it.folder)
 			found = true
-			if File.exist?(f_local)
-				require f_local
-			elsif File.exist?(f_home)
-				require f_home
-			elsif File.exist?(f_glob)
-				require f_glob
+			if !f_local.empty?
+				f_local.each { |f| require File.expand_path(f) }
+			elsif !f_home.empty?
+				f_home.each { |f| require File.expand_path(f) }
+			elsif !f_glob.empty?
+				f_glob.each { |f| require File.expand_path(f) }
 			else
 				found = false
 			end

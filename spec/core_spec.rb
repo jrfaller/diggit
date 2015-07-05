@@ -57,6 +57,16 @@ RSpec.describe Diggit::Dig do
 		expect(analysis_instance.test_addon.foo).to eq("Foo.")
 	end
 
+	it "should load an analysis enlosed in a module" do
+		analysis = Diggit::Dig.it.plugin_loader.load_plugin("other_analysis", :analysis)
+		expect(analysis.to_s).to eq('MyModule::OtherAnalysis')
+	end
+
+	it "should emit a warning in case of ambiguous analysis name" do
+		expect(Diggit::Dig.it.plugin_loader).to receive(:warn).with(/Ambiguous plugin name/)
+		Diggit::Dig.it.plugin_loader.load_plugin("duplicate_analysis", :analysis)
+	end
+
 	it "should load a join" do
 		join = Diggit::Dig.it.plugin_loader.load_plugin("test_join", :join)
 		expect(join.to_s).to eq('TestJoin')
