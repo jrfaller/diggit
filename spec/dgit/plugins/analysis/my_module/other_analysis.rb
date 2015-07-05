@@ -16,9 +16,15 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+# Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 #
 
-require_relative "dgit/core"
-require_relative "dgit/plugins"
-require_relative "dgit/version"
-require_relative "dgit/log"
+module MyModule
+	class OtherAnalysis < Diggit::Analysis
+		def run
+		end
+
+		def clean
+		end
+	end
+end

@@ -1,4 +1,22 @@
 # encoding: utf-8
+#
+# This file is part of Diggit.
+#
+# Diggit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Diggit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+#
 
 require 'spec_helper'
 require 'fileutils'
@@ -37,6 +55,16 @@ RSpec.describe Diggit::Dig do
 		expect(analysis.to_s).to eq('TestAnalysisWithAddon')
 		analysis_instance = analysis.new({})
 		expect(analysis_instance.test_addon.foo).to eq("Foo.")
+	end
+
+	it "should load an analysis enlosed in a module" do
+		analysis = Diggit::Dig.it.plugin_loader.load_plugin("other_analysis", :analysis)
+		expect(analysis.to_s).to eq('MyModule::OtherAnalysis')
+	end
+
+	it "should emit a warning in case of ambiguous analysis name" do
+		expect(Diggit::Dig.it.plugin_loader).to receive(:warn).with(/Ambiguous plugin name/)
+		Diggit::Dig.it.plugin_loader.load_plugin("duplicate_analysis", :analysis)
 	end
 
 	it "should load a join" do
@@ -80,21 +108,23 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
 	end
 
-	it "should perform analyses" do
+	it "should perform analyses in order" do
 		Diggit::Dig.it.config.add_analysis("test_analysis")
+		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
 		Diggit::Dig.it.analyze
 		# expect(TestAnalysis.state).to eq("runned")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 	end
 
 	it "should handle analyses with error" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].analysis?('test_analysis')).to be true
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].error?).to be true
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].error[:message]).to eq("Error!")
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.all_analyses).to include("test_analysis")
+		expect(src.error?).to be true
+		expect(src.error[:message]).to eq("Error!")
 	end
 
 	it "should perform joins" do

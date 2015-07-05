@@ -1,5 +1,23 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
+#
+# This file is part of Diggit.
+#
+# Diggit is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Diggit is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+#
 
 require 'gli'
 require_relative '../lib/dgit'
@@ -7,6 +25,8 @@ require_relative '../lib/dgit'
 include GLI::App
 
 program_desc 'A git repository analysis tool.'
+
+switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
 
 version Diggit::VERSION
 
@@ -71,6 +91,35 @@ command :sources do |c|
 			File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
 		end
 	end
+	c.desc 'Display all sources in error.'
+	c.command :errors do |errors|
+		errors.action do |_global_options, _options, _args|
+			sources = Diggit::Dig.it.journal.sources
+			sources.each_index do |idx|
+				msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
+				Log.error msg if sources[idx].error?
+			end
+		end
+	end
+	c.desc 'Display information on a source'
+	c.arg_name 'id'
+	c.command :info do |info|
+		info.action do |_global_options, _options, args|
+			src = Diggit::Dig.it.journal.sources_by_ids(args.to_i)
+			url = "URL: #{src.url}"
+			src.error? ? Log.error(url) : Log.info(url)
+			Log.info "State: #{src.state}"
+			Log.info "Performed analyses: #{src.performed_analyses.join(', ')}" unless src.performed_analyses.empty?
+			Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.emtpy?
+			if src.error?
+				error = src.error
+				Log.indent do
+					Log.error error[:message]
+					Log.info error[:backtrace].join("\n")
+				end
+			end
+		end
+	end
 	c.default_command :list
 end
 
@@ -117,6 +166,13 @@ command :analyses do |c|
 			Diggit::Dig.it.config.add_analysis args[0]
 		end
 	end
+	c.desc 'Delete an analysis.'
+	c.arg_name 'name'
+	c.command :del do |add|
+		add.action do |_global_options, _options, args|
+			Diggit::Dig.it.config.del_analysis args[0]
+		end
+	end
 	c.desc 'Perform analyses.'
 	c.command :perform do |perform|
 		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
@@ -142,39 +198,10 @@ command :clone do |c|
 	c.default_command :perform
 end
 
-desc 'Display errors.'
-command :errors do |c|
-	c.desc 'Display the list of errors.'
-	c.command :list do |list|
-		list.action do |_global_options, _options, _args|
-			sources = Diggit::Dig.it.journal.sources
-			sources.each_index do |idx|
-				msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
-				Log.error msg if sources[idx].error?
-			end
-		end
-	end
-	c.desc 'Display a source error.'
-	c.arg_name 'id'
-	c.command :show do |show|
-		show.action do |_global_options, _options, args|
-			source = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
-			Log.ok "Error summary for source #{args[0]}"
-			error = source.error
-			Log.info "URL: #{source.url}"
-			Log.info "State: #{source.state}"
-			Log.info "Error:"
-			Log.indent do
-				Log.error error[:message]
-				Log.info error[:backtrace].join("\n")
-			end
-		end
-	end
-	c.default_command :list
-end
-
-pre do |_global, _command, _options, _args|
+pre do |global, _command, _options, _args|
 	Diggit::Dig.init
+	Log.level = :fine if global[:v]
+	true
 end
 
 post do |_global, _command, _options, _args|

@@ -18,21 +18,45 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 #
 
-class TestAnalysisWithAddon < Diggit::Analysis
-	require_addons "test_addon"
+require 'formatador'
 
-	attr_reader :foo
+class Formatador
+	@level = :normal
 
-	def initialize(*args)
-		super(args)
-		@foo = nil
+	class << self
+		attr_accessor :level
 	end
 
-	def run
-		@foo = "foo"
+	def self.info(str)
+		Formatador.display_line(str) if visible(__method__)
 	end
 
-	def clean
-		@foo = nil
+	def self.debug(str)
+		Formatador.display_line(str) if visible(__method__)
+	end
+
+	def self.ok(str)
+		Formatador.display_line("[green]#{str}[/]") if visible(__method__)
+	end
+
+	def self.warn(str)
+		Formatador.display_line("[yellow]#{str}[/]") if visible(__method__)
+	end
+
+	def self.error(str)
+		Formatador.display_line("[red]#{str}[/]") if visible(__method__)
+	end
+
+	def self.visible(method)
+		target  = method.to_sym
+		if target == :ok || target == :error || target == :info
+			true
+		elsif (target == :warn || target == :debug) && level == :fine
+			true
+		else
+			false
+		end
 	end
 end
+
+Log = Formatador

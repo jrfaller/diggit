@@ -1,1 +1,3 @@
-includes/**/*.rb lib/**/*.rb
+lib/**/*.rb
+-
+CHANGELOG.md
