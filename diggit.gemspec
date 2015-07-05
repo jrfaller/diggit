@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
 The Diggit repository analysis tool is a neat swiss knife to enable the analysis of many Git repositories.
 END
 	spec.require_paths = ['lib']
-	spec.files = ['CHANGELOG.md, ''README.md', 'LICENSE', 'bin/dgit'] +
+	spec.files = ['CHANGELOG.md', 'README.md', 'LICENSE', 'bin/dgit'] +
 			Dir['lib/**/*.rb'] + Dir['spec/**/*.rb'] + Dir['plugins/**/*.rb']
 	spec.executables << 'dgit'
 	spec.bindir = 'bin'
