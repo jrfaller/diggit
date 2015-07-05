@@ -45,6 +45,15 @@ class String
 	end
 end
 
+class Module
+	# Return the simple name of a module.
+	# The simple name is the underscore cased name of the module without namespaces.
+	# FIXME: name returns module/class instead of module::class.
+	def simple_name
+		to_s.gsub(/^.*::/, '').underscore
+	end
+end
+
 module Diggit
 	class Source
 		attr_reader :url, :repository
@@ -311,7 +320,7 @@ module Diggit
 			fail "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
 
 			base_class = Object.const_get("Diggit::#{type.to_s.camel_case}")
-			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.to_s.gsub(/^.*::/, '') == name.camel_case }
+			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.simple_name == name }
 
 			fail "No plugin #{name} of kind #{type} found." if plugins.empty?
 			warn "Ambiguous plugin name: several plugins of kind #{type} named #{name} were found." if plugins.size > 1
