@@ -48,7 +48,9 @@ module Diggit
 		end
 	end
 
-	# Base class for analyses and joins. Runnables can be runned or cleaned.
+	# Base class for analyses and joins.
+	# Runnables can be runned or cleaned.
+	# A clean of a runnable should always work, even if it has never been run.
 	# These methods have to be implemented in the subclasses.
 	# Addons can be made available to a runnable through a call to {.require\_addons}.
 	# Addons can be accessed through the addons attribute, and they contain
