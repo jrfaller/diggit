@@ -1,5 +1,10 @@
 # Changelog of Diggit
 
+### Version 2.0.2
+* Fixed analysis cleaning
+* Fixed error in gemspec
+* 
+
 ### Version 2.0.1
 * Removed `errors`command, merged with subcommands of `sources`
 * Added a lot of documentation
