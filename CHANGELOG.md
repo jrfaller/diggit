@@ -3,7 +3,7 @@
 ### Version 2.0.2
 * Fixed analysis cleaning
 * Fixed error in gemspec
-* 
+* Now rspec is launched after rubocop.
 
 ### Version 2.0.1
 * Removed `errors`command, merged with subcommands of `sources`
