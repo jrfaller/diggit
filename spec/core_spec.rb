@@ -119,13 +119,6 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 	end
 
-	it "should clean analyses" do
-		expect_any_instance_of(TestAnalysis).to receive(:clean)
-		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
-		Diggit::Dig.it.analyze([], [], :clean)
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
-	end
-
 	it "should handle analyses with error" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
@@ -138,10 +131,17 @@ RSpec.describe Diggit::Dig do
 	it "should perform joins" do
 		Diggit::Dig.it.config.add_join("test_join")
 		Diggit::Dig.it.config.add_join("test_join_with_addon")
+		expect_any_instance_of(TestJoin).to receive(:run)
+		expect_any_instance_of(TestJoinWithAddon).not_to receive(:run)
 		Diggit::Dig.it.join
 		expect(Diggit::Dig.it.journal.join?("test_join")).to be true
-		expect(TestJoin.sources.size).to eq 1
-		expect(TestJoin.sources[0].url).to eq TEST_URL
 		expect(Diggit::Dig.it.journal.join?("test_join_with_addon")).to be false
+	end
+
+	it "should clean analyses" do
+		expect_any_instance_of(TestAnalysis).to receive(:clean)
+		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
+		Diggit::Dig.it.analyze([], [], :clean)
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
 	end
 end
