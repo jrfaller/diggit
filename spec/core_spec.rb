@@ -138,6 +138,12 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.join?("test_join_with_addon")).to be false
 	end
 
+	it "should clean joins" do
+		expect_any_instance_of(TestJoin).to receive(:clean)
+		expect_any_instance_of(TestJoinWithAddon).to receive(:clean)
+		Diggit::Dig.it.join([], [], :clean)
+	end
+
 	it "should clean analyses" do
 		expect_any_instance_of(TestAnalysis).to receive(:clean)
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
