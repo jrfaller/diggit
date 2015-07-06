@@ -113,6 +113,11 @@ module Diggit
 			@entry[:ongoing_analyses]
 		end
 
+		def clean_analysis(analysis)
+			performed_analyses.delete_if { |e| e == analysis.name }
+			ongoing_analyses.delete_if { |e| e == analysis.name }
+		end
+
 		def clone
 			if File.exist?(folder)
 				Rugged::Repository.new(folder)
@@ -541,7 +546,7 @@ module Diggit
 
 		def clean_analysis(s, a)
 			a.clean
-			s.del_analysis(a.name)
+			s.clean_analysis(a)
 		ensure
 			save_journal
 		end

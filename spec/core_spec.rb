@@ -110,12 +110,20 @@ RSpec.describe Diggit::Dig do
 
 	it "should perform analyses in order" do
 		Diggit::Dig.it.config.add_analysis("test_analysis")
+		expect_any_instance_of(TestAnalysis).to receive(:run)
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
+		expect_any_instance_of(TestAnalysisWithAddon).to receive(:run)
 		Diggit::Dig.it.analyze
-		# expect(TestAnalysis.state).to eq("runned")
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 		Diggit::Dig.init("spec/dgit")
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
+	end
+
+	it "should clean analyses" do
+		expect_any_instance_of(TestAnalysis).to receive(:clean)
+		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
+		Diggit::Dig.it.analyze([], [], :clean)
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
 	end
 
 	it "should handle analyses with error" do
