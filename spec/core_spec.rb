@@ -149,4 +149,19 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.analyze([], [], :clean)
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
 	end
+
+	it "should read source options" do
+		File.open("spec/dgit/.dgit/sources_options", "w") do |f|
+			f.write('{
+								"https://github.com/jrfaller/test-git.git":{
+									"myOption":"myValue"
+								}
+							}')
+		end
+
+		Diggit::Dig.it.config.add_analysis("test_analysis_with_sources_options")
+		expect { Diggit::Dig.it.analyze }.to output(/myValue/).to_stdout
+		Diggit::Dig.it.analyze([], [], :clean)
+		Diggit::Dig.it.config.del_analysis("test_analysis_with_sources_options")
+	end
 end
