@@ -4,6 +4,7 @@
 * Fixed analysis cleaning
 * Fixed error in gemspec
 * Now rspec is launched after rubocop.
+* Dgit binary now takes a `-f` flag to indicates folder
 
 ### Version 2.0.1
 * Removed `errors`command, merged with subcommands of `sources`

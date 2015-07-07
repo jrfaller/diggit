@@ -26,6 +26,7 @@ include GLI::App
 program_desc 'A git repository analysis tool.'
 
 switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
+flag [:f, :folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
 
 version Diggit::VERSION
 
@@ -35,8 +36,8 @@ arguments :strict
 desc 'Init a diggit folder.'
 skips_pre
 command :init do |c|
-	c.action do |_global_options, _options, _args|
-		Diggit::Dig.init_dir
+	c.action do |globals, _options, _args|
+		Diggit::Dig.init_dir globals[:f]
 		Log.ok "Diggit folder initialized."
 	end
 end
@@ -197,9 +198,9 @@ command :clone do |c|
 	c.default_command :perform
 end
 
-pre do |global, _command, _options, _args|
-	Diggit::Dig.init
-	Log.level = :fine if global[:v]
+pre do |globals, _command, _options, _args|
+	Diggit::Dig.init globals[:f]
+	Log.level = :fine if globals[:v]
 	true
 end
 
