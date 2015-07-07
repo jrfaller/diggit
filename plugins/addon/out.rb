@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 # A output addon for Diggit. The name of the addon is :output, and can be reached in the
 # addons hash. This addon might use an :output hash in the global options. In this hash, the

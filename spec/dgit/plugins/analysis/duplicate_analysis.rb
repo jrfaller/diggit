@@ -17,7 +17,6 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 # Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
-#
 
 class DuplicateAnalysis < Diggit::Analysis
 	def run
