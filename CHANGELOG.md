@@ -5,6 +5,8 @@
 * Fixed error in gemspec
 * Now rspec is launched after rubocop.
 * Dgit binary now takes a `-f` flag to indicates folder
+* It is now possible to deletes joins and analyses from a dgit folder
+* The `clone` commands has been renamed `clones` for consistency sake
 
 ### Version 2.0.1
 * Removed `errors`command, merged with subcommands of `sources`

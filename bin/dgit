@@ -131,11 +131,18 @@ command :joins do |c|
 			Diggit::Dig.it.config.get_joins.each { |a| Log.info a.name }
 		end
 	end
-	c.desc 'Add add join.'
+	c.desc 'Add a join.'
 	c.arg_name 'name'
 	c.command :add do |add|
 		add.action do |_global_options, _options, args|
 			Diggit::Dig.it.config.add_join args[0]
+		end
+	end
+	c.desc 'Delete a join.'
+	c.arg_name 'name'
+	c.command :del do |del|
+		del.action do |_global_options, _options, args|
+			Diggit::Dig.it.config.del_join args[0]
 		end
 	end
 	c.desc 'Perform joins.'
@@ -168,8 +175,8 @@ command :analyses do |c|
 	end
 	c.desc 'Delete an analysis.'
 	c.arg_name 'name'
-	c.command :del do |add|
-		add.action do |_global_options, _options, args|
+	c.command :del do |del|
+		del.action do |_global_options, _options, args|
 			Diggit::Dig.it.config.del_analysis args[0]
 		end
 	end
@@ -187,7 +194,7 @@ command :analyses do |c|
 end
 
 desc 'Manage clone actions.'
-command :clone do |c|
+command :clones do |c|
 	c.desc 'Perform the clones.'
 	c.command :perform do |perform|
 		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
