@@ -45,8 +45,8 @@ class ClocPerFile < Diggit::Analysis
 	require_addons 'db'
 
 	def run
-		commit_oid = 'HEAD'
-		commit_oid = src_opt[@source]["cloc-commit-id"] if src_opt.key?(@source) && src_opt[@source].key?("cloc-commit-id")
+		commit_oid = src_opt[@source]["cloc-commit-id"] unless src_opt[@source].nil?
+		commit_oid = 'HEAD' if commit_oid.nil?
 		@repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
 		cloc = `cloc . --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		break if cloc.empty?
@@ -59,12 +59,12 @@ class ClocPerFile < Diggit::Analysis
 			path = key.gsub(%r{^\./}, '') # remove the './' at the start of filenames
 			cloc_a << value.merge({ path: path })
 		end
-		output = { source: @source, commit_oid: commit_oid.to_s, cloc: cloc_a }
+		output = { source: @source.url, commit_oid: commit_oid.to_s, cloc: cloc_a }
 		col = db.client['cloc-file']
 		col.insert_one(output)
 	end
 
 	def clean
-		db.client['cloc-file'].find({ source: @source }).delete_one
+		db.client['cloc-file'].find({ source: @source.url }).delete_one
 	end
 end
