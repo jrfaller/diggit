@@ -16,26 +16,32 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+# Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 
-require 'yaml'
-
-class Cloc < Diggit::Analysis
+class ClocPerFile < Diggit::Analysis
 	require_addons 'db'
 
-	def initialize(options)
-		super(options)
-	end
-
 	def run
-		cloc = `cloc . --progress-rate=0 --quiet --yaml`
+		commit_oid = src_opt[@source]["cloc-commit-id"] unless src_opt[@source].nil?
+		commit_oid = 'HEAD' if commit_oid.nil?
+		@repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
+		cloc = `cloc . --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		return if cloc.empty?
 		yaml = YAML.load(cloc.lines[2..-1].join)
 		yaml.delete('header')
-		output = { source: @source.url, cloc: yaml }
-		db.client['cloc'].insert_one(output)
+		yaml.delete('SUM')
+		cloc_a = []
+		yaml.each do |key, value|
+			# transform the hash so the filenames are not keys anymore (as they may contain a '.' it is incompatible with mongo)
+			path = key.gsub(%r{^\./}, '') # remove the './' at the start of filenames
+			cloc_a << value.merge({ path: path })
+		end
+		output = { source: @source.url, commit_oid: commit_oid.to_s, cloc: cloc_a }
+		col = db.client['cloc-file']
+		col.insert_one(output)
 	end
 
 	def clean
-		db.client['cloc'].find({ source: @source.url }).delete_one
+		db.client['cloc-file'].find({ source: @source.url }).delete_one
 	end
 end
