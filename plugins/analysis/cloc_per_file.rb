@@ -19,12 +19,12 @@
 # Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 
 class ClocPerFile < Diggit::Analysis
-	require_addons 'db'
+	require_addons 'db', 'src_opt'
 
 	def run
 		commit_oid = src_opt[@source]["cloc-commit-id"] unless src_opt[@source].nil?
 		commit_oid = 'HEAD' if commit_oid.nil?
-		@repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
+		repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
 		cloc = `cloc . --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		return if cloc.empty?
 		yaml = YAML.load(cloc.lines[2..-1].join)

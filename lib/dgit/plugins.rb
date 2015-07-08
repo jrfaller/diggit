@@ -39,6 +39,10 @@ module Diggit
 		def self.name
 			to_s.underscore
 		end
+
+		def repo
+			@source.repository
+		end
 	end
 
 	class Addon < Plugin
