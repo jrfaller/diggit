@@ -231,11 +231,11 @@ module Diggit
 		end
 
 		def to_hash
-			{ analyses: @analyses.map(&:name), joins: @joins.map(&:name) }
+			{ analyses: @analyses.map(&:simple_name), joins: @joins.map(&:simple_name) }
 		end
 
 		def add_analysis(name)
-			load_analysis(name) unless @analyses.map(&:name).include?(name)
+			load_analysis(name) unless @analyses.map(&:simple_name).include?(name)
 			Dig.it.save_config
 		end
 
@@ -244,17 +244,17 @@ module Diggit
 		end
 
 		def del_analysis(name)
-			@analyses.delete_if { |a| a.name == name }
+			@analyses.delete_if { |a| a.simple_name == name }
 			Dig.it.save_config
 		end
 
 		def get_analyses(*names)
 			return analyses if names.empty?
-			analyses.select { |a| names.include?(a.name) }
+			analyses.select { |a| names.include?(a.simple_name) }
 		end
 
 		def add_join(name)
-			load_join(name) unless @joins.map(&:name).include?(name)
+			load_join(name) unless @joins.map(&:simple_name).include?(name)
 			Dig.it.save_config
 		end
 
@@ -263,13 +263,13 @@ module Diggit
 		end
 
 		def del_join(name)
-			@joins.delete_if { |j| j.name == name }
+			@joins.delete_if { |j| j.simple_name == name }
 			Dig.it.save_config
 		end
 
 		def get_joins(*names)
 			return joins if names.empty?
-			joins.select { |j| joins.include?(j.name) }
+			joins.select { |j| joins.include?(j.simple_name) }
 		end
 
 		def self.empty_config
@@ -308,7 +308,7 @@ module Diggit
 		end
 
 		def self.plugin_paths(name, type, root)
-			Dir.glob(File.join(root, 'plugins', type.to_s, '**', "#{name}.rb"))
+			Dir.glob(File.join(root, 'plugins', type.to_s, '**{,/*/**}', "#{name}.rb"))
 		end
 
 		# Constructor. Should not be called directly. Use {.instance} instead.
