@@ -31,6 +31,7 @@ class Db < Diggit::Addon
 
 	def initialize(*args)
 		super
+		Mongo::Logger.logger.level = ::Logger::FATAL
 		url = DEFAULT_URL
 		url = @options[:mongo][:url] if @options.key?(:mongo) && @options[:mongo].key?(:url)
 		@client = Mongo::Client.new(url)
