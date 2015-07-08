@@ -94,8 +94,9 @@ module Diggit
 		end
 
 		def self.required_addons
-			return [] if @required_addons.nil?
-			@required_addons
+			base_addons = superclass < Runnable ? superclass.required_addons : []
+			return base_addons if @required_addons.nil?
+			base_addons + @required_addons
 		end
 	end
 
