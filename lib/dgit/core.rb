@@ -122,7 +122,13 @@ module Diggit
 			if File.exist?(folder)
 				Rugged::Repository.new(folder)
 			else
-				Rugged::Repository.clone_at(url, folder)
+				progress_block = lambda do |total_objects, _, received_objects, _, _, _, _|
+    								msg = "Clone of #{url} in progress : #{received_objects}/#{total_objects} objects received.\r"
+    								$stderr.print msg
+    								@last_message_length = msg.length
+				end
+				Rugged::Repository.clone_at(url, folder, { transfer_progress: progress_block })
+				print " " * @last_message_length + "\r" # clean the line used to output transfer progress
 			end
 			self.state = :cloned
 		rescue => e
