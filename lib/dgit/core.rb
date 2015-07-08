@@ -21,7 +21,7 @@
 require 'oj'
 require 'rugged'
 require 'singleton'
-require_relative 'log'
+require 'dgit/log'
 
 class String
 	# Returns a underscore cased version of the string.

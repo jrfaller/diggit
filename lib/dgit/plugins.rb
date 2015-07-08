@@ -17,7 +17,7 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-require_relative 'core'
+require 'dgit/core'
 
 module Diggit
 	# Base class for plugins. They have associated options.
