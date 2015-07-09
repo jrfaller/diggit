@@ -36,4 +36,8 @@ class Db < Diggit::Addon
 		url = @options[:mongo][:url] if @options.key?(:mongo) && @options[:mongo].key?(:url)
 		@client = Mongo::Client.new(url)
 	end
+
+	def insert(collection, data)
+		client[collection].bulk_write(data.map { |d| { insert_one: d } }, ordered: true) unless data.empty?
+	end
 end
