@@ -133,11 +133,18 @@ module Diggit
 				Diggit::Dig.it.config.get_joins.each { |a| Log.info a.name }
 			end
 		end
-		c.desc 'Add add join.'
+		c.desc 'Add a join.'
 		c.arg_name 'name'
 		c.command :add do |add|
 			add.action do |_global_options, _options, args|
 				Diggit::Dig.it.config.add_join args[0]
+			end
+		end
+		c.desc 'Delete a join.'
+		c.arg_name 'name'
+		c.command :del do |del|
+			del.action do |_global_options, _options, args|
+				Diggit::Dig.it.config.del_join args[0]
 			end
 		end
 		c.desc 'Perform joins.'
@@ -145,7 +152,7 @@ module Diggit
 			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
 			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
 			perform.flag [:m, :mode], desc: "running mode",
-					must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
+			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
 			perform.action do |_global_options, options, _args|
 				Diggit::Dig.it.join(options[:s], options[:a], options[:m])
 			end
@@ -170,8 +177,8 @@ module Diggit
 		end
 		c.desc 'Delete an analysis.'
 		c.arg_name 'name'
-		c.command :del do |add|
-			add.action do |_global_options, _options, args|
+		c.command :del do |del|
+			del.action do |_global_options, _options, args|
 				Diggit::Dig.it.config.del_analysis args[0]
 			end
 		end
@@ -180,7 +187,7 @@ module Diggit
 			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
 			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
 			perform.flag [:m, :mode], desc: "running mode",
-					must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
+			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
 			perform.action do |_global_options, options, _args|
 				Diggit::Dig.it.analyze(options[:s], options[:a], options[:m])
 			end
@@ -189,7 +196,7 @@ module Diggit
 	end
 
 	desc 'Manage clone actions.'
-	command :clone do |c|
+	command :clones do |c|
 		c.desc 'Perform the clones.'
 		c.command :perform do |perform|
 			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
@@ -199,7 +206,6 @@ module Diggit
 		end
 		c.default_command :perform
 	end
-
 	pre do |globals, _command, _options, _args|
 		Diggit::Dig.init globals[:f]
 		Log.level = :fine if globals[:v]
