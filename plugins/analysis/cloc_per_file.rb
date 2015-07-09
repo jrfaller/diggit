@@ -25,7 +25,8 @@ class ClocPerFile < Diggit::Analysis
 		commit_oid = src_opt[@source]["cloc-commit-id"] unless src_opt[@source].nil?
 		commit_oid = 'HEAD' if commit_oid.nil?
 		repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
-		cloc = `cloc . --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
+		folder = File.expand_path(@source.folder)
+		cloc = `cloc #{folder} --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		return if cloc.empty?
 		yaml = YAML.load(cloc.lines[2..-1].join)
 		yaml.delete('header')
@@ -33,7 +34,7 @@ class ClocPerFile < Diggit::Analysis
 		cloc_a = []
 		yaml.each do |key, value|
 			# transform the hash so the filenames are not keys anymore (as they may contain a '.' it is incompatible with mongo)
-			path = key.gsub(%r{^\./}, '') # remove the './' at the start of filenames
+			path = File.expand_path(key).gsub(folder, '').gsub(%r{^/}, '')
 			cloc_a << value.merge({ path: path })
 		end
 		output = { source: @source.url, commit_oid: commit_oid.to_s, cloc: cloc_a }
