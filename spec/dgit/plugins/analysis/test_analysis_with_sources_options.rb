@@ -16,28 +16,19 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+#
 
-require 'mongo'
-
-# A MongoDB addon for Diggit. The name of this addon is :db.
-# This addon might use an :mongo hash in the global options. In this
-# hash, the :database key allows to configure the name of the database.
-# @!attribute [r] db
-# 	@return [Mongo::DB] the mongo database object.
-class Db < Diggit::Addon
-	DEFAULT_URL = 'mongodb://127.0.0.1:27017/diggit'
-
-	attr_reader :client
+class TestAnalysisWithSourcesOptions < Diggit::Analysis
+	require_addons "src_opt"
 
 	def initialize(*args)
-		super
-		Mongo::Logger.logger.level = ::Logger::FATAL
-		url = DEFAULT_URL
-		url = @options[:mongo][:url] if @options.key?(:mongo) && @options[:mongo].key?(:url)
-		@client = Mongo::Client.new(url)
+		super(args)
 	end
 
-	def insert(collection, data)
-		client[collection].bulk_write(data.map { |d| { insert_one: d } }, ordered: true) unless data.empty?
+	def run
+		p(src_opt[@source]["myOption"])
+	end
+
+	def clean
 	end
 end

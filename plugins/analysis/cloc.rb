@@ -27,7 +27,7 @@ class Cloc < Diggit::Analysis
 	end
 
 	def run
-		cloc = `cloc . --progress-rate=0 --quiet --yaml`
+		cloc = `cloc #{@source.folder} --progress-rate=0 --quiet --yaml`
 		return if cloc.empty?
 		yaml = YAML.load(cloc.lines[2..-1].join)
 		yaml.delete('header')

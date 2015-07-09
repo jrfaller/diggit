@@ -17,7 +17,7 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-require_relative 'core'
+require 'dgit/core'
 
 module Diggit
 	# Base class for plugins. They have associated options.
@@ -38,6 +38,10 @@ module Diggit
 
 		def self.name
 			to_s.underscore
+		end
+
+		def repo
+			@source.repository
 		end
 	end
 
@@ -90,8 +94,9 @@ module Diggit
 		end
 
 		def self.required_addons
-			return [] if @required_addons.nil?
-			@required_addons
+			base_addons = superclass < Runnable ? superclass.required_addons : []
+			return base_addons if @required_addons.nil?
+			base_addons + @required_addons
 		end
 	end
 

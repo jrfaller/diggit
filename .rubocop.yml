@@ -9,6 +9,12 @@ Metrics/LineLength:
 Metrics/ClassLength:
   Max: 200
 
+Metrics/ModuleLength:
+  Max: 200
+
+Metrics/ParameterLists:
+  Max: 15
+
 Style/Tab:
   Enabled: false
 
