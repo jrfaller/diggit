@@ -17,7 +17,7 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-require "dgit/core"
-require "dgit/plugins"
-require "dgit/version"
-require "dgit/log"
+require_relative 'dgit/core'
+require_relative 'dgit/plugins'
+require_relative 'dgit/version'
+require_relative 'dgit/log'
