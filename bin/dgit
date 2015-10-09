@@ -107,12 +107,12 @@ module Diggit
 		c.arg_name 'id'
 		c.command :info do |info|
 			info.action do |_global_options, _options, args|
-				src = Diggit::Dig.it.journal.sources_by_ids(args.to_i)
+				src = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
 				url = "URL: #{src.url}"
 				src.error? ? Log.error(url) : Log.info(url)
 				Log.info "State: #{src.state}"
 				Log.info "Performed analyses: #{src.performed_analyses.join(', ')}" unless src.performed_analyses.empty?
-				Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.emtpy?
+				Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.empty?
 				if src.error?
 					error = src.error
 					Log.indent do
