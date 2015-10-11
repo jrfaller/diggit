@@ -25,16 +25,17 @@ require 'mongo'
 # @!attribute [r] db
 # 	@return [Mongo::DB] the mongo database object.
 class Db < Diggit::Addon
-	DEFAULT_URL = 'mongodb://127.0.0.1:27017/diggit'
+	DEFAULT_SERVER = '127.0.0.1:27017'
+	DEFAULT_DB = 'diggit'
 
 	attr_reader :client
 
 	def initialize(*args)
 		super
 		Mongo::Logger.logger.level = ::Logger::FATAL
-		url = DEFAULT_URL
-		url = @options[:mongo][:url] if @options.key?(:mongo) && @options[:mongo].key?(:url)
-		@client = Mongo::Client.new(url)
+		server = read_option(:mongo, :server, DEFAULT_SERVER)
+		db = read_option(:mongo, :db, DEFAULT_DB)
+		@client = Mongo::Client.new([server], database: db)
 	end
 
 	def insert(collection, data)
