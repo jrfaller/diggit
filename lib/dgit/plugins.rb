@@ -32,16 +32,26 @@ module Diggit
 			@options = options
 		end
 
+		# Returns the name of the plugin class
+		# @return [String]
 		def name
 			self.class.name
 		end
 
+		# Returns the name of the plugin class
+		# @return [String]
 		def self.name
 			to_s.underscore
 		end
 
-		def repo
-			@source.repository
+		# Returns the value of a plugin option
+		# @param ns [Symbol] the name of the option's namespace
+		# @param opt [Symbol] the name of the option
+		# @param default [Object] the default value
+		# @return [Object]
+		def read_option(ns, opt, default)
+			return @options[ns][opt] if @options.key?(ns) && @options[ns].key?(opt)
+			default
 		end
 	end
 
@@ -86,7 +96,7 @@ module Diggit
 
 		# Add an addon as a required addon.
 		#
-		# @param names Array<String> the names of addons to require.
+		# @param names [Array<String>] the names of addons to require.
 		# 	They correspond to the name of their class with underscore case.
 		# @return [void]
 		def self.require_addons(*names)
@@ -134,7 +144,7 @@ module Diggit
 
 		# Add an analysis as a required analysis.
 		#
-		# @param names Array<String> the names of analyses to require.
+		# @param names [Array<String>] the names of analyses to require.
 		# 	They correspond to the name of their class with underscore case.
 		# @return [void]
 		def self.require_analyses(*names)
@@ -174,6 +184,13 @@ module Diggit
 		def initialize(options)
 			super(options)
 			@source = nil
+		end
+
+		# Returns the rugged repository associated to the source.
+		#
+		# @return [Rugged::Repository]
+		def repo
+			@source.repository
 		end
 	end
 end

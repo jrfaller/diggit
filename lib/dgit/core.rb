@@ -392,7 +392,7 @@ module Diggit
 		end
 
 		# Initialize and return the diggit instance into the given folder.
-		# @param folder the path to the folder.
+		# @param folder [String] the path to the folder.
 		# @return [Dig] the instance.
 		def self.init(folder = '.')
 			@diggit = Dig.new(folder)
@@ -407,7 +407,7 @@ module Diggit
 		# It creates a +sources+ folder.
 		# It creates a +plugins+ folder.
 		# Directory creation is skipped if folder already exist.
-		# @param folder the path to the folder.
+		# @param folder [String] the path to the folder.
 		# @return [void]
 		def self.init_dir(folder = '.')
 			dgit_folder = File.expand_path(DGIT_FOLDER, folder)
