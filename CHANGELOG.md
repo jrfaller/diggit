@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 2.0.3
+
 ### Version 2.0.2
 * Fixed analysis cleaning
 * Fixed error in gemspec
