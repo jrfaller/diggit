@@ -16,12 +16,20 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+# Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 
-class TestAnalysisWithError < Diggit::Analysis
-	def run
-		fail "Error!"
+# Manages options that are specific to a given source
+class SrcOpt < Diggit::Addon
+	SOURCES_OPTIONS_FILE = 'sources_options'
+
+	def initialize(*args)
+		super
+		sources_options_path = Diggit::Dig.it.config_path(SOURCES_OPTIONS_FILE)
+		@sources_options = {}
+		@sources_options = Oj.load_file(sources_options_path) if File.exist? sources_options_path
 	end
 
-	def clean
+	def [](source)
+		@sources_options[source.url]
 	end
 end

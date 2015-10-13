@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require 'yaml'
 
@@ -28,15 +27,22 @@ class Cloc < Diggit::Analysis
 	end
 
 	def run
-		cloc = `cloc . --progress-rate=0 --quiet --yaml`
-		return if cloc.empty?
-		yaml = YAML.load(cloc.lines[2..-1].join)
-		yaml.delete('header')
-		output = { source: @source.url, cloc: yaml }
-		db.client['cloc'].insert_one(output)
+		walker = Rugged::Walker.new(repo)
+		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
+		walker.push(repo.head.name)
+		walker.each do |c|
+			repo.checkout(c.oid, { strategy: [:force, :remove_untracked] })
+			cloc = `cloc #{@source.folder} --progress-rate=0 --quiet --yaml`
+			next if cloc.empty?
+			yaml = YAML.load(cloc.lines[2..-1].join)
+			yaml.delete('header')
+			output = { source: @source.url, commit: c.oid, cloc: yaml }
+			db.client['cloc'].insert_one(output)
+		end
 	end
 
 	def clean
-		db.client['cloc'].find({ source: @source.url }).delete_one
+		db.client['cloc'].find({ source: @source.url }).delete_many
+		repo.checkout('master')
 	end
 end

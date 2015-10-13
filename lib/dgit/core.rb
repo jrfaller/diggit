@@ -16,7 +16,7 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
+# Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 
 require 'oj'
 require 'rugged'
@@ -113,6 +113,11 @@ module Diggit
 			@entry[:ongoing_analyses]
 		end
 
+		def clean_analysis(analysis)
+			performed_analyses.delete_if { |e| e == analysis.name }
+			ongoing_analyses.delete_if { |e| e == analysis.name }
+		end
+
 		def clone
 			if File.exist?(folder)
 				Rugged::Repository.new(folder)
@@ -120,6 +125,7 @@ module Diggit
 				Rugged::Repository.clone_at(url, folder)
 			end
 			self.state = :cloned
+			self.error = nil
 		rescue => e
 			Log.error "Error cloning #{url}."
 			self.error = Journal.dump_error(e)
@@ -226,11 +232,11 @@ module Diggit
 		end
 
 		def to_hash
-			{ analyses: @analyses.map(&:name), joins: @joins.map(&:name) }
+			{ analyses: @analyses.map(&:simple_name), joins: @joins.map(&:simple_name) }
 		end
 
 		def add_analysis(name)
-			load_analysis(name) unless @analyses.map(&:name).include?(name)
+			load_analysis(name) unless @analyses.map(&:simple_name).include?(name)
 			Dig.it.save_config
 		end
 
@@ -239,17 +245,17 @@ module Diggit
 		end
 
 		def del_analysis(name)
-			@analyses.delete_if { |a| a.name == name }
+			@analyses.delete_if { |a| a.simple_name == name }
 			Dig.it.save_config
 		end
 
 		def get_analyses(*names)
 			return analyses if names.empty?
-			analyses.select { |a| names.include?(a.name) }
+			analyses.select { |a| names.include?(a.simple_name) }
 		end
 
 		def add_join(name)
-			load_join(name) unless @joins.map(&:name).include?(name)
+			load_join(name) unless @joins.map(&:simple_name).include?(name)
 			Dig.it.save_config
 		end
 
@@ -258,13 +264,13 @@ module Diggit
 		end
 
 		def del_join(name)
-			@joins.delete_if { |j| j.name == name }
+			@joins.delete_if { |j| j.simple_name == name }
 			Dig.it.save_config
 		end
 
 		def get_joins(*names)
 			return joins if names.empty?
-			joins.select { |j| joins.include?(j.name) }
+			joins.select { |j| joins.include?(j.simple_name) }
 		end
 
 		def self.empty_config
@@ -303,7 +309,7 @@ module Diggit
 		end
 
 		def self.plugin_paths(name, type, root)
-			Dir.glob(File.join(root, 'plugins', type.to_s, '**', "#{name}.rb"))
+			Dir.glob(File.join(root, 'plugins', type.to_s, '**{,/*/**}', "#{name}.rb"))
 		end
 
 		# Constructor. Should not be called directly. Use {.instance} instead.
@@ -386,7 +392,7 @@ module Diggit
 		end
 
 		# Initialize and return the diggit instance into the given folder.
-		# @param folder the path to the folder.
+		# @param folder [String] the path to the folder.
 		# @return [Dig] the instance.
 		def self.init(folder = '.')
 			@diggit = Dig.new(folder)
@@ -401,7 +407,7 @@ module Diggit
 		# It creates a +sources+ folder.
 		# It creates a +plugins+ folder.
 		# Directory creation is skipped if folder already exist.
-		# @param folder the path to the folder.
+		# @param folder [String] the path to the folder.
 		# @return [void]
 		def self.init_dir(folder = '.')
 			dgit_folder = File.expand_path(DGIT_FOLDER, folder)
@@ -541,7 +547,7 @@ module Diggit
 
 		def clean_analysis(s, a)
 			a.clean
-			s.del_analysis(a.name)
+			s.clean_analysis(a)
 		ensure
 			save_journal
 		end

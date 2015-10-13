@@ -17,7 +17,6 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 # Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
-#
 
 R = nil # fixing SIGPIPE error in some cases. See http://hfeild-software.blogspot.fr/2013/01/rinruby-woes.html
 

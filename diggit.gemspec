@@ -16,11 +16,12 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
+
+require_relative 'lib/dgit/version'
 
 Gem::Specification.new do |spec|
 	spec.name = 'diggit'
-	spec.version = '2.0.1'
+	spec.version = Diggit::VERSION
 	spec.summary = "A Git repository analysis tool."
 	spec.authors = ["Jean-Rémy Falleri", "Matthieu Foucault"]
 	spec.email = 'jr.falleri@gmail.com'

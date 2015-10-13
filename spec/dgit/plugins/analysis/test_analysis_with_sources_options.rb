@@ -16,10 +16,17 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
+#
 
-class TestAnalysisWithError < Diggit::Analysis
+class TestAnalysisWithSourcesOptions < Diggit::Analysis
+	require_addons "src_opt"
+
+	def initialize(*args)
+		super(args)
+	end
+
 	def run
-		fail "Error!"
+		p(src_opt[@source]["myOption"])
 	end
 
 	def clean

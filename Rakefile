@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 begin
 	require 'rspec/core/rake_task'
@@ -25,5 +24,5 @@ begin
 	RuboCop::RakeTask.new(:rubocop)
 	RSpec::Core::RakeTask.new(:spec)
 
-	task default: [:rubocop, :spec]
+	task default: [:spec, :rubocop]
 end

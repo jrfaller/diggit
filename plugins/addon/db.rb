@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require 'mongo'
 
@@ -26,14 +25,20 @@ require 'mongo'
 # @!attribute [r] db
 # 	@return [Mongo::DB] the mongo database object.
 class Db < Diggit::Addon
-	DEFAULT_URL = 'mongodb://127.0.0.1:27017/diggit'
+	DEFAULT_SERVER = '127.0.0.1:27017'
+	DEFAULT_DB = 'diggit'
 
 	attr_reader :client
 
 	def initialize(*args)
 		super
-		url = DEFAULT_URL
-		url = @options[:mongo][:url] if @options.key?(:mongo) && @options[:mongo].key?(:url)
-		@client = Mongo::Client.new(url)
+		Mongo::Logger.logger.level = ::Logger::FATAL
+		server = read_option(:mongo, :server, DEFAULT_SERVER)
+		db = read_option(:mongo, :db, DEFAULT_DB)
+		@client = Mongo::Client.new([server], database: db)
+	end
+
+	def insert(collection, data)
+		client[collection].bulk_write(data.map { |d| { insert_one: d } }, ordered: true) unless data.empty?
 	end
 end

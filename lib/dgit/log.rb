@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require 'formatador'
 
@@ -48,7 +47,7 @@ class Formatador
 	end
 
 	def self.visible(method)
-		target  = method.to_sym
+		target = method.to_sym
 		if target == :ok || target == :error || target == :info
 			true
 		elsif (target == :warn || target == :debug) && level == :fine

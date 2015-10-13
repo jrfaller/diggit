@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require_relative 'core'
 
@@ -33,12 +32,26 @@ module Diggit
 			@options = options
 		end
 
+		# Returns the name of the plugin class
+		# @return [String]
 		def name
 			self.class.name
 		end
 
+		# Returns the name of the plugin class
+		# @return [String]
 		def self.name
 			to_s.underscore
+		end
+
+		# Returns the value of a plugin option
+		# @param ns [Symbol] the name of the option's namespace
+		# @param opt [Symbol] the name of the option
+		# @param default [Object] the default value
+		# @return [Object]
+		def read_option(ns, opt, default)
+			return @options[ns][opt] if @options.key?(ns) && @options[ns].key?(opt)
+			default
 		end
 	end
 
@@ -48,7 +61,9 @@ module Diggit
 		end
 	end
 
-	# Base class for analyses and joins. Runnables can be runned or cleaned.
+	# Base class for analyses and joins.
+	# Runnables can be runned or cleaned.
+	# A clean of a runnable should always work, even if it has never been run.
 	# These methods have to be implemented in the subclasses.
 	# Addons can be made available to a runnable through a call to {.require\_addons}.
 	# Addons can be accessed through the addons attribute, and they contain
@@ -81,7 +96,7 @@ module Diggit
 
 		# Add an addon as a required addon.
 		#
-		# @param names Array<String> the names of addons to require.
+		# @param names [Array<String>] the names of addons to require.
 		# 	They correspond to the name of their class with underscore case.
 		# @return [void]
 		def self.require_addons(*names)
@@ -89,8 +104,9 @@ module Diggit
 		end
 
 		def self.required_addons
-			return [] if @required_addons.nil?
-			@required_addons
+			base_addons = superclass < Runnable ? superclass.required_addons : []
+			return base_addons if @required_addons.nil?
+			base_addons + @required_addons
 		end
 	end
 
@@ -128,7 +144,7 @@ module Diggit
 
 		# Add an analysis as a required analysis.
 		#
-		# @param names Array<String> the names of analyses to require.
+		# @param names [Array<String>] the names of analyses to require.
 		# 	They correspond to the name of their class with underscore case.
 		# @return [void]
 		def self.require_analyses(*names)
@@ -168,6 +184,13 @@ module Diggit
 		def initialize(options)
 			super(options)
 			@source = nil
+		end
+
+		# Returns the rugged repository associated to the source.
+		#
+		# @return [Rugged::Repository]
+		def repo
+			@source.repository
 		end
 	end
 end

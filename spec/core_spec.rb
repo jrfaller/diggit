@@ -16,7 +16,6 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require 'spec_helper'
 require 'fileutils'
@@ -110,9 +109,10 @@ RSpec.describe Diggit::Dig do
 
 	it "should perform analyses in order" do
 		Diggit::Dig.it.config.add_analysis("test_analysis")
+		expect_any_instance_of(TestAnalysis).to receive(:run)
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
+		expect_any_instance_of(TestAnalysisWithAddon).to receive(:run)
 		Diggit::Dig.it.analyze
-		# expect(TestAnalysis.state).to eq("runned")
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
 		Diggit::Dig.init("spec/dgit")
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
@@ -130,10 +130,38 @@ RSpec.describe Diggit::Dig do
 	it "should perform joins" do
 		Diggit::Dig.it.config.add_join("test_join")
 		Diggit::Dig.it.config.add_join("test_join_with_addon")
+		expect_any_instance_of(TestJoin).to receive(:run)
+		expect_any_instance_of(TestJoinWithAddon).not_to receive(:run)
 		Diggit::Dig.it.join
 		expect(Diggit::Dig.it.journal.join?("test_join")).to be true
-		expect(TestJoin.sources.size).to eq 1
-		expect(TestJoin.sources[0].url).to eq TEST_URL
 		expect(Diggit::Dig.it.journal.join?("test_join_with_addon")).to be false
+	end
+
+	it "should clean joins" do
+		expect_any_instance_of(TestJoin).to receive(:clean)
+		expect_any_instance_of(TestJoinWithAddon).to receive(:clean)
+		Diggit::Dig.it.join([], [], :clean)
+	end
+
+	it "should clean analyses" do
+		expect_any_instance_of(TestAnalysis).to receive(:clean)
+		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
+		Diggit::Dig.it.analyze([], [], :clean)
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
+	end
+
+	it "should read source options" do
+		File.open("spec/dgit/.dgit/sources_options", "w") do |f|
+			f.write('{
+								"https://github.com/jrfaller/test-git.git":{
+									"myOption":"myValue"
+								}
+							}')
+		end
+
+		Diggit::Dig.it.config.add_analysis("test_analysis_with_sources_options")
+		expect { Diggit::Dig.it.analyze }.to output(/myValue/).to_stdout
+		Diggit::Dig.it.analyze([], [], :clean)
+		Diggit::Dig.it.config.del_analysis("test_analysis_with_sources_options")
 	end
 end

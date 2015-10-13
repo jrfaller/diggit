@@ -17,202 +17,211 @@
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
-#
 
 require 'gli'
 require_relative '../lib/dgit'
 
-include GLI::App
+module Diggit
+	include GLI::App
 
-program_desc 'A git repository analysis tool.'
+	extend self
+	program_desc 'A git repository analysis tool.'
 
-switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
+	switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
+	flag [:f, :folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
 
-version Diggit::VERSION
+	version Diggit::VERSION
 
-subcommand_option_handling :normal
-arguments :strict
+	subcommand_option_handling :normal
+	arguments :strict
 
-desc 'Init a diggit folder.'
-skips_pre
-command :init do |c|
-	c.action do |_global_options, _options, _args|
-		Diggit::Dig.init_dir
-		Log.ok "Diggit folder initialized."
-	end
-end
-
-desc 'Display the status of the diggit folder.'
-command :status do |c|
-	c.action do |_global_options, _options, _args|
-		Log.info "Config"
-		Log.info "======"
-		Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.join(', ')}"
-		Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.join(', ')}"
-		Log.info ""
-		Log.info "Journal"
-		Log.info "======="
-		Log.info "- New sources:"
-		Log.indent do
-			Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:new).size}"
-			Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:new, true).size}"
-		end
-		Log.info "- Cloned sources:"
-		Log.indent do
-			Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:cloned).size}"
-			Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:cloned, true).size}"
+	desc 'Init a diggit folder.'
+	skips_pre
+	command :init do |c|
+		c.action do |globals, _options, _args|
+			Diggit::Dig.init_dir globals[:f]
+			Log.ok "Diggit folder initialized."
 		end
 	end
-end
 
-desc 'Manage the sources of the diggit folder.'
-command :sources do |c|
-	c.desc 'List the sources.'
-	c.command :list do |list|
-		list.action do |_global_options, _options, _args|
-			sources = Diggit::Dig.it.journal.sources
-			sources.each_index do |idx|
-				msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
-				sources[idx].error? ? Log.error(msg) : Log.ok(msg)
+	desc 'Display the status of the diggit folder.'
+	command :status do |c|
+		c.action do |_global_options, _options, _args|
+			Log.info "Config"
+			Log.info "======"
+			Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.join(', ')}"
+			Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.join(', ')}"
+			Log.info ""
+			Log.info "Journal"
+			Log.info "======="
+			Log.info "- New sources:"
+			Log.indent do
+				Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:new).size}"
+				Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:new, true).size}"
+			end
+			Log.info "- Cloned sources:"
+			Log.indent do
+				Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:cloned).size}"
+				Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:cloned, true).size}"
 			end
 		end
 	end
-	c.desc 'Add a source.'
-	c.arg_name 'url'
-	c.command :add do |add|
-		add.action do |_global_options, _options, args|
-			Diggit::Dig.it.journal.add_source args[0]
-		end
-	end
-	c.desc 'Import sources from a file.'
-	c.arg_name 'file'
-	c.command :import do |import|
-		import.action do |_global_options, _options, args|
-			File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
-		end
-	end
-	c.desc 'Display all sources in error.'
-	c.command :errors do |errors|
-		errors.action do |_global_options, _options, _args|
-			sources = Diggit::Dig.it.journal.sources
-			sources.each_index do |idx|
-				msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
-				Log.error msg if sources[idx].error?
-			end
-		end
-	end
-	c.desc 'Display information on a source'
-	c.arg_name 'id'
-	c.command :info do |info|
-		info.action do |_global_options, _options, args|
-			src = Diggit::Dig.it.journal.sources_by_ids(args.to_i)
-			url = "URL: #{src.url}"
-			src.error? ? Log.error(url) : Log.info(url)
-			Log.info "State: #{src.state}"
-			Log.info "Performed analyses: #{src.performed_analyses.join(', ')}" unless src.performed_analyses.empty?
-			Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.emtpy?
-			if src.error?
-				error = src.error
-				Log.indent do
-					Log.error error[:message]
-					Log.info error[:backtrace].join("\n")
+
+	desc 'Manage the sources of the diggit folder.'
+	command :sources do |c|
+		c.desc 'List the sources.'
+		c.command :list do |list|
+			list.action do |_global_options, _options, _args|
+				sources = Diggit::Dig.it.journal.sources
+				sources.each_index do |idx|
+					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
+					sources[idx].error? ? Log.error(msg) : Log.ok(msg)
 				end
 			end
 		end
+		c.desc 'Add a source.'
+		c.arg_name 'url'
+		c.command :add do |add|
+			add.action do |_global_options, _options, args|
+				Diggit::Dig.it.journal.add_source args[0]
+			end
+		end
+		c.desc 'Import sources from a file.'
+		c.arg_name 'file'
+		c.command :import do |import|
+			import.action do |_global_options, _options, args|
+				File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
+			end
+		end
+		c.desc 'Display all sources in error.'
+		c.command :errors do |errors|
+			errors.action do |_global_options, _options, _args|
+				sources = Diggit::Dig.it.journal.sources
+				sources.each_index do |idx|
+					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
+					Log.error msg if sources[idx].error?
+				end
+			end
+		end
+		c.desc 'Display information on a source'
+		c.arg_name 'id'
+		c.command :info do |info|
+			info.action do |_global_options, _options, args|
+				src = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
+				url = "URL: #{src.url}"
+				src.error? ? Log.error(url) : Log.info(url)
+				Log.info "State: #{src.state}"
+				Log.info "Performed analyses: #{src.performed_analyses.join(', ')}" unless src.performed_analyses.empty?
+				Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.empty?
+				if src.error?
+					error = src.error
+					Log.indent do
+						Log.error error[:message]
+						Log.info error[:backtrace].join("\n")
+					end
+				end
+			end
+		end
+		c.default_command :list
 	end
-	c.default_command :list
-end
 
-desc 'Manage the joins of the diggit folder.'
-command :joins do |c|
-	c.desc 'List the joins'
-	c.command :list do |list|
-		list.action do |_global_options, _options, _args|
-			Diggit::Dig.it.config.get_joins.each { |a| Log.info a.name }
+	desc 'Manage the joins of the diggit folder.'
+	command :joins do |c|
+		c.desc 'List the joins'
+		c.command :list do |list|
+			list.action do |_global_options, _options, _args|
+				Diggit::Dig.it.config.get_joins.each { |a| Log.info a.name }
+			end
 		end
-	end
-	c.desc 'Add add join.'
-	c.arg_name 'name'
-	c.command :add do |add|
-		add.action do |_global_options, _options, args|
-			Diggit::Dig.it.config.add_join args[0]
+		c.desc 'Add a join.'
+		c.arg_name 'name'
+		c.command :add do |add|
+			add.action do |_global_options, _options, args|
+				Diggit::Dig.it.config.add_join args[0]
+			end
 		end
-	end
-	c.desc 'Perform joins.'
-	c.command :perform do |perform|
-		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
-		perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
-		perform.flag [:m, :mode], desc: "running mode",
-				must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
-		perform.action do |_global_options, options, _args|
-			Diggit::Dig.it.join(options[:s], options[:a], options[:m])
+		c.desc 'Delete a join.'
+		c.arg_name 'name'
+		c.command :del do |del|
+			del.action do |_global_options, _options, args|
+				Diggit::Dig.it.config.del_join args[0]
+			end
 		end
+		c.desc 'Perform joins.'
+		c.command :perform do |perform|
+			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
+			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
+			perform.flag [:m, :mode], desc: "running mode",
+			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
+			perform.action do |_global_options, options, _args|
+				Diggit::Dig.it.join(options[:s], options[:a], options[:m])
+			end
+		end
+		c.default_command :list
 	end
-	c.default_command :list
-end
 
-desc 'Manage the analyses of the diggit folder.'
-command :analyses do |c|
-	c.desc 'List the analyses'
-	c.command :list do |list|
-		list.action do |_global_options, _options, _args|
-			Diggit::Dig.it.config.get_analyses.each { |a| Log.info a.name }
+	desc 'Manage the analyses of the diggit folder.'
+	command :analyses do |c|
+		c.desc 'List the analyses'
+		c.command :list do |list|
+			list.action do |_global_options, _options, _args|
+				Diggit::Dig.it.config.get_analyses.each { |a| Log.info a.name }
+			end
 		end
-	end
-	c.desc 'Add an analysis.'
-	c.arg_name 'name'
-	c.command :add do |add|
-		add.action do |_global_options, _options, args|
-			Diggit::Dig.it.config.add_analysis args[0]
+		c.desc 'Add an analysis.'
+		c.arg_name 'name'
+		c.command :add do |add|
+			add.action do |_global_options, _options, args|
+				Diggit::Dig.it.config.add_analysis args[0]
+			end
 		end
-	end
-	c.desc 'Delete an analysis.'
-	c.arg_name 'name'
-	c.command :del do |add|
-		add.action do |_global_options, _options, args|
-			Diggit::Dig.it.config.del_analysis args[0]
+		c.desc 'Delete an analysis.'
+		c.arg_name 'name'
+		c.command :del do |del|
+			del.action do |_global_options, _options, args|
+				Diggit::Dig.it.config.del_analysis args[0]
+			end
 		end
-	end
-	c.desc 'Perform analyses.'
-	c.command :perform do |perform|
-		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
-		perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
-		perform.flag [:m, :mode], desc: "running mode",
-				must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
-		perform.action do |_global_options, options, _args|
-			Diggit::Dig.it.analyze(options[:s], options[:a], options[:m])
+		c.desc 'Perform analyses.'
+		c.command :perform do |perform|
+			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
+			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
+			perform.flag [:m, :mode], desc: "running mode",
+			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
+			perform.action do |_global_options, options, _args|
+				Diggit::Dig.it.analyze(options[:s], options[:a], options[:m])
+			end
 		end
+		c.default_command :list
 	end
-	c.default_command :list
-end
 
-desc 'Manage clone actions.'
-command :clone do |c|
-	c.desc 'Perform the clones.'
-	c.command :perform do |perform|
-		perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
-		perform.action do |_global_options, options, _args|
-			Diggit::Dig.it.clone(*options[:s])
+	desc 'Manage clone actions.'
+	command :clones do |c|
+		c.desc 'Perform the clones.'
+		c.command :perform do |perform|
+			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
+			perform.action do |_global_options, options, _args|
+				Diggit::Dig.it.clone(*options[:s])
+			end
 		end
+		c.default_command :perform
 	end
-	c.default_command :perform
-end
+	pre do |globals, _command, _options, _args|
+		Diggit::Dig.init globals[:f]
+		Log.level = :fine if globals[:v]
+		true
+	end
 
-pre do |global, _command, _options, _args|
-	Diggit::Dig.init
-	Log.level = :fine if global[:v]
-	true
-end
+	post do |_global, _command, _options, _args|
+			# Post logic here, skips_post to skip commands
+	end
 
-post do |_global, _command, _options, _args|
-		# Post logic here, skips_post to skip commands
-end
+	on_error do |exception|
+		Log.error "Error running diggit."
+		Log.error exception.message
+		Log.info exception.backtrace.join("\n")
+		false
+	end
 
-on_error do |exception|
-	Log.error "Error running diggit."
-	Log.error exception.message
-	Log.info exception.backtrace.join("\n")
-	false
+	exit run(ARGV)
 end
-
-exit run(ARGV)
