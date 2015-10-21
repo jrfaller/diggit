@@ -134,7 +134,7 @@ module Diggit
 		def load_repository
 			fail "Source not cloned #{url}." if new?
 			@repository = Rugged::Repository.new(folder)
-			@repository.checkout("master")
+			@repository.checkout("origin/master")
 		end
 	end
 
