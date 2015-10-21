@@ -1,6 +1,7 @@
 # Changelog of Diggit
 
 ### Version 2.0.3
+* Now repositories are reseted to master by default
 
 ### Version 2.0.2
 * Fixed analysis cleaning

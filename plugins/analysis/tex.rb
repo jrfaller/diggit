@@ -39,7 +39,6 @@ class Tex < Diggit::Analysis
 
 	def clean
 		FileUtils.rm_rf(file)
-		repo.checkout("master")
 	end
 
 	def file
