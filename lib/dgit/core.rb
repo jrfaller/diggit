@@ -119,13 +119,13 @@ module Diggit
 		end
 
 		def clone
+			self.error = nil
 			if File.exist?(folder)
 				Rugged::Repository.new(folder)
 			else
 				Rugged::Repository.clone_at(url, folder)
 			end
 			self.state = :cloned
-			self.error = nil
 		rescue => e
 			Log.error "Error cloning #{url}."
 			self.error = Journal.dump_error(e)
@@ -514,6 +514,7 @@ module Diggit
 					a = klass.new(@options)
 					s.load_repository
 					a.source = s
+					s.error = nil
 					clean_analysis(s, a) if clean_mode?(mode) && s.all_analyses.include?(a.name)
 					run_analysis(s, a) if run_mode?(mode) && !s.performed_analyses.include?(a.name)
 				end
@@ -528,6 +529,7 @@ module Diggit
 		def join(source_ids = [], joins = [], mode = :run)
 			@config.get_joins(*joins).each do |klass|
 				j = klass.new(@options)
+				@journal.join_error = nil
 				j.clean if clean_mode?(mode)
 				source_array = @journal.sources_by_ids(*source_ids).select do |s|
 					s.cloned? && (klass.required_analyses - s.performed_analyses).empty?
