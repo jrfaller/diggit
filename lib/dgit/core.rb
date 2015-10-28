@@ -218,6 +218,7 @@ module Diggit
 		end
 
 		def self.dump_error(error)
+			return nil if error.nil?
 			{ name: error.class.name, message: error.to_s, backtrace: error.backtrace }
 		end
 	end
