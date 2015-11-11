@@ -26,7 +26,6 @@ class Javadoc < Diggit::Analysis
 
 	def run
 		path_md = JsonPath.new("$..*[?(@.typeLabel == 'MethodDeclaration')]")
-		path_name = JsonPath.new("$.*[?(@.typeLabel == 'SimpleName')]")
 		files = Dir['**/*.java']
 		files.each do |file|
 			puts file
