@@ -183,6 +183,11 @@ module Diggit
 			Dig.it.save_config
 		end
 
+		def del_all_joins
+			@joins = []
+			Dig.it.save_config
+		end
+
 		def get_joins(*names)
 			return joins if names.empty?
 			joins.select { |j| joins.include?(j.simple_name) }

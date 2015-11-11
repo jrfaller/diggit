@@ -142,12 +142,31 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_addon", :performed)).to be false
 	end
 
+	it "should handle joins with error" do
+		Diggit::Dig.it.config.add_join("test_join_with_error")
+		Diggit::Dig.it.join
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_error", :performed)).to be false
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_error", :canceled)).to be true
+		expect(Diggit::Dig.it.journal.workspace.error?).to be true
+		expect(Diggit::Dig.it.journal.workspace.canceled[0].error.message).to eq("Error!")
+	end
+
 	it "should clean joins" do
 		expect_any_instance_of(TestJoin).to receive(:clean)
 		expect_any_instance_of(TestJoinWithAddon).not_to receive(:clean)
 		Diggit::Dig.it.join([], [], :clean)
 		expect(Diggit::Dig.it.journal.workspace.has?("test_join")).to be false
 		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_addon")).to be false
+		Diggit::Dig.it.config.del_all_joins
+	end
+
+	it "should handle joins with clean errors" do
+		Diggit::Dig.it.config.add_join("test_join_with_clean_error")
+		Diggit::Dig.it.join
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_clean_error", :performed)).to be true
+		Diggit::Dig.it.join([], [], :clean)
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_clean_error", :performed)).to be false
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_clean_error", :canceled)).to be true
 	end
 
 	it "should clean analyses" do
