@@ -101,6 +101,10 @@ module Diggit
 		def toc
 			@end = Time.now
 		end
+
+		def duration
+			@end - @start
+		end
 	end
 
 	class SourceEntry < EntryWithRunnables

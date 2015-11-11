@@ -106,7 +106,7 @@ module Diggit
 		end
 
 		def sources_by_state(state, error = false)
-			@sources.select { |_u, s| s.state == state && s.error? == error }.values
+			@sources.select { |_u, s| s.entry.state == state && s.entry.error? == error }.values
 		end
 
 		def sources_by_ids(*ids)
