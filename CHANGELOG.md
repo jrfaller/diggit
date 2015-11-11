@@ -2,6 +2,8 @@
 
 ### Version 2.0.3
 * Now repositories are reseted to master by default
+* Journal infrastructure has been vastly improved
+* Journal now records time for analyses and joins
 
 ### Version 2.0.2
 * Fixed analysis cleaning

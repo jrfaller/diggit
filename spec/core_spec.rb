@@ -100,7 +100,7 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.clone
 		expect(File.exist?("spec/dgit/sources/#{TEST_URL.id}/.git")).to be true
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
-		Diggit::Dig.it.journal.sources_by_ids(0)[0].state = :new
+		Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.state = :new
 		Diggit::Dig.it.clone
 		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
 		Diggit::Dig.init("spec/dgit")
@@ -113,18 +113,22 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:run)
 		Diggit::Dig.it.analyze
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.entry.has?("test_analysis", :performed)).to be true
+		expect(src.entry.has?("test_analysis_with_addon", :performed)).to be true
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq(%w(test_analysis test_analysis_with_addon))
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.entry.has?("test_analysis", :performed)).to be true
+		expect(src.entry.has?("test_analysis_with_addon", :performed)).to be true
 	end
 
 	it "should handle analyses with error" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
 		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
-		expect(src.all_analyses).to include("test_analysis")
-		expect(src.error?).to be true
-		expect(src.error[:message]).to eq("Error!")
+		expect(src.entry.has?("test_analysis_with_error", :canceled)).to be true
+		expect(src.entry.error?).to be true
+		expect(src.entry.canceled[0].error.message).to eq("Error!")
 	end
 
 	it "should perform joins" do
@@ -133,21 +137,24 @@ RSpec.describe Diggit::Dig do
 		expect_any_instance_of(TestJoin).to receive(:run)
 		expect_any_instance_of(TestJoinWithAddon).not_to receive(:run)
 		Diggit::Dig.it.join
-		expect(Diggit::Dig.it.journal.join?("test_join")).to be true
-		expect(Diggit::Dig.it.journal.join?("test_join_with_addon")).to be false
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join", :performed)).to be true
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_addon", :performed)).to be false
 	end
 
 	it "should clean joins" do
 		expect_any_instance_of(TestJoin).to receive(:clean)
-		expect_any_instance_of(TestJoinWithAddon).to receive(:clean)
+		expect_any_instance_of(TestJoinWithAddon).not_to receive(:clean)
 		Diggit::Dig.it.join([], [], :clean)
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join")).to be false
+		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_addon")).to be false
 	end
 
 	it "should clean analyses" do
 		expect_any_instance_of(TestAnalysis).to receive(:clean)
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
 		Diggit::Dig.it.analyze([], [], :clean)
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].all_analyses).to eq([])
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.has?("test_analysis")).to be false
+		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.has?("test_analysis_with_addon")).to be false
 	end
 
 	it "should read source options" do

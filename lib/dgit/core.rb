@@ -22,6 +22,7 @@ require 'oj'
 require 'rugged'
 require 'singleton'
 require_relative 'log'
+require_relative 'entries'
 
 class String
 	# Returns a underscore cased version of the string.
@@ -56,12 +57,11 @@ end
 
 module Diggit
 	class Source
-		attr_reader :url, :repository
-		attr_accessor :entry
+		attr_reader :url, :repository, :entry
 
 		def initialize(url)
 			@url = url
-			@entry = Journal.new_source_entry
+			@entry = SourceEntry.new
 			@repository = nil
 		end
 
@@ -73,82 +73,32 @@ module Diggit
 			Dig.it.file_path("sources/#{id}")
 		end
 
-		def error?
-			!(@entry[:last_error].nil? || @entry[:last_error].empty?)
-		end
-
-		def error
-			@entry[:last_error]
-		end
-
-		def error=(error)
-			@entry[:last_error] = error
-		end
-
-		def state
-			@entry[:state]
-		end
-
-		def state=(state)
-			@entry[:state] = state
-		end
-
-		def new?
-			@entry[:state] == :new
-		end
-
-		def cloned?
-			@entry[:state] == :cloned
-		end
-
-		def all_analyses
-			performed_analyses + ongoing_analyses
-		end
-
-		def performed_analyses
-			@entry[:performed_analyses]
-		end
-
-		def ongoing_analyses
-			@entry[:ongoing_analyses]
-		end
-
-		def clean_analysis(analysis)
-			performed_analyses.delete_if { |e| e == analysis.name }
-			ongoing_analyses.delete_if { |e| e == analysis.name }
-		end
-
 		def clone
-			self.error = nil
+			@entry.error = nil
 			if File.exist?(folder)
 				Rugged::Repository.new(folder)
 			else
 				Rugged::Repository.clone_at(url, folder)
 			end
-			self.state = :cloned
+			@entry.state = :cloned
 		rescue => e
 			Log.error "Error cloning #{url}."
-			self.error = Journal.dump_error(e)
+			@entry.error = e
 		end
 
 		def load_repository
-			fail "Source not cloned #{url}." if new?
+			fail "Source not cloned #{url}." if @entry.new?
 			@repository = Rugged::Repository.new(folder)
 			@repository.checkout("origin/master")
 		end
 	end
 
 	class Journal
-		def initialize(hash)
+		attr_reader :sources, :workspace
+
+		def initialize
 			@sources = {}
-			@workspace = {}
-			hash[:urls].each do |u|
-				s = Source.new(u)
-				s.entry = hash[:sources][u] if !hash[:sources].nil? && hash[:sources].key?(u)
-				@sources[u] = s
-			end
-			@workspace = hash[:workspace]
-			@workspace = Journal.new_workspace_entry if hash[:workspace].nil? || hash[:workspace].empty?
+			@workspace = WorkspaceEntry.new
 		end
 
 		def sources
@@ -176,50 +126,13 @@ module Diggit
 			Dig.it.save_journal
 		end
 
+		def source?(url)
+			@sources.key?(url)
+		end
+
 		def add_source(url)
 			@sources[url] = Source.new(url) unless @sources.key?(url)
 			Dig.it.save_journal
-		end
-
-		def join?(name)
-			@workspace[:performed_joins].include?(name)
-		end
-
-		def add_join(name)
-			@workspace[:performed_joins] << name
-			Dig.it.save_journal
-		end
-
-		def join_error?
-			!@workspace[:last_error].nil?
-		end
-
-		def join_error
-			@workspace[:last_error]
-		end
-
-		def join_error=(error)
-			@workspace[:last_error] = Journal.dump_error(error)
-			Dig.it.save_journal
-		end
-
-		def to_hash
-			entry_hash = {}
-			@sources.each { |entry| entry_hash[entry[0]] = entry[1].entry }
-			{ urls: @sources.keys, sources: entry_hash, workspace: @workspace }
-		end
-
-		def self.new_source_entry
-			{ state: :new, performed_analyses: [], error_analyses: [], ongoing_analyses: [], last_error: {} }
-		end
-
-		def self.new_workspace_entry
-			{ performed_joins: [], last_error: {} }
-		end
-
-		def self.dump_error(error)
-			return nil if error.nil?
-			{ name: error.class.name, message: error.to_s, backtrace: error.backtrace }
 		end
 	end
 
@@ -418,7 +331,7 @@ module Diggit
 				Oj.to_file(File.expand_path(DGIT_CONFIG, dgit_folder), Config.empty_config)
 				Oj.to_file(File.expand_path(DGIT_OPTIONS, dgit_folder), {})
 				FileUtils.touch(File.expand_path(DGIT_SOURCES, dgit_folder))
-				Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), {})
+				Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), Journal.new)
 			end
 			FileUtils.mkdir(File.expand_path('sources', folder)) unless File.exist?(File.expand_path('sources', folder))
 			unless File.exist?(File.expand_path("plugins", folder))
@@ -457,17 +370,17 @@ module Diggit
 		def load_journal
 			url_array = []
 			IO.readlines(config_path(DGIT_SOURCES)).each { |l| url_array << l.strip }
-			saved_hash = Oj.load_file(config_path(DGIT_JOURNAL))
-			hash = { urls: url_array, sources: saved_hash[:sources], workspace: saved_hash[:workspace] }
-			@journal = Journal.new(hash)
+			@journal = Oj.load_file(config_path(DGIT_JOURNAL))
+			url_array.each do |url|
+				@journal.add_source(url)
+			end
 		end
 
 		# Save the journal to +.dgit/journal+
 		# @return [void]
 		def save_journal
-			hash = @journal.to_hash
-			File.open(config_path(DGIT_SOURCES), "w") { |f| hash[:urls].each { |u| f.puts(u) } }
-			Oj.to_file(config_path(DGIT_JOURNAL), { sources: hash[:sources], workspace: hash[:workspace] })
+			File.open(config_path(DGIT_SOURCES), "w") { |f| @journal.sources.each { |source| f.puts(source.url) } }
+			Oj.to_file(config_path(DGIT_JOURNAL), @journal, indent: 2)
 		end
 
 		# Load the options from +.dgit/options+
@@ -499,7 +412,7 @@ module Diggit
 		# @param source_ids [Array<Integer>] the ids of the sources.
 		# @return [void]
 		def clone(*source_ids)
-			@journal.sources_by_ids(*source_ids).select(&:new?).each(&:clone)
+			@journal.sources_by_ids(*source_ids).select { |s| s.entry.new? }.each(&:clone)
 		ensure
 			save_journal
 		end
@@ -510,14 +423,13 @@ module Diggit
 		# @param mode [Symbol] the mode: +:run+, +:rerun+ or +:clean+.
 		# @return [void]
 		def analyze(source_ids = [], analyses = [], mode = :run)
-			@journal.sources_by_ids(*source_ids).select(&:cloned?).each do |s|
+			@journal.sources_by_ids(*source_ids).select { |s| s.entry.cloned? }.each do |s|
 				@config.get_analyses(*analyses).each do |klass|
 					a = klass.new(@options)
 					s.load_repository
 					a.source = s
-					s.error = nil
-					clean_analysis(s, a) if clean_mode?(mode) && s.all_analyses.include?(a.name)
-					run_analysis(s, a) if run_mode?(mode) && !s.performed_analyses.include?(a.name)
+					clean_analysis(s, a) if clean_mode?(mode) && s.entry.has?(a, :all)
+					run_analysis(s, a) if run_mode?(mode) && !s.entry.has?(a, :all)
 				end
 			end
 		end
@@ -530,12 +442,11 @@ module Diggit
 		def join(source_ids = [], joins = [], mode = :run)
 			@config.get_joins(*joins).each do |klass|
 				j = klass.new(@options)
-				@journal.join_error = nil
-				j.clean if clean_mode?(mode)
+				clean_join(j) if clean_mode?(mode) && @journal.workspace.has?(j, :all)
 				source_array = @journal.sources_by_ids(*source_ids).select do |s|
-					s.cloned? && (klass.required_analyses - s.performed_analyses).empty?
+					s.entry.cloned? && (klass.required_analyses - s.entry.performed.map(&:name)).empty?
 				end
-				run_join(j, source_array) if run_mode?(mode) && !source_array.empty?
+				run_join(j, source_array) if run_mode?(mode) && !source_array.empty? && !@journal.workspace.has?(j, :all)
 			end
 		end
 
@@ -549,34 +460,55 @@ module Diggit
 			mode == :rerun || mode == :run
 		end
 
+		def clean_join(j)
+			j.clean
+			@journal.workspace.clean(j)
+		ensure
+			save_journal
+		end
+
 		def clean_analysis(s, a)
 			a.clean
-			s.clean_analysis(a)
+			s.entry.clean(a)
 		ensure
 			save_journal
 		end
 
 		def run_analysis(s, a)
-			s.ongoing_analyses << a.name
-			a.run
-			s.ongoing_analyses.pop
-			s.performed_analyses << a.name
-		rescue => e
-			Log.error "Error applying analysis #{a.name} on #{s.url}"
-			s.error = Journal.dump_error(e)
-		ensure
-			save_journal
+			entry = RunnableEntry.new(a)
+			entry.tic
+			begin
+				a.run
+			rescue => e
+				entry.toc
+				entry.error = e
+				s.entry.canceled << entry
+				Log.error "Error applying analysis #{a.name} on #{s.url}"
+			else
+				entry.toc
+				s.entry.performed << entry
+			ensure
+				save_journal
+			end
 		end
 
 		def run_join(j, source_array)
+			entry = RunnableEntry.new(j)
 			j.sources = source_array
-			j.run
-			@journal.add_join(j.name)
-		rescue => e
-			Log.error "Error applying join #{j.name}"
-			@journal.join_error = e
-		ensure
-			save_journal
+			entry.tic
+			begin
+				j.run
+			rescue => e
+				entry.toc
+				entry.error = e
+				@journal.workspace.canceled << entry
+				Log.error "Error applying join #{j.name}"
+			else
+				entry.toc
+				@journal.workspace.performed << entry
+			ensure
+				save_journal
+			end
 		end
 	end
 end

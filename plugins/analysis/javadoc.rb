@@ -17,8 +17,28 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-require_relative 'dgit/core'
-require_relative 'dgit/plugins'
-require_relative 'dgit/version'
-require_relative 'dgit/log'
-require_relative 'dgit/entries'
+require 'jsonpath'
+
+class Javadoc < Diggit::Analysis
+	def initialize(options)
+		super(options)
+	end
+
+	def run
+		path_md = JsonPath.new("$..*[?(@.typeLabel == 'MethodDeclaration')]")
+		path_name = JsonPath.new("$.*[?(@.typeLabel == 'SimpleName')]")
+		files = Dir['**/*.java']
+		files.each do |file|
+			puts file
+			json = `gumtree parse "#{file}"`
+			md = path_md.on(json)
+			md.each do |m|
+				puts m
+				exit
+			end
+		end
+	end
+
+	def clean
+	end
+end
