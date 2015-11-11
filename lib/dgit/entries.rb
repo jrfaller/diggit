@@ -85,9 +85,9 @@ module Diggit
 		attr_accessor :start, :end, :name
 
 		def initialize(runnable)
-			@start = nil
-			@end = nil
 			@name = runnable.name
+			@end = nil
+			tic
 		end
 
 		def error?

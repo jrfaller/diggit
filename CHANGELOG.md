@@ -4,6 +4,7 @@
 * Now repositories are reseted to master by default
 * Journal infrastructure has been vastly improved
 * Journal now records time for analyses and joins
+* Journal now handles runnables with clean errors
 
 ### Version 2.0.2
 * Fixed analysis cleaning

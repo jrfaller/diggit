@@ -126,6 +126,7 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
 		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.entry.has?("test_analysis_with_error", :performed)).to be false
 		expect(src.entry.has?("test_analysis_with_error", :canceled)).to be true
 		expect(src.entry.error?).to be true
 		expect(src.entry.canceled[0].error.message).to eq("Error!")
@@ -153,8 +154,20 @@ RSpec.describe Diggit::Dig do
 		expect_any_instance_of(TestAnalysis).to receive(:clean)
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
 		Diggit::Dig.it.analyze([], [], :clean)
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.has?("test_analysis")).to be false
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.has?("test_analysis_with_addon")).to be false
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.entry.has?("test_analysis")).to be false
+		expect(src.entry.has?("test_analysis_with_addon")).to be false
+		Diggit::Dig.it.config.del_all_analyses
+	end
+
+	it "should handle analyses with clean errors" do
+		Diggit::Dig.it.config.add_analysis("test_analysis_with_clean_error")
+		Diggit::Dig.it.analyze([], ["test_analysis_with_clean_error"])
+		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		expect(src.entry.has?("test_analysis_with_clean_error", :performed)).to be true
+		Diggit::Dig.it.analyze([], [], :clean)
+		expect(src.entry.has?("test_analysis_with_clean_error", :performed)).to be false
+		expect(src.entry.has?("test_analysis_with_clean_error", :canceled)).to be true
 	end
 
 	it "should read source options" do
@@ -168,7 +181,6 @@ RSpec.describe Diggit::Dig do
 
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_sources_options")
 		expect { Diggit::Dig.it.analyze }.to output(/myValue/).to_stdout
-		Diggit::Dig.it.analyze([], [], :clean)
-		Diggit::Dig.it.config.del_analysis("test_analysis_with_sources_options")
+		Diggit::Dig.it.config.del_all_analyses
 	end
 end

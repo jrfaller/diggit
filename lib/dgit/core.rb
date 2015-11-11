@@ -23,6 +23,7 @@ require 'rugged'
 require 'singleton'
 require_relative 'log'
 require_relative 'entries'
+require 'pry-byebug'
 
 class String
 	# Returns a underscore cased version of the string.
@@ -120,12 +121,6 @@ module Diggit
 			result
 		end
 
-		def update_source(source)
-			fail "No such source #{source}." unless @sources.key?(source.url)
-			@sources[source.url] = source
-			Dig.it.save_journal
-		end
-
 		def source?(url)
 			@sources.key?(url)
 		end
@@ -161,6 +156,11 @@ module Diggit
 
 		def del_analysis(name)
 			@analyses.delete_if { |a| a.simple_name == name }
+			Dig.it.save_config
+		end
+
+		def del_all_analyses
+			@analyses = []
 			Dig.it.save_config
 		end
 
@@ -428,8 +428,8 @@ module Diggit
 					a = klass.new(@options)
 					s.load_repository
 					a.source = s
-					clean_analysis(s, a) if clean_mode?(mode) && s.entry.has?(a, :all)
-					run_analysis(s, a) if run_mode?(mode) && !s.entry.has?(a, :all)
+					clean(a, s.entry) if clean_mode?(mode) && s.entry.has?(a)
+					run(a, s.entry) if run_mode?(mode) && !s.entry.has?(a)
 				end
 			end
 		end
@@ -442,11 +442,12 @@ module Diggit
 		def join(source_ids = [], joins = [], mode = :run)
 			@config.get_joins(*joins).each do |klass|
 				j = klass.new(@options)
-				clean_join(j) if clean_mode?(mode) && @journal.workspace.has?(j, :all)
+				clean(j, @journal.workspace) if clean_mode?(mode) && @journal.workspace.has?(j)
 				source_array = @journal.sources_by_ids(*source_ids).select do |s|
 					s.entry.cloned? && (klass.required_analyses - s.entry.performed.map(&:name)).empty?
 				end
-				run_join(j, source_array) if run_mode?(mode) && !source_array.empty? && !@journal.workspace.has?(j, :all)
+				j.sources = source_array
+				run(j, @journal.workspace) if run_mode?(mode) && !source_array.empty? && !@journal.workspace.has?(j)
 			end
 		end
 
@@ -460,52 +461,33 @@ module Diggit
 			mode == :rerun || mode == :run
 		end
 
-		def clean_join(j)
-			j.clean
-			@journal.workspace.clean(j)
-		ensure
-			save_journal
-		end
-
-		def clean_analysis(s, a)
-			a.clean
-			s.entry.clean(a)
-		ensure
-			save_journal
-		end
-
-		def run_analysis(s, a)
-			entry = RunnableEntry.new(a)
-			entry.tic
+		def clean(runnable, placeholder)
+			placeholder.clean(runnable)
+			entry = RunnableEntry.new(runnable)
 			begin
-				a.run
+				runnable.clean
 			rescue => e
 				entry.toc
 				entry.error = e
-				s.entry.canceled << entry
-				Log.error "Error applying analysis #{a.name} on #{s.url}"
-			else
-				entry.toc
-				s.entry.performed << entry
+				placeholder.canceled << entry
+				Log.error "Error cleaning #{runnable.name}"
 			ensure
 				save_journal
 			end
 		end
 
-		def run_join(j, source_array)
-			entry = RunnableEntry.new(j)
-			j.sources = source_array
-			entry.tic
+		def run(runnable, placeholder)
+			entry = RunnableEntry.new(runnable)
 			begin
-				j.run
+				runnable.run
 			rescue => e
 				entry.toc
 				entry.error = e
-				@journal.workspace.canceled << entry
-				Log.error "Error applying join #{j.name}"
+				placeholder.canceled << entry
+				Log.error "Error running #{runnable.name}"
 			else
 				entry.toc
-				@journal.workspace.performed << entry
+				placeholder.performed << entry
 			ensure
 				save_journal
 			end
