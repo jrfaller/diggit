@@ -75,7 +75,7 @@ module Diggit
 				sources = Diggit::Dig.it.journal.sources
 				sources.each_index do |idx|
 					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
-					sources[idx].error? ? Log.error(msg) : Log.ok(msg)
+					sources[idx].entry.error? ? Log.error(msg) : Log.ok(msg)
 				end
 			end
 		end
@@ -98,8 +98,8 @@ module Diggit
 			errors.action do |_global_options, _options, _args|
 				sources = Diggit::Dig.it.journal.sources
 				sources.each_index do |idx|
-					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
-					Log.error msg if sources[idx].error?
+					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].entry.state})"
+					Log.error msg if sources[idx].entry.error?
 				end
 			end
 		end
@@ -108,16 +108,22 @@ module Diggit
 		c.command :info do |info|
 			info.action do |_global_options, _options, args|
 				src = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
-				url = "URL: #{src.url}"
-				src.error? ? Log.error(url) : Log.info(url)
-				Log.info "State: #{src.state}"
-				Log.info "Performed analyses: #{src.performed_analyses.join(', ')}" unless src.performed_analyses.empty?
-				Log.error "Ongoing analyses: #{src.ongoing_analyses.join(', ')}" unless src.ongoing_analyses.empty?
-				if src.error?
-					error = src.error
+				Log.info "URL: #{src.url}"
+				Log.info "State: #{src.entry.state}"
+				Log.info "Performed analyses:" unless src.entry.performed.empty?
+				src.entry.performed.each do |e|
 					Log.indent do
-						Log.error error[:message]
-						Log.info error[:backtrace].join("\n")
+						Log.info "#{e.name}, time: #{e.duration}"
+					end
+				end
+				Log.info "Canceled analyses:" unless src.entry.canceled.empty?
+				src.entry.canceled.each do |e|
+					Log.indent do
+						Log.info "#{e.name}, time: #{e.duration}"
+						Log.indent do
+							Log.error e.error.message
+							Log.error e.error.backtrace.join("\n")
+						end
 					end
 				end
 			end

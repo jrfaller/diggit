@@ -26,7 +26,7 @@ class TestAnalysisWithSourcesOptions < Diggit::Analysis
 	end
 
 	def run
-		p(src_opt[@source]["myOption"])
+		puts src_opt[@source]["myOption"]
 	end
 
 	def clean

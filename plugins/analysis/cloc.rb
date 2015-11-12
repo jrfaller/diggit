@@ -43,6 +43,5 @@ class Cloc < Diggit::Analysis
 
 	def clean
 		db.client['cloc'].find({ source: @source.url }).delete_many
-		repo.checkout('master')
 	end
 end

@@ -17,31 +17,13 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-require 'fileutils'
-
-class Tex < Diggit::Analysis
-	require_addons 'out'
-
-	def initialize(options)
-		super(options)
-	end
+class TestJoinWithCleanError < Diggit::Join
+	require_analyses 'test_analysis'
 
 	def run
-		walker = Rugged::Walker.new(repo)
-		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
-		walker.push(repo.head.name)
-		walker.each do |c|
-			repo.checkout(c.oid, { strategy: [:force, :remove_untracked] })
-			words = Dir["**/*.tex"].reduce(0) { |a, e| a + `cat "#{e}" | wc -w`.to_i }
-			File.open(file, 'a') { |f| f.puts("#{source.url};#{c.oid};#{words}\n") }
-		end
 	end
 
 	def clean
-		FileUtils.rm_rf(file)
-	end
-
-	def file
-		"#{out.out}/words.csv"
+		fail "Error!"
 	end
 end
