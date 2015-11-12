@@ -1,6 +1,6 @@
 # Changelog of Diggit
 
-### Version 2.0.3
+### Version 2.1.0
 * Now repositories are reseted to master by default
 * Journal infrastructure has been vastly improved
 * Journal now records time for analyses and joins

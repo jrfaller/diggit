@@ -18,9 +18,16 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 module Diggit
+	# Journal entry for elements that can have error.
+	#
+	# @!attribute [r] error
+	# 	@return [ErrorEntry, nil] the error entry.
 	module EntryWithError
 		attr_reader :error
 
+		# Set the error of the entry.
+		# @param e [Exception, nil] the error, to indicate an absence of error, pass +nil+.
+		# @return [void]
 		def error=(e)
 			if e.nil?
 				@error = nil
@@ -30,6 +37,12 @@ module Diggit
 		end
 	end
 
+	# Journal entry for elements that can launch runnables.
+	#
+	# @!attribute [r] performed
+	# 	@return [Array<RunnableEntry>] the list of performed runnables.
+	# @!attribute [r] canceled
+	# 	@return [Array<RunnableEntry>] the list of canceled runnables.
 	class EntryWithRunnables
 		attr_reader :performed, :canceled
 
@@ -38,10 +51,16 @@ module Diggit
 			@canceled = []
 		end
 
+		# Error status of the element.
+		# @return [Boolean]
 		def error?
 			@canceled.size > 0
 		end
 
+		# Check if a runnable has been performed or canceled.
+		# @param runnable_or_string [Runnable, String] the runnable or the name of the runnable.
+		# @param state [Symbol] the status of the runnable: +:performed+, +:canceled+ or +:all+.
+		# @return [Boolean]
 		def has?(runnable_or_string, state = :all)
 			name = retrieve_name(runnable_or_string)
 			if state == :performed
@@ -53,6 +72,9 @@ module Diggit
 			end
 		end
 
+		# Remove a runnable from all the entries.
+		# @param runnable_or_string [Runnable, String] the runnable or the name of the runnable
+		# @return [void]
 		def clean(runnable_or_string)
 			name = retrieve_name(runnable_or_string)
 			@performed.delete_if { |e| e.name == name }
