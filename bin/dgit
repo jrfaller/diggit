@@ -74,7 +74,7 @@ module Diggit
 			list.action do |_global_options, _options, _args|
 				sources = Diggit::Dig.it.journal.sources
 				sources.each_index do |idx|
-					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
+					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].entry.state})"
 					sources[idx].entry.error? ? Log.error(msg) : Log.ok(msg)
 				end
 			end

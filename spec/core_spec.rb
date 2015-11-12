@@ -20,9 +20,6 @@
 require 'spec_helper'
 require 'fileutils'
 
-FileUtils.rm_rf('spec/dgit/.dgit')
-FileUtils.rm_rf('spec/dgit/sources')
-
 RSpec.describe Diggit::Dig do
 	it "should refuse to be launched outside a dgit folder" do
 		expect { Diggit::Dig.init("spec/dgit") }.to raise_error(/is not a diggit folder/)

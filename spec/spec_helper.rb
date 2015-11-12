@@ -9,11 +9,11 @@
 #
 # Diggit is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+# along with Diggit.	If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
@@ -23,3 +23,10 @@ Coveralls.wear!
 require_relative('../lib/dgit')
 
 TEST_URL = 'https://github.com/jrfaller/test-git.git'
+
+RSpec.configure do |config|
+	config.before(:all) do
+		FileUtils.rm_rf('spec/dgit/.dgit')
+		FileUtils.rm_rf('spec/dgit/sources')
+	end
+end
