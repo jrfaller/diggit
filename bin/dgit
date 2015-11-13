@@ -49,8 +49,8 @@ module Diggit
 		c.action do |_global_options, _options, _args|
 			Log.info "Config"
 			Log.info "======"
-			Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.join(', ')}"
-			Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.join(', ')}"
+			Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.map(&:name).join(', ')}"
+			Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.map(&:name).join(', ')}"
 			Log.info ""
 			Log.info "Journal"
 			Log.info "======="
@@ -63,6 +63,20 @@ module Diggit
 			Log.indent do
 				Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:cloned).size}"
 				Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:cloned, true).size}"
+			end
+			Log.info "- Performed joins:" unless Diggit::Dig.it.journal.workspace.performed.empty?
+			Diggit::Dig.it.journal.workspace.performed.each do |e|
+				Log.indent { Log.info "#{e.name}, time: #{e.duration}" }
+			end
+			Log.info "- Canceled joins:" unless Diggit::Dig.it.journal.workspace.canceled.empty?
+			Diggit::Dig.it.journal.workspace.canceled.each do |e|
+				Log.indent do
+					Log.info "#{e.name}, time: #{e.duration}"
+					Log.indent do
+						Log.error e.error.message
+						Log.error e.error.backtrace.join("\n")
+					end
+				end
 			end
 		end
 	end
@@ -112,9 +126,7 @@ module Diggit
 				Log.info "State: #{src.entry.state}"
 				Log.info "Performed analyses:" unless src.entry.performed.empty?
 				src.entry.performed.each do |e|
-					Log.indent do
-						Log.info "#{e.name}, time: #{e.duration}"
-					end
+					Log.indent { Log.info "#{e.name}, time: #{e.duration}" }
 				end
 				Log.info "Canceled analyses:" unless src.entry.canceled.empty?
 				src.entry.canceled.each do |e|

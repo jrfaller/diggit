@@ -38,7 +38,7 @@ RSpec.describe Diggit do
 		expect(out).to match(/new/)
 	end
 
-	it "should perform clone" do
+	it "should perform clones" do
 		`bin/dgit -f spec/dgit clones perform`
 		out = `bin/dgit -f spec/dgit sources list`
 		expect(out).to match(/cloned/)
@@ -47,10 +47,10 @@ RSpec.describe Diggit do
 	it "should add an analysis" do
 		`bin/dgit -f spec/dgit analyses add test_analysis`
 		out = `bin/dgit -f spec/dgit status`
-		expect(out).to match(/TestAnalysis/)
+		expect(out).to match(/test_analysis/)
 	end
 
-	it "should add perform the analysis" do
+	it "should perform the analyses" do
 		`bin/dgit -f spec/dgit analyses perform`
 		out = `bin/dgit -f spec/dgit sources info 0`
 		expect(out).to match(/test_analysis/)
@@ -58,12 +58,49 @@ RSpec.describe Diggit do
 		expect(out).to_not match(/Canceled/)
 	end
 
-	it "should handle analysis with errors" do
+	it "should handle analyses with errors" do
 		`bin/dgit -f spec/dgit analyses add test_analysis_with_error`
 		`bin/dgit -f spec/dgit analyses perform`
 		out = `bin/dgit -f spec/dgit sources info 0`
 		expect(out).to match(/test_analysis_with_error/)
 		expect(out).to match(/Canceled/)
 		expect(out).to match(/Error!/)
+	end
+
+	it "should add joins" do
+		`bin/dgit -f spec/dgit joins add test_join`
+		out = `bin/dgit -f spec/dgit status`
+		expect(out).to match(/test_join/)
+		expect(out).to_not match(/Performed joins/)
+	end
+
+	it "should perform joins" do
+		`bin/dgit -f spec/dgit joins perform`
+		out = `bin/dgit -f spec/dgit status`
+		expect(out).to match(/test_join/)
+		expect(out).to match(/Performed joins/)
+	end
+
+	it "should handle joins with errors" do
+		`bin/dgit -f spec/dgit joins add test_join_with_error`
+		`bin/dgit -f spec/dgit joins perform`
+		out = `bin/dgit -f spec/dgit status`
+		expect(out).to match(/test_join_with_error/)
+		expect(out).to match(/Canceled/)
+		expect(out).to match(/Error!/)
+	end
+
+	it "should clean joins" do
+		`bin/dgit -f spec/dgit joins perform -m clean`
+		out = `bin/dgit -f spec/dgit status`
+		expect(out).to_not match(/Canceled/)
+		expect(out).to_not match(/Performed/)
+	end
+
+	it "should clean anlyses" do
+		`bin/dgit -f spec/dgit analyses perform -m clean`
+		out = `bin/dgit -f spec/dgit sources info 0`
+		expect(out).to_not match(/Canceled/)
+		expect(out).to_not match(/Performed/)
 	end
 end

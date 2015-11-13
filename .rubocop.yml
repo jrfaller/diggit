@@ -3,6 +3,10 @@ AllCops:
     - 'spec/dgit/sources/**/*'
     - 'tmp/**/*'
 
+ModuleLength:
+  Exclude:
+    - 'bin/dgit'
+
 Metrics/LineLength:
   Max: 120
 
