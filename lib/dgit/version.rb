@@ -18,5 +18,5 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 module Diggit
-	VERSION = '2.1.0'
+	VERSION = '2.1.1'
 end

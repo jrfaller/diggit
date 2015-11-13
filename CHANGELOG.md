@@ -1,5 +1,8 @@
 # Changelog of Diggit
 
+### Version 2.1.1
+* Fixed small bugs in the CLI
+
 ### Version 2.1.0
 * Now repositories are reseted to master by default
 * Journal infrastructure has been vastly improved
