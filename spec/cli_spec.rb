@@ -47,7 +47,7 @@ RSpec.describe Diggit do
 
 	it "should delete all sources" do
 		`bin/dgit -f spec/dgit sources add http://another-source`
-		`bin/dgit -f spec/dgit sources del`
+		`bin/dgit -f spec/dgit sources del --all`
 		out = `bin/dgit -f spec/dgit sources list`
 		expect(out).to be_empty
 		`bin/dgit -f spec/dgit sources add #{TEST_URL}` # add it back for the next tests

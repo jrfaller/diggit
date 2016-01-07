@@ -103,9 +103,12 @@ module Diggit
 		c.desc 'Delete a source.'
 		c.arg_name 'id'
 		c.command :del do |del|
-			del.action do |_global_options, _options, args|
-				if args[0].nil?
+			del.switch [:a, :all]
+			del.action do |_global_options, options, args|
+				if options[:all]
 					Diggit::Dig.it.journal.del_sources
+				elsif args.empty?
+					Log.error "You need to provide a source id or the --all switch"
 				else
 					Diggit::Dig.it.journal.del_sources args[0].to_i
 				end
