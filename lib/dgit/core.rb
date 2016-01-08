@@ -57,6 +57,7 @@ end
 
 module Diggit
 	class Source
+		DEFAULT_BRANCH = "origin/master"
 		attr_reader :url, :repository, :entry
 
 		def initialize(url)
@@ -89,7 +90,7 @@ module Diggit
 		def load_repository
 			fail "Source not cloned #{url}." if @entry.new?
 			@repository = Rugged::Repository.new(folder)
-			@repository.checkout("origin/master")
+			@repository.checkout(DEFAULT_BRANCH) if @repository.branches.exist? DEFAULT_BRANCH
 		end
 	end
 

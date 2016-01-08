@@ -104,7 +104,7 @@ module Diggit
 		c.arg_name 'file'
 		c.command :import do |import|
 			import.action do |_global_options, _options, args|
-				File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
+				File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line.strip) }
 			end
 		end
 		c.desc 'Display all sources in error.'
