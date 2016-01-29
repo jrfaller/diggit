@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -20,7 +21,7 @@
 
 # Manages options that are specific to a given source
 class SrcOpt < Diggit::Addon
-	SOURCES_OPTIONS_FILE = 'sources_options'
+	SOURCES_OPTIONS_FILE = 'sources_options'.freeze
 
 	def initialize(*args)
 		super

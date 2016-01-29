@@ -23,11 +23,11 @@ require 'oj'
 class Javadoc < Diggit::Analysis
 	require_addons 'out'
 
-	VALID_TYPES = [
-			'root', 'CompilationUnit', 'TypeDeclaration', 'FieldDeclaration', 'MethodDeclaration',
-			'SimpleName', 'QualifiedName', 'SimpleType', 'PrimitiveType', 'SingleVariableDeclaration',
-			'VariableDeclarationFragment', 'Modifier', 'Javadoc', 'TagElement', 'TextElement', 'ArrayType'
-	]
+	VALID_TYPES = %w(
+			root CompilationUnit TypeDeclaration FieldDeclaration MethodDeclaration SimpleName QualifiedName
+			QualifiedName SimpleType PrimitiveType ArrayType SingleVariableDeclaration VariableDeclarationFragment
+			Modifier Javadoc TagElement TextElement
+	).freeze
 
 	def initialize(options)
 		super(options)

@@ -29,11 +29,7 @@ module Diggit
 		# @param e [Exception, nil] the error, to indicate an absence of error, pass +nil+.
 		# @return [void]
 		def error=(e)
-			if e.nil?
-				@error = nil
-			else
-				@error = ErrorEntry.new(e)
-			end
+			@error = e.nil? ? nil : ErrorEntry.new(e)
 		end
 	end
 
@@ -84,11 +80,8 @@ module Diggit
 			private
 
 		def retrieve_name(runnable_or_string)
-			if runnable_or_string.is_a? String
-				return runnable_or_string
-			else
-				return runnable_or_string.name
-			end
+			return runnable_or_string if runnable_or_string.is_a? String
+			runnable_or_string.name
 		end
 	end
 

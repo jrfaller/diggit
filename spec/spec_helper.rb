@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -22,7 +23,7 @@ Coveralls.wear!
 
 require_relative('../lib/dgit')
 
-TEST_URL = 'https://github.com/jrfaller/test-git.git'
+TEST_URL = 'https://github.com/jrfaller/test-git.git'.freeze
 
 RSpec.configure do |config|
 	config.before(:all) do
