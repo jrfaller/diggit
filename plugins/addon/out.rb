@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -28,8 +29,8 @@
 class Out < Diggit::Addon
 	attr_reader :out, :tmp
 
-	DEFAULT_OUT = 'out'
-	DEFAULT_TMP = 'tmp'
+	DEFAULT_OUT = 'out'.freeze
+	DEFAULT_TMP = 'tmp'.freeze
 
 	def initialize(*args)
 		super

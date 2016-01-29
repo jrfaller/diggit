@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -28,8 +29,7 @@ class String
 	# Returns a underscore cased version of the string.
 	# @return [String]
 	def underscore
-		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-				.gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
+		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
 	end
 
 	# Returns a camel cased version of the string.
@@ -57,7 +57,7 @@ end
 
 module Diggit
 	class Source
-		DEFAULT_BRANCH = "origin/master"
+		DEFAULT_BRANCH = "origin/master".freeze
 		attr_reader :url, :repository, :entry
 
 		def initialize(url)
@@ -208,7 +208,7 @@ module Diggit
 	class PluginLoader
 		include Singleton
 
-		PLUGINS_TYPES = [:addon, :analysis, :join]
+		PLUGINS_TYPES = [:addon, :analysis, :join].freeze
 
 		# Load the plugin with the given name and type.
 		# @param name [String] the name of the plugin
@@ -217,15 +217,9 @@ module Diggit
 		# @return [Plugin, Class] the instance or class of the plugin.
 		def load_plugin(name, type, instance = false)
 			plugin = search_plugin(name, type)
-			if plugin
-				if instance
-					return plugin.new(Dig.it.options)
-				else
-					return plugin
-				end
-			else
-				fail "Plugin #{name} not found."
-			end
+			fail "Plugin #{name} not found." unless plugin
+			return plugin.new(Dig.it.options) if instance
+			plugin
 		end
 
 		def self.plugin_paths(name, type, root)
@@ -292,11 +286,11 @@ module Diggit
 	# @!attribute [r] plugin_loader
 	# 	@return [PluginLoader] utility classes to load plugins.
 	class Dig
-		DGIT_FOLDER = ".dgit"
-		DGIT_SOURCES = "sources"
-		DGIT_CONFIG = "config"
-		DGIT_OPTIONS = "options"
-		DGIT_JOURNAL = "journal"
+		DGIT_FOLDER = ".dgit".freeze
+		DGIT_SOURCES = "sources".freeze
+		DGIT_CONFIG = "config".freeze
+		DGIT_OPTIONS = "options".freeze
+		DGIT_JOURNAL = "journal".freeze
 
 		private_constant :DGIT_SOURCES, :DGIT_CONFIG, :DGIT_OPTIONS, :DGIT_JOURNAL
 
