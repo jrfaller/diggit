@@ -53,7 +53,6 @@ class Javadoc < Diggit::Analysis
 			methods_count += count_methods(doc)
 			commented_methods += count_commented_methods(doc)
 			commented_classes += count_commented_classes(doc)
-
 		end
 
 		Oj.to_file("#{out.out}/#{@source.id}.json", db)
@@ -84,12 +83,11 @@ class Javadoc < Diggit::Analysis
 			javadoc['main'] = m.xpath("Javadoc/TagElement[not(@label)]/TextElement/@label").to_s
 			javadoc['params'] = {}
 
-
 			javadoc['override'] = false
 			javadoc['inheritDoc'] = false
 			
 			m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
-				if(k.to_s.downcase.eql? "override") 
+				if k.to_s.casecmp("override") == 0
 					javadoc['override'] = true
 					override_count += 1
 
@@ -101,8 +99,7 @@ class Javadoc < Diggit::Analysis
 			end
 
 			m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
-
-				if(javadoc['params'][p.at_xpath("SimpleName/@label").to_s] == nil)
+				if(javadoc['params'][p.at_xpath("SimpleName/@label").to_s].nil?)
 					javadoc['params'][p.at_xpath("SimpleName/@label").to_s] = []
 				end
 
@@ -125,8 +122,8 @@ class Javadoc < Diggit::Analysis
 		modifiers = m.xpath("Modifier/@label")
 		res += "#{modifiers} " unless modifiers.empty?
 		res += "#{type(m)} #{m.at_xpath('SimpleName/@label')}("
-			params = m.xpath("SingleVariableDeclaration").map { |p| "#{type(p)} #{p.at_xpath('SimpleName/@label')}" }.join(',')
-			res += "#{params})"
+		params = m.xpath("SingleVariableDeclaration").map { |p| "#{type(p)} #{p.at_xpath('SimpleName/@label')}" }.join(',')
+		res += "#{params})"
 		res
 	end
 
