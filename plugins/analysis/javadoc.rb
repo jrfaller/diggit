@@ -24,10 +24,10 @@ class Javadoc < Diggit::Analysis
 	require_addons 'out'
 
 	VALID_TYPES = %w(
-										root CompilationUnit TypeDeclaration FieldDeclaration MethodDeclaration SimpleName QualifiedName
-										QualifiedName SimpleType PrimitiveType ArrayType SingleVariableDeclaration VariableDeclarationFragment
-										Modifier Javadoc TagElement TextElement MarkerAnnotation
-									).freeze
+			root CompilationUnit TypeDeclaration FieldDeclaration MethodDeclaration SimpleName QualifiedName
+			QualifiedName SimpleType PrimitiveType ArrayType SingleVariableDeclaration VariableDeclarationFragment
+			Modifier Javadoc TagElement TextElement MarkerAnnotation
+	).freeze
 
 	def initialize(options)
 		super(options)
@@ -86,19 +86,18 @@ class Javadoc < Diggit::Analysis
 			javadoc['override'] = false
 			javadoc['inheritDoc'] = false
 			m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
-				next if k.to_s.casecmp("override")
-					javadoc['override'] = true
-					override_count += 1
+				next unless k.to_s.casecmp("override")
+				javadoc['override'] = true
+				override_count += 1
 
-					if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count > 0
-						javadoc['inheritDoc'] = true
-						override_inherit_count += 1
-					end
+				if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count > 0
+					javadoc['inheritDoc'] = true
+					override_inherit_count += 1
 				end
 			end
 
 			m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
-				if (javadoc['params'][p.at_xpath("SimpleName/@label").to_s].nil?)
+				if javadoc['params'][p.at_xpath("SimpleName/@label").to_s].nil?
 					javadoc['params'][p.at_xpath("SimpleName/@label").to_s] = []
 				end
 
