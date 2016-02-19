@@ -26,7 +26,7 @@ class Javadoc < Diggit::Analysis
 	VALID_TYPES = %w(
 			root CompilationUnit TypeDeclaration FieldDeclaration MethodDeclaration SimpleName QualifiedName
 			QualifiedName SimpleType PrimitiveType ArrayType SingleVariableDeclaration VariableDeclarationFragment
-			Modifier Javadoc TagElement TextElement
+			Modifier Javadoc TagElement TextElement MarkerAnnotation
 	).freeze
 
 	def initialize(options)
@@ -37,28 +37,79 @@ class Javadoc < Diggit::Analysis
 		files = Dir["#{@source.folder}/src/main/java/**/*.java"]
 		puts "#{files.length} files to process"
 		db = {}
+
+		classes_count = 0
+		methods_count = 0
+		commented_classes = 0
+		commented_methods = 0
+
 		files.each do |f|
 			puts "processing #{f}"
 			xml = `gumtree parse -f XML "#{f}"`
-			doc = Nokogiri::XML(xml)
-			db[f] = index_methods(strip(doc))
+			doc = strip(Nokogiri::XML(xml))
+			db[f] = index_methods(doc)
+
+			classes_count += count_classes(doc)
+			methods_count += count_methods(doc)
+			commented_methods += count_commented_methods(doc)
+			commented_classes += count_commented_classes(doc)
 		end
+
 		Oj.to_file("#{out.out}/#{@source.id}.json", db)
 	end
 
 	def index_methods(doc)
-		res = []
+		res = {}
+
+		override_count = 0
+		override_inherit_count = 0
+
+		# Partie Metrics
+
+		data = {}
+		data["nb_class"] = count_classes(doc)
+		data["nb_method"] = count_methods(doc)
+		data["nb_class_commented"] = count_commented_classes(doc)
+		data["nb_method_commented"] = count_commented_methods(doc)
+
+		res["metrics"] = data
+
+		# Partie methodes
+		res["methods"] = []
+
 		doc.xpath("//MethodDeclaration").each do |m|
 			id = method_id(m)
 			javadoc = {}
 			javadoc['main'] = m.xpath("Javadoc/TagElement[not(@label)]/TextElement/@label").to_s
 			javadoc['params'] = {}
-			m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
-				javadoc['params'][p.at_xpath("SimpleName/@label").to_s] = p.xpath("TextElement/@label").to_s
+
+			javadoc['override'] = false
+			javadoc['inheritDoc'] = false
+			m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
+				next unless k.to_s.casecmp("override")
+				javadoc['override'] = true
+				override_count += 1
+
+				if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count > 0
+					javadoc['inheritDoc'] = true
+					override_inherit_count += 1
+				end
 			end
+
+			m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
+				if javadoc['params'][p.at_xpath("SimpleName/@label").to_s].nil?
+					javadoc['params'][p.at_xpath("SimpleName/@label").to_s] = []
+				end
+
+				javadoc['params'][p.at_xpath("SimpleName/@label").to_s].push(p.xpath("TextElement/@label").to_s)
+			end
+
 			javadoc['return'] = m.xpath("Javadoc/TagElement[@label='@return']/TextElement/@label").to_s
-			res << [id, javadoc]
+			res["methods"] << [id, javadoc]
+			res["metrics"]["nb_method_override"] = override_count
+			res["metrics"]["nb_method_override_inheritdoc"] = override_inherit_count
 		end
+
 		res
 	end
 
@@ -90,6 +141,31 @@ class Javadoc < Diggit::Analysis
 		end
 		active.each { |a| strip(a) }
 		doc
+	end
+
+	def count_classes(doc)
+		res = doc.xpath("//TypeDeclaration").count
+		res
+	end
+
+	def count_methods(doc)
+		res = doc.xpath("//MethodDeclaration").count
+		res
+	end
+
+	def count_commented_classes(doc)
+		res = doc.xpath("//TypeDeclaration/Javadoc").count
+		res
+	end
+
+	def count_commented_methods(doc)
+		res = doc.xpath("//MethodDeclaration/Javadoc").count
+		res
+	end
+
+	def class_comment(doc)
+		res = doc.xpath("//MethodDeclaration/Javadoc").to_s
+		res
 	end
 
 	def clean
