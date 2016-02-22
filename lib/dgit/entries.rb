@@ -50,7 +50,7 @@ module Diggit
 		# Error status of the element.
 		# @return [Boolean]
 		def error?
-			@canceled.size > 0
+			!@canceled.empty?
 		end
 
 		# Check if a runnable has been performed or canceled.
@@ -59,13 +59,9 @@ module Diggit
 		# @return [Boolean]
 		def has?(runnable_or_string, state = :all)
 			name = retrieve_name(runnable_or_string)
-			if state == :performed
-				return @performed.count { |e| e.name == name } > 0
-			elsif state == :canceled
-				return @canceled.count { |e| e.name == name } > 0
-			elsif state == :all
-				return (@performed + @canceled).count { |e| e.name == name } > 0
-			end
+			return @performed.count { |e| e.name == name } > 0 if state == :performed
+			return @canceled.count { |e| e.name == name } > 0 if state == :canceled
+			return (@performed + @canceled).count { |e| e.name == name } > 0 if state == :all
 		end
 
 		# Remove a runnable from all the entries.

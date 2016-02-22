@@ -19,7 +19,7 @@
 
 class TestAnalysisWithError < Diggit::Analysis
 	def run
-		fail "Error!"
+		raise "Error!"
 	end
 
 	def clean

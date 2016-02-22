@@ -88,7 +88,7 @@ module Diggit
 		end
 
 		def load_repository
-			fail "Source not cloned #{url}." if @entry.new?
+			raise "Source not cloned #{url}." if @entry.new?
 			@repository = Rugged::Repository.new(folder)
 			@repository.checkout(DEFAULT_BRANCH) if @repository.branches.exist? DEFAULT_BRANCH
 		end
@@ -115,7 +115,7 @@ module Diggit
 			source_array = sources
 			result = []
 			ids.each do |id|
-				fail "No such source index #{id}." if id >= source_array.length
+				raise "No such source index #{id}." if id >= source_array.length
 				result << source_array[id]
 			end
 			result
@@ -217,7 +217,7 @@ module Diggit
 		# @return [Plugin, Class] the instance or class of the plugin.
 		def load_plugin(name, type, instance = false)
 			plugin = search_plugin(name, type)
-			fail "Plugin #{name} not found." unless plugin
+			raise "Plugin #{name} not found." unless plugin
 			return plugin.new(Dig.it.options) if instance
 			plugin
 		end
@@ -236,13 +236,13 @@ module Diggit
 
 		def search_plugin(name, type)
 			return @plugins[name] if @plugins.key?(name)
-			fail "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
-			fail "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
+			raise "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
+			raise "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
 
 			base_class = Object.const_get("Diggit::#{type.to_s.camel_case}")
 			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.simple_name == name }
 
-			fail "No plugin #{name} of kind #{type} found." if plugins.empty?
+			raise "No plugin #{name} of kind #{type} found." if plugins.empty?
 			warn "Ambiguous plugin name: several plugins of kind #{type} named #{name} were found." if plugins.size > 1
 
 			@plugins[name] = plugins[0]
@@ -301,7 +301,7 @@ module Diggit
 		# Returns the diggit instance.
 		# @return [Dig] the instance.
 		def self.it
-			fail "Diggit has not been initialized." if @diggit.nil?
+			raise "Diggit has not been initialized." if @diggit.nil?
 			@diggit
 		end
 
@@ -359,7 +359,7 @@ module Diggit
 		# Use {.init} and {.it} instead.
 		# @return [Dig] a diggit object.
 		def initialize(folder)
-			fail "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
+			raise "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
 			@plugin_loader = PluginLoader.instance
 			@folder = folder
 		end
