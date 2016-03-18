@@ -2,6 +2,7 @@
 
 ### Version 2.1.1
 * Fixed small bugs in the CLI
+* Fixed source error not showing up in case of clone error
 
 ### Version 2.1.0
 * Now repositories are reseted to master by default

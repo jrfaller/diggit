@@ -124,6 +124,10 @@ module Diggit
 				src = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
 				Log.info "URL: #{src.url}"
 				Log.info "State: #{src.entry.state}"
+				unless src.entry.error.nil?
+					Log.error src.entry.error.message
+					Log.error src.entry.error.backtrace.join("\n")
+				end
 				Log.info "Performed analyses:" unless src.entry.performed.empty?
 				src.entry.performed.each do |e|
 					Log.indent { Log.info "#{e.name}, time: #{e.duration}" }
