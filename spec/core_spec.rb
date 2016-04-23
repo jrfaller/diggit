@@ -93,20 +93,25 @@ RSpec.describe Diggit::Dig do
 	it "should store sources" do
 		Diggit::Dig.it.journal.add_source(TEST_URL)
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids.first.url).to eq TEST_URL
+		expect(Diggit::Dig.it.journal.sources_by_ids.first.url).to eq TEST_URL_INFO1
+		expect(Diggit::Dig.it.journal.sources_by_ids.first.oid).to eq TEST_URL_INFO2
 	end
 
 	it "should clone sources" do
 		Diggit::Dig.it.clone
-		expect(File.exist?("spec/dgit/sources/#{TEST_URL.id}/.git")).to be true
+		expect(File.exist?("spec/dgit/sources/#{TEST_URL_INFO1.id}/.git")).to be true
+		expect(File.exist?("spec/dgit/sources/#{TEST_URL_INFO1.id}/test/src/foo/Bar.java")).to be false
 		src = Diggit::Dig.it.journal.sources_by_ids.first
-		expect(src.url).to eq TEST_URL
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
 		src.entry.state = :new
 		Diggit::Dig.it.clone
-		expect(src.url).to eq TEST_URL
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
 		Diggit::Dig.init("spec/dgit")
 		src = Diggit::Dig.it.journal.sources_by_ids.first
-		expect(src.url).to eq TEST_URL
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
 	end
 
 	it "should perform analyses in order" do

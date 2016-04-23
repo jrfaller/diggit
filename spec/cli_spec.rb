@@ -32,9 +32,9 @@ RSpec.describe Diggit do
 	end
 
 	it "should add a source" do
-		`bin/dgit -f spec/dgit sources add #{TEST_URL}`
+		`bin/dgit -f spec/dgit sources add "#{TEST_URL}"`
 		out = `bin/dgit -f spec/dgit sources list`
-		expect(out).to match(/#{TEST_URL}/)
+		expect(out).to match(/#{TEST_URL_INFO1}/)
 		expect(out).to match(/new/)
 	end
 

@@ -58,10 +58,13 @@ end
 module Diggit
 	class Source
 		DEFAULT_BRANCH = "origin/master".freeze
-		attr_reader :url, :repository, :entry
+
+		attr_reader :url, :repository, :entry, :oid
 
 		def initialize(url)
-			@url = url
+			infos = url.split(/\|/)
+			@url = infos[0]
+			@oid = infos.size > 1 ? infos[1] : DEFAULT_BRANCH
 			@entry = SourceEntry.new
 			@repository = nil
 		end
@@ -76,11 +79,8 @@ module Diggit
 
 		def clone
 			@entry.error = nil
-			if File.exist?(folder)
-				Rugged::Repository.new(folder)
-			else
-				Rugged::Repository.clone_at(url, folder)
-			end
+			@repository = File.exist?(folder) ? Rugged::Repository.new(folder) : Rugged::Repository.clone_at(url, folder)
+			@repository.checkout(@oid, { strategy: :force })
 			@entry.state = :cloned
 		rescue => e
 			Log.error "Error cloning #{url}."
@@ -90,7 +90,7 @@ module Diggit
 		def load_repository
 			raise "Source not cloned #{url}." if @entry.new?
 			@repository = Rugged::Repository.new(folder)
-			@repository.checkout(DEFAULT_BRANCH) if @repository.branches.exist? DEFAULT_BRANCH
+			@repository.checkout(@oid, { strategy: :force })
 		end
 	end
 
@@ -126,7 +126,8 @@ module Diggit
 		end
 
 		def add_source(url)
-			@sources[url] = Source.new(url) unless @sources.key?(url)
+			key = url.split(/\|/)[0]
+			@sources[key] = Source.new(url) unless @sources.key?(key)
 			Dig.it.save_journal
 		end
 	end
