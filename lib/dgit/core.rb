@@ -130,6 +130,11 @@ module Diggit
 			@sources[key] = Source.new(url) unless @sources.key?(key)
 			Dig.it.save_journal
 		end
+
+		def del_sources(*ids)
+			sources_by_ids(*ids).each { |source| @sources.delete(source.url) }
+			Dig.it.save_journal
+		end
 	end
 
 	class Config
