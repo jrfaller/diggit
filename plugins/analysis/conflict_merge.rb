@@ -51,42 +51,61 @@ class ConflictMerge < Diggit::Analysis
 		commit.tree.walk(:preorder) do |r, e|
 			next if e[:type] == :tree
 			next if base.tree.get_entry_by_oid(e[:oid])
-			name = e[:name]
-			components = r == "" ? [] : r.split(File::SEPARATOR)
-			fname = flatten_name(r + name)
-			write(e, fname, out_dir, 'm')
-			write(find_oid(base.tree, components, name), fname, out_dir, 'b')
-			write(find_oid(left.tree, components, name), fname, out_dir, 'l')
-			write(find_oid(right.tree, components, name), fname, out_dir, 'r')
+			oids = find_oids(r, e[:name], base, left, right)
+			next if oids[:left].nil? || oids[:right].nil? # This would result in a trivial merge
+
+			fname = flatten_name(r + e[:name])
+			write(e[:oid], fname, out_dir, 'm')
+			if oids[:base].nil?
+				write_file("", fname, out_dir, 'b') # Create a fake file in base
+			else
+				write(oids[:base], fname, out_dir, 'b')
+			end
+			write(oids[:left], fname, out_dir, 'l')
+			write(oids[:right], fname, out_dir, 'r')
+
+			write_commit_log(out_dir, commit, base, left, right)
+
 			diff_file = File.join(out_dir, "#{fname}.diff3")
-			cmd = "#{DIFF3} -x" \
-					" \"#{File.join(out_dir, 'l', fname)}\"" \
-					" \"#{File.join(out_dir, 'b', fname)}\"" \
-					" \"#{File.join(out_dir, 'r', fname)}\"" \
-					" 2> /dev/null"
-			res = `#{cmd}`
-			system(
+			File.unlink diff_file unless system(
 					DIFF3,
 					"-m",
 					File.join(out_dir, 'l', fname),
 					File.join(out_dir, 'b', fname),
 					File.join(out_dir, 'r', fname),
-					out: diff_file,
-					err: File::NULL
-			) unless res.empty?
+					out: diff_file
+			) == false
 		end
+	end
+
+	def find_oids(root, name, base, left, right)
+		components = root == "" ? [] : root.split(File::SEPARATOR)
+		{
+		  base: find_oid(base.tree, components, name),
+		  left: find_oid(left.tree, components, name),
+		  right: find_oid(right.tree, components, name)
+		}
 	end
 
 	def find_oid(tree, components, name)
 		components.each { |c| tree = repo.lookup(tree[c][:oid]) }
-		tree[name]
+		tree[name][:oid]
 	rescue
-		nil # FIXME: what if a file has been renamed or is not there ???
+		nil
 	end
 
-	def write(entry, name, *kind)
-		return unless entry
-		File.write(File.join(kind, name), repo.lookup(entry[:oid]).content)
+	def write(oid, name, *kind)
+		write_file repo.lookup(oid).content, name, *kind
+	end
+
+	def write_file(data, name, *kind)
+		File.write(File.join(kind, name), data)
+	end
+
+	def write_commit_log(out_dir, *commits)
+		File.open(File.join(out_dir, "commits.txt"), "w") do |file|
+			commits.each { |c| file.write("#{c.oid}\n") }
+		end
 	end
 
 	def flatten_name(name)
