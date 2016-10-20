@@ -180,5 +180,6 @@ class Javadoc < Diggit::Analysis
 	end
 
 	def clean
+		out.clean
 	end
 end

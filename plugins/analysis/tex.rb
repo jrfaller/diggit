@@ -38,7 +38,7 @@ class Tex < Diggit::Analysis
 	end
 
 	def clean
-		FileUtils.rm_rf(file)
+		out.clean
 	end
 
 	def file

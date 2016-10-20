@@ -15,16 +15,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
+# Copyright 2016 Jean-Rémy Falleri <jr.falleri@gmail.com>
 # Copyright 2016 Floréal Morandat
 # Copyright 2016 Benjamin Benni
 
 require 'yaml'
 
 class ConflictMerge < Diggit::Analysis
-	#	require_addons 'out'
+	require_addons 'out'
 
-	RESULT_DIR = "result".freeze
-	DIFF3 = "diff3".freeze
+	DIFF3 = 'diff3'.freeze
 
 	def initialize(options)
 		super(options)
@@ -41,38 +41,36 @@ class ConflictMerge < Diggit::Analysis
 			right = parents[1]
 			next if repo.merge_base(left, right).nil?
 			base = repo.lookup(repo.merge_base(left, right))
-			dir = FileUtils.mkdir_p File.join(RESULT_DIR, commit.oid)
-			%w(m b l r).each { |p| FileUtils.mkdir_p(File.join(dir, p)) }
-			populate_merge_directory(dir, commit, base, left, right)
+			%w(m b l r).each { |p| FileUtils.mkdir_p(out.out_path(commit.oid, p)) }
+			populate_merge_directory(commit, base, left, right)
 		end
 	end
 
-	def populate_merge_directory(dir, commit, base, left, right)
-		btree = base.tree
+	def populate_merge_directory(commit, base, left, right)
+		dir = out.out_path(commit.oid)
 		commit.tree.walk(:preorder) do |r, e|
 			next if e[:type] == :tree
-			next if btree.get_entry_by_oid(e[:oid])
+			next if base.tree.get_entry_by_oid(e[:oid])
 			name = e[:name]
 			components = r == "" ? [] : r.split(File::SEPARATOR)
 			fname = flatten_name(r + name)
-
-			write(e, fname, dir, "m")
-			write(find_oid(btree, components, name), fname, dir, "b")
-			write(find_oid(left.tree, components, name), fname, dir, "l")
-			write(find_oid(right.tree, components, name), fname, dir, "r")
-			diff_file = File.join(dir, "#{fname}.diff3")
+			write(e, fname, dir, 'm')
+			write(find_oid(base.tree, components, name), fname, dir, 'b')
+			write(find_oid(left.tree, components, name), fname, dir, 'l')
+			write(find_oid(right.tree, components, name), fname, dir, 'r')
+			diff_file = out.out_path(commit.oid, "#{fname}.diff3")
 			cmd = "#{DIFF3} -x" \
-					" \"#{File.join(dir, 'l', fname)}\"" \
-					" \"#{File.join(dir, 'b', fname)}\"" \
-					" \"#{File.join(dir, 'r', fname)}\"" \
+					" \"#{out.out_path(commit.oid, 'l', fname)}\"" \
+					" \"#{out.out_path(commit.oid, 'b', fname)}\"" \
+					" \"#{out.out_path(commit.oid, 'r', fname)}\"" \
 					" 2> /dev/null"
 			res = `#{cmd}`
 			system(
 					DIFF3,
 					"-m",
-					File.join(dir, "l", fname),
-					File.join(dir, "b", fname),
-					File.join(dir, "r", fname),
+					out.out_path(commit.oid, 'l', fname),
+					out.out_path(commit.oid, 'b', fname),
+					out.out_path(commit.oid, 'r', fname),
 					out: diff_file,
 					err: File::NULL
 			) unless res.empty?
@@ -92,10 +90,10 @@ class ConflictMerge < Diggit::Analysis
 	end
 
 	def flatten_name(name)
-		name.gsub(/_/, "__").gsub(%r{/}, "_")
+		name.gsub(/_/, '__').gsub(%r{/}, '_')
 	end
 
 	def clean
-		FileUtils.rm_rf RESULT_DIR
+		out.clean
 	end
 end
