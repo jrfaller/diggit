@@ -20,7 +20,7 @@
 
 require 'yaml'
 
-class ConflictMergeAnalyse < Diggit::Analysis
+class ConflictMerge < Diggit::Analysis
 	#	require_addons 'out'
 
 	RESULT_DIR = "result".freeze
