@@ -34,7 +34,6 @@ class ConflictMerge < Diggit::Analysis
 		walker = Rugged::Walker.new(repo)
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
-		summary = []
 		walker.each do |commit|
 			parents = commit.parents
 			next unless parents.size > 1
@@ -44,16 +43,11 @@ class ConflictMerge < Diggit::Analysis
 			base = repo.lookup(repo.merge_base(left, right))
 			dir = FileUtils.mkdir_p File.join(RESULT_DIR, commit.oid)
 			%w(m b l r).each { |p| FileUtils.mkdir_p(File.join(dir, p)) }
-			summary += populate_merge_directory(dir, commit, base, left, right)
-			File.open(File.join(dir, "summary"), "w") do |file|
-				file.write(summary.join("\n"))
-				file.write("\n")
-			end unless summary.empty?
+			populate_merge_directory(dir, commit, base, left, right)
 		end
 	end
 
 	def populate_merge_directory(dir, commit, base, left, right)
-		summary = []
 		btree = base.tree
 		commit.tree.walk(:preorder) do |r, e|
 			next if e[:type] == :tree
@@ -67,17 +61,16 @@ class ConflictMerge < Diggit::Analysis
 			write(find_oid(left.tree, components, name), fname, dir, "l")
 			write(find_oid(right.tree, components, name), fname, dir, "r")
 			diff_file = File.join(dir, "#{fname}.diff3")
+			res = `#{DIFF3} -x "#{File.join(dir, "l", fname)}" "#{File.join(dir, "b", fname)}" "#{File.join(dir, "r", fname)}"`
 			system(
 					DIFF3,
-					"-x",
+					"-m",
 					File.join(dir, "l", fname),
 					File.join(dir, "b", fname),
 					File.join(dir, "r", fname),
 					out: diff_file
-			)
-			summary << diff_file if File.size? diff_file
+			) unless res.empty?
 		end
-		summary
 	end
 
 	def find_oid(tree, components, name)
