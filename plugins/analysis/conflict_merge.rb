@@ -35,42 +35,42 @@ class ConflictMerge < Diggit::Analysis
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
 		walker.each do |commit|
+			out_dir = out.out_path(source.id, commit.oid)
 			parents = commit.parents
 			next unless parents.size > 1
 			left = parents[0]
 			right = parents[1]
 			next if repo.merge_base(left, right).nil?
 			base = repo.lookup(repo.merge_base(left, right))
-			%w(m b l r).each { |p| FileUtils.mkdir_p(out.out_path(commit.oid, p)) }
-			populate_merge_directory(commit, base, left, right)
+			%w(m b l r).each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
+			populate_merge_directory(out_dir, commit, base, left, right)
 		end
 	end
 
-	def populate_merge_directory(commit, base, left, right)
-		dir = out.out_path(commit.oid)
+	def populate_merge_directory(out_dir, commit, base, left, right)
 		commit.tree.walk(:preorder) do |r, e|
 			next if e[:type] == :tree
 			next if base.tree.get_entry_by_oid(e[:oid])
 			name = e[:name]
 			components = r == "" ? [] : r.split(File::SEPARATOR)
 			fname = flatten_name(r + name)
-			write(e, fname, dir, 'm')
-			write(find_oid(base.tree, components, name), fname, dir, 'b')
-			write(find_oid(left.tree, components, name), fname, dir, 'l')
-			write(find_oid(right.tree, components, name), fname, dir, 'r')
-			diff_file = out.out_path(commit.oid, "#{fname}.diff3")
+			write(e, fname, out_dir, 'm')
+			write(find_oid(base.tree, components, name), fname, out_dir, 'b')
+			write(find_oid(left.tree, components, name), fname, out_dir, 'l')
+			write(find_oid(right.tree, components, name), fname, out_dir, 'r')
+			diff_file = File.join(out_dir, "#{fname}.diff3")
 			cmd = "#{DIFF3} -x" \
-					" \"#{out.out_path(commit.oid, 'l', fname)}\"" \
-					" \"#{out.out_path(commit.oid, 'b', fname)}\"" \
-					" \"#{out.out_path(commit.oid, 'r', fname)}\"" \
+					" \"#{File.join(out_dir, 'l', fname)}\"" \
+					" \"#{File.join(out_dir, 'b', fname)}\"" \
+					" \"#{File.join(out_dir, 'r', fname)}\"" \
 					" 2> /dev/null"
 			res = `#{cmd}`
 			system(
 					DIFF3,
 					"-m",
-					out.out_path(commit.oid, 'l', fname),
-					out.out_path(commit.oid, 'b', fname),
-					out.out_path(commit.oid, 'r', fname),
+					File.join(out_dir, 'l', fname),
+					File.join(out_dir, 'b', fname),
+					File.join(out_dir, 'r', fname),
 					out: diff_file,
 					err: File::NULL
 			) unless res.empty?
