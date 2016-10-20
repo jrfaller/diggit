@@ -61,14 +61,20 @@ class ConflictMerge < Diggit::Analysis
 			write(find_oid(left.tree, components, name), fname, dir, "l")
 			write(find_oid(right.tree, components, name), fname, dir, "r")
 			diff_file = File.join(dir, "#{fname}.diff3")
-			res = `#{DIFF3} -x "#{File.join(dir, "l", fname)}" "#{File.join(dir, "b", fname)}" "#{File.join(dir, "r", fname)}"`
+			cmd = "#{DIFF3} -x" \
+					" \"#{File.join(dir, 'l', fname)}\"" \
+					" \"#{File.join(dir, 'b', fname)}\"" \
+					" \"#{File.join(dir, 'r', fname)}\"" \
+					" 2> /dev/null"
+			res = `#{cmd}`
 			system(
 					DIFF3,
 					"-m",
 					File.join(dir, "l", fname),
 					File.join(dir, "b", fname),
 					File.join(dir, "r", fname),
-					out: diff_file
+					out: diff_file,
+					err: File::NULL
 			) unless res.empty?
 		end
 	end
