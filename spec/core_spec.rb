@@ -20,6 +20,20 @@
 require 'spec_helper'
 require 'fileutils'
 
+RSpec.configure do |config|
+  original_stderr = $stderr
+  original_stdout = $stdout
+  config.before(:all) do
+    # Redirect stderr and stdout
+    $stderr = File.open(File::NULL, "w")
+    $stdout = File.open(File::NULL, "w")
+  end
+  config.after(:all) do
+    $stderr = original_stderr
+    $stdout = original_stdout
+  end
+end
+
 RSpec.describe Diggit::Dig do
 	it "should refuse to be launched outside a dgit folder" do
 		expect { Diggit::Dig.init("spec/dgit") }.to raise_error(/is not a diggit folder/)
