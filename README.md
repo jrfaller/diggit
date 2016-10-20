@@ -26,15 +26,15 @@ You can add some repositories to be analyzed with the following command: `dgit s
 
 ### Using addons
 
-Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add TestAddon`.
+Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add test_addon`.
 
 ### Setting-up analyses
 
-An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add TestAnalysis`. Analyses are performed in the order they have been added.
+An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added.
 
 ### Setting-up joins
 
-A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add TestJoin`. Joins are performed in the order they have been added.
+A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added.
 
 ## Running analyses
 
