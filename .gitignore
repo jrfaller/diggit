@@ -11,6 +11,7 @@
 /test/version_tmp/
 /tmp/
 .vagrant/
+.Vagrantfile.swp
 
 tags
 

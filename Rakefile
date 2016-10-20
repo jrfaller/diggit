@@ -24,5 +24,5 @@ begin
 	RuboCop::RakeTask.new(:rubocop)
 	RSpec::Core::RakeTask.new(:spec)
 
-	task default: [:spec, :rubocop]
+	task default: [:rubocop, :spec]
 end
