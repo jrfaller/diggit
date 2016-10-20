@@ -83,7 +83,8 @@ module Diggit
 			@repository.checkout(@oid, { strategy: :force })
 			@entry.state = :cloned
 		rescue => e
-			Log.error "Error cloning #{url}."
+			Log.error "Error cloning #{url}: #{e}"
+			e.backtrace.each { |l| Log.debug(l) }
 			@entry.error = e
 		end
 
@@ -469,7 +470,8 @@ module Diggit
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
-				Log.error "Error cleaning #{runnable.name}"
+				Log.error "Error cleaning #{runnable.name}: #{e}"
+				e.backtrace.each { |l| Log.debug(l) }
 			ensure
 				save_journal
 			end
@@ -483,7 +485,8 @@ module Diggit
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
-				Log.error "Error running #{runnable.name}"
+				Log.error "Error running #{runnable.name}: #{e}"
+				e.backtrace.each { |l| Log.debug(l) }
 			else
 				entry.toc
 				placeholder.performed << entry
