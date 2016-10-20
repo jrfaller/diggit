@@ -2,6 +2,7 @@ AllCops:
   Exclude:
     - 'spec/dgit/sources/**/*'
     - 'tmp/**/*'
+  TargetRubyVersion: 2.2
 
 ModuleLength:
   Exclude:
