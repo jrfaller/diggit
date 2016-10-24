@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -25,8 +26,8 @@ require 'mongo'
 # @!attribute [r] db
 # 	@return [Mongo::DB] the mongo database object.
 class Db < Diggit::Addon
-	DEFAULT_SERVER = '127.0.0.1:27017'
-	DEFAULT_DB = 'diggit'
+	DEFAULT_SERVER = '127.0.0.1:27017'.freeze
+	DEFAULT_DB = 'diggit'.freeze
 
 	attr_reader :client
 

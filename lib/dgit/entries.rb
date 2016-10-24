@@ -29,11 +29,7 @@ module Diggit
 		# @param e [Exception, nil] the error, to indicate an absence of error, pass +nil+.
 		# @return [void]
 		def error=(e)
-			if e.nil?
-				@error = nil
-			else
-				@error = ErrorEntry.new(e)
-			end
+			@error = e.nil? ? nil : ErrorEntry.new(e)
 		end
 	end
 
@@ -54,7 +50,7 @@ module Diggit
 		# Error status of the element.
 		# @return [Boolean]
 		def error?
-			@canceled.size > 0
+			!@canceled.empty?
 		end
 
 		# Check if a runnable has been performed or canceled.
@@ -63,13 +59,9 @@ module Diggit
 		# @return [Boolean]
 		def has?(runnable_or_string, state = :all)
 			name = retrieve_name(runnable_or_string)
-			if state == :performed
-				return @performed.count { |e| e.name == name } > 0
-			elsif state == :canceled
-				return @canceled.count { |e| e.name == name } > 0
-			elsif state == :all
-				return (@performed + @canceled).count { |e| e.name == name } > 0
-			end
+			return @performed.count { |e| e.name == name } > 0 if state == :performed
+			return @canceled.count { |e| e.name == name } > 0 if state == :canceled
+			return (@performed + @canceled).count { |e| e.name == name } > 0 if state == :all
 		end
 
 		# Remove a runnable from all the entries.
@@ -84,11 +76,8 @@ module Diggit
 			private
 
 		def retrieve_name(runnable_or_string)
-			if runnable_or_string.is_a? String
-				return runnable_or_string
-			else
-				return runnable_or_string.name
-			end
+			return runnable_or_string if runnable_or_string.is_a? String
+			runnable_or_string.name
 		end
 	end
 

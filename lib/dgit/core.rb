@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -28,8 +29,7 @@ class String
 	# Returns a underscore cased version of the string.
 	# @return [String]
 	def underscore
-		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
-				.gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
+		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
 	end
 
 	# Returns a camel cased version of the string.
@@ -57,10 +57,14 @@ end
 
 module Diggit
 	class Source
-		attr_reader :url, :repository, :entry
+		DEFAULT_BRANCH = "origin/master".freeze
+
+		attr_reader :url, :repository, :entry, :oid
 
 		def initialize(url)
-			@url = url
+			infos = url.split(/\|/)
+			@url = infos[0]
+			@oid = infos.size > 1 ? infos[1] : DEFAULT_BRANCH
 			@entry = SourceEntry.new
 			@repository = nil
 		end
@@ -75,21 +79,19 @@ module Diggit
 
 		def clone
 			@entry.error = nil
-			if File.exist?(folder)
-				Rugged::Repository.new(folder)
-			else
-				Rugged::Repository.clone_at(url, folder)
-			end
+			@repository = File.exist?(folder) ? Rugged::Repository.new(folder) : Rugged::Repository.clone_at(url, folder)
+			@repository.checkout(@oid, { strategy: :force })
 			@entry.state = :cloned
 		rescue => e
-			Log.error "Error cloning #{url}."
+			Log.error "Error cloning #{url}: #{e}"
+			e.backtrace.each { |l| Log.debug(l) }
 			@entry.error = e
 		end
 
 		def load_repository
-			fail "Source not cloned #{url}." if @entry.new?
+			raise "Source not cloned #{url}." if @entry.new?
 			@repository = Rugged::Repository.new(folder)
-			@repository.checkout("origin/master")
+			@repository.checkout(@oid, { strategy: :force })
 		end
 	end
 
@@ -114,7 +116,7 @@ module Diggit
 			source_array = sources
 			result = []
 			ids.each do |id|
-				fail "No such source index #{id}." if id >= source_array.length
+				raise "No such source index #{id}." if id >= source_array.length
 				result << source_array[id]
 			end
 			result
@@ -125,7 +127,14 @@ module Diggit
 		end
 
 		def add_source(url)
-			@sources[url] = Source.new(url) unless @sources.key?(url)
+			key = url.split(/\|/)[0]
+			@sources[key] = Source.new(url) unless @sources.key?(key)
+			Dig.it.save_journal
+		end
+
+		def del_source(id)
+			source = sources_by_ids(id).first
+			@sources.delete(source.url)
 			Dig.it.save_journal
 		end
 	end
@@ -207,7 +216,7 @@ module Diggit
 	class PluginLoader
 		include Singleton
 
-		PLUGINS_TYPES = [:addon, :analysis, :join]
+		PLUGINS_TYPES = [:addon, :analysis, :join].freeze
 
 		# Load the plugin with the given name and type.
 		# @param name [String] the name of the plugin
@@ -216,15 +225,9 @@ module Diggit
 		# @return [Plugin, Class] the instance or class of the plugin.
 		def load_plugin(name, type, instance = false)
 			plugin = search_plugin(name, type)
-			if plugin
-				if instance
-					return plugin.new(Dig.it.options)
-				else
-					return plugin
-				end
-			else
-				fail "Plugin #{name} not found."
-			end
+			raise "Plugin #{name} not found." unless plugin
+			return plugin.new(Dig.it.options) if instance
+			plugin
 		end
 
 		def self.plugin_paths(name, type, root)
@@ -241,13 +244,13 @@ module Diggit
 
 		def search_plugin(name, type)
 			return @plugins[name] if @plugins.key?(name)
-			fail "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
-			fail "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
+			raise "Unknown plugin type #{type}." unless PLUGINS_TYPES.include?(type)
+			raise "File #{name}.rb in #{type} directories not found." unless load_file(name, type)
 
 			base_class = Object.const_get("Diggit::#{type.to_s.camel_case}")
 			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.simple_name == name }
 
-			fail "No plugin #{name} of kind #{type} found." if plugins.empty?
+			raise "No plugin #{name} of kind #{type} found." if plugins.empty?
 			warn "Ambiguous plugin name: several plugins of kind #{type} named #{name} were found." if plugins.size > 1
 
 			@plugins[name] = plugins[0]
@@ -291,11 +294,11 @@ module Diggit
 	# @!attribute [r] plugin_loader
 	# 	@return [PluginLoader] utility classes to load plugins.
 	class Dig
-		DGIT_FOLDER = ".dgit"
-		DGIT_SOURCES = "sources"
-		DGIT_CONFIG = "config"
-		DGIT_OPTIONS = "options"
-		DGIT_JOURNAL = "journal"
+		DGIT_FOLDER = ".dgit".freeze
+		DGIT_SOURCES = "sources".freeze
+		DGIT_CONFIG = "config".freeze
+		DGIT_OPTIONS = "options".freeze
+		DGIT_JOURNAL = "journal".freeze
 
 		private_constant :DGIT_SOURCES, :DGIT_CONFIG, :DGIT_OPTIONS, :DGIT_JOURNAL
 
@@ -306,7 +309,7 @@ module Diggit
 		# Returns the diggit instance.
 		# @return [Dig] the instance.
 		def self.it
-			fail "Diggit has not been initialized." if @diggit.nil?
+			raise "Diggit has not been initialized." if @diggit.nil?
 			@diggit
 		end
 
@@ -338,12 +341,11 @@ module Diggit
 				Oj.to_file(File.expand_path(DGIT_JOURNAL, dgit_folder), Journal.new)
 			end
 			FileUtils.mkdir(File.expand_path('sources', folder)) unless File.exist?(File.expand_path('sources', folder))
-			unless File.exist?(File.expand_path("plugins", folder))
-				FileUtils.mkdir_p(File.expand_path("plugins", folder))
-				FileUtils.mkdir_p(File.expand_path("plugins/analysis", folder))
-				FileUtils.mkdir_p(File.expand_path("plugins/addon", folder))
-				FileUtils.mkdir_p(File.expand_path("plugins/join", folder))
-			end
+			return if File.exist?(File.expand_path("plugins", folder))
+			FileUtils.mkdir_p(File.expand_path("plugins", folder))
+			FileUtils.mkdir_p(File.expand_path("plugins/analysis", folder))
+			FileUtils.mkdir_p(File.expand_path("plugins/addon", folder))
+			FileUtils.mkdir_p(File.expand_path("plugins/join", folder))
 		end
 
 		# Return the path of the given config file
@@ -364,7 +366,7 @@ module Diggit
 		# Use {.init} and {.it} instead.
 		# @return [Dig] a diggit object.
 		def initialize(folder)
-			fail "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
+			raise "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
 			@plugin_loader = PluginLoader.instance
 			@folder = folder
 		end
@@ -474,7 +476,8 @@ module Diggit
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
-				Log.error "Error cleaning #{runnable.name}"
+				Log.error "Error cleaning #{runnable.name}: #{e}"
+				e.backtrace.each { |l| Log.debug(l) }
 			ensure
 				save_journal
 			end
@@ -488,7 +491,8 @@ module Diggit
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
-				Log.error "Error running #{runnable.name}"
+				Log.error "Error running #{runnable.name}: #{e}"
+				e.backtrace.each { |l| Log.debug(l) }
 			else
 				entry.toc
 				placeholder.performed << entry

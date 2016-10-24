@@ -49,8 +49,8 @@ module Diggit
 		c.action do |_global_options, _options, _args|
 			Log.info "Config"
 			Log.info "======"
-			Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.join(', ')}"
-			Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.join(', ')}"
+			Log.info "- Analyses: #{Diggit::Dig.it.config.get_analyses.map(&:name).join(', ')}"
+			Log.info "- Joins: #{Diggit::Dig.it.config.get_joins.map(&:name).join(', ')}"
 			Log.info ""
 			Log.info "Journal"
 			Log.info "======="
@@ -64,6 +64,20 @@ module Diggit
 				Log.ok "* Ok: #{Diggit::Dig.it.journal.sources_by_state(:cloned).size}"
 				Log.error "* Error: #{Diggit::Dig.it.journal.sources_by_state(:cloned, true).size}"
 			end
+			Log.info "- Performed joins:" unless Diggit::Dig.it.journal.workspace.performed.empty?
+			Diggit::Dig.it.journal.workspace.performed.each do |e|
+				Log.indent { Log.info "#{e.name}, time: #{e.duration}" }
+			end
+			Log.info "- Canceled joins:" unless Diggit::Dig.it.journal.workspace.canceled.empty?
+			Diggit::Dig.it.journal.workspace.canceled.each do |e|
+				Log.indent do
+					Log.info "#{e.name}, time: #{e.duration}"
+					Log.indent do
+						Log.error e.error.message
+						Log.error e.error.backtrace.join("\n")
+					end
+				end
+			end
 		end
 	end
 
@@ -74,7 +88,7 @@ module Diggit
 			list.action do |_global_options, _options, _args|
 				sources = Diggit::Dig.it.journal.sources
 				sources.each_index do |idx|
-					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].state})"
+					msg = "#{idx}	#{sources[idx].url} (#{sources[idx].entry.state})"
 					sources[idx].entry.error? ? Log.error(msg) : Log.ok(msg)
 				end
 			end
@@ -86,11 +100,18 @@ module Diggit
 				Diggit::Dig.it.journal.add_source args[0]
 			end
 		end
+		c.desc 'Delete a source.'
+		c.arg_name 'id'
+		c.command :del do |del|
+			del.action do |_global_options, _options, args|
+				Diggit::Dig.it.journal.del_source args[0]
+			end
+		end
 		c.desc 'Import sources from a file.'
 		c.arg_name 'file'
 		c.command :import do |import|
 			import.action do |_global_options, _options, args|
-				File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line) }
+				File.open(args[0]).each { |line| Diggit::Dig.it.journal.add_source(line.strip) }
 			end
 		end
 		c.desc 'Display all sources in error.'
@@ -110,11 +131,13 @@ module Diggit
 				src = Diggit::Dig.it.journal.sources_by_ids(args[0].to_i)[0]
 				Log.info "URL: #{src.url}"
 				Log.info "State: #{src.entry.state}"
+				unless src.entry.error.nil?
+					Log.error src.entry.error.message
+					Log.error src.entry.error.backtrace.join("\n")
+				end
 				Log.info "Performed analyses:" unless src.entry.performed.empty?
 				src.entry.performed.each do |e|
-					Log.indent do
-						Log.info "#{e.name}, time: #{e.duration}"
-					end
+					Log.indent { Log.info "#{e.name}, time: #{e.duration}" }
 				end
 				Log.info "Canceled analyses:" unless src.entry.canceled.empty?
 				src.entry.canceled.each do |e|

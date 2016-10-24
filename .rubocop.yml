@@ -2,9 +2,24 @@ AllCops:
   Exclude:
     - 'spec/dgit/sources/**/*'
     - 'tmp/**/*'
+  TargetRubyVersion: 2.2
+
+ModuleLength:
+  Exclude:
+    - 'bin/dgit'
 
 Metrics/LineLength:
   Max: 120
+
+Metrics/BlockLength:
+  CountComments: false  # count full line comments?
+  Max: 25
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - '*.gemspec'
+    - 'spec/**/*.rb'
+    - 'bin/dgit'
 
 Metrics/ClassLength:
   Max: 200
@@ -19,6 +34,9 @@ Style/Tab:
   Enabled: false
 
 Style/IndentationWidth:
+  Enabled: false
+
+Style/MethodMissing:
   Enabled: false
 
 Style/StringLiterals:

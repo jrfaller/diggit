@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -17,7 +18,7 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-# A output addon for Diggit. The name of the addon is :output, and can be reached in the
+# An output addon for Diggit. The name of the addon is :output, and can be reached in the
 # addons hash. This addon might use an :output hash in the global options. In this hash, the
 # :out key allows to configure the name of the output folder and :tmp the name of the temporary output
 # folder.
@@ -28,8 +29,8 @@
 class Out < Diggit::Addon
 	attr_reader :out, :tmp
 
-	DEFAULT_OUT = 'out'
-	DEFAULT_TMP = 'tmp'
+	DEFAULT_OUT = 'out'.freeze
+	DEFAULT_TMP = 'tmp'.freeze
 
 	def initialize(*args)
 		super
@@ -44,5 +45,26 @@ class Out < Diggit::Addon
 
 		FileUtils.mkdir_p(@out) unless File.exist?(@out)
 		FileUtils.mkdir_p(@tmp) unless File.exist?(@tmp)
+	end
+
+	# Get an output path for a file/directory.
+	# @param paths [Array<String>] the different folders of the path.
+	# @return [String] the absolute path.
+	def out_path(*paths)
+		File.join(@out, *paths)
+	end
+
+	# Get a temporary path for a file/directory.
+	# @param paths [Array<String>] the different folders of the path.
+	# @return [String] the absolute path.
+	def tmp_path(*paths)
+		File.join(@tmp, *paths)
+	end
+
+	# Clean the output and temporary folders.
+	# @return [void]
+	def clean
+		FileUtils.rm_rf(@out)
+		FileUtils.rm_rf(@tmp)
 	end
 end

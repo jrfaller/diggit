@@ -21,7 +21,7 @@ class TestJoinWithError < Diggit::Join
 	require_analyses 'test_analysis'
 
 	def run
-		fail "Error!"
+		raise "Error!"
 	end
 
 	def clean

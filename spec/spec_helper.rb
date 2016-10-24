@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -9,11 +10,11 @@
 #
 # Diggit is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+# along with Diggit.	If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
@@ -22,4 +23,13 @@ Coveralls.wear!
 
 require_relative('../lib/dgit')
 
-TEST_URL = 'https://github.com/jrfaller/test-git.git'
+TEST_URL = 'https://github.com/jrfaller/test-git.git|0a8267929977bf800ababb6ae1bf3b0ed08827a4'.freeze
+TEST_URL_INFO1 = 'https://github.com/jrfaller/test-git.git'.freeze
+TEST_URL_INFO2 = '0a8267929977bf800ababb6ae1bf3b0ed08827a4'.freeze
+
+RSpec.configure do |config|
+	config.before(:all) do
+		FileUtils.rm_rf('spec/dgit/.dgit')
+		FileUtils.rm_rf('spec/dgit/sources')
+	end
+end

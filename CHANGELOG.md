@@ -1,5 +1,11 @@
 # Changelog of Diggit
 
+### Version 2.1.1
+* Fixed small bugs in the CLI
+* Fixed source error not showing up in case of clone error
+* Now urls can have a trailing |id to enable checkout a tag, branch or commit with a specific id
+* Out addon have more utility methods
+
 ### Version 2.1.0
 * Now repositories are reseted to master by default
 * Journal infrastructure has been vastly improved

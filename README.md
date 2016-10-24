@@ -8,9 +8,20 @@ A ruby tool to analyze Git repositories
 
 Just run `gem install diggit`.
 
-## From the source
+## From the source, with bundler
 
-Clone diggit using the following command: `git clone https://github.com/jrfaller/diggit.git`. The `dgit` tool is in the `bin` folder.
+Install diggit using the following commands:
+```
+git clone https://github.com/jrfaller/diggit.git
+cd diggit
+gem install bundler --user-install
+bundler install
+```
+Beware, the gem bin directory must be in your path. Also, the `dgit` command is in the `bin` folder of diggit.
+
+## From the source, with vagrant
+
+You can automatically get a working VM with all required dependencies with only one command, how cool is that? For this, just install [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/), and `vagrant up` in a freshly cloned diggit folder (see previous section). Beware, this magic only works on Mac OS and Linux because it uses NFS shared folders.
 
 # Usage
 
@@ -26,15 +37,15 @@ You can add some repositories to be analyzed with the following command: `dgit s
 
 ### Using addons
 
-Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add TestAddon`.
+Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add test_addon`.
 
 ### Setting-up analyses
 
-An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add TestAnalysis`. Analyses are performed in the order they have been added.
+An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added.
 
 ### Setting-up joins
 
-A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add TestJoin`. Joins are performed in the order they have been added.
+A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added.
 
 ## Running analyses
 
