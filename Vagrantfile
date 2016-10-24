@@ -84,17 +84,21 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get install -y ruby
-    apt-get install -y ruby-dev
-    apt-get install -y libssl-dev
-    apt-get install -y libgit2-dev
-    apt-get install -y libssh2-1-dev
-    apt-get install -y pkg-config
-    apt-get install -y cmake
-    gem install bundler
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get install -y ruby
+    sudo apt-get install -y ruby-dev
+    sudo apt-get install -y libssl-dev
+    sudo apt-get install -y libgit2-dev
+    sudo apt-get install -y libssh2-1-dev
+    sudo apt-get install -y pkg-config
+    sudo apt-get install -y cmake
+    export PATH="/home/ubuntu/.gem/ruby/2.3.0/bin:$PATH"
+    gem install bundler --user-install
     cd /vagrant
     bundler install
+    cd /home/ubuntu
+    mkdir -p bin
+    ln -sf /vagrant/bin/dgit bin/dgit
     SHELL
 end
