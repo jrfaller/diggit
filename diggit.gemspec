@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
 	spec.authors = ["Jean-Rémy Falleri", "Matthieu Foucault"]
 	spec.email = 'jr.falleri@gmail.com'
 	spec.homepage = 'https://github.com/jrfaller/diggit'
-	spec.licenses = 'LGPL'
+	spec.licenses = 'LGPL-3.0'
 	spec.description = <<-END
 The Diggit repository analysis tool is a neat swiss knife to enable the analysis of many Git repositories.
 END
