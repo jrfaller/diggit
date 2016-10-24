@@ -38,6 +38,14 @@ RSpec.describe Diggit do
 		expect(out).to match(/new/)
 	end
 
+	it "should del a source" do
+		`bin/dgit -f spec/dgit sources add http://foo`
+		out = `bin/dgit -f spec/dgit sources list`
+		expect(out).to match(/foo/)
+		out = `bin/dgit -f spec/dgit sources del 1`
+		expect(out).to_not match(/foo/)
+	end
+
 	it "should perform clones" do
 		`bin/dgit -f spec/dgit clones perform`
 		out = `bin/dgit -f spec/dgit sources list`

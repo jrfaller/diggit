@@ -9,11 +9,11 @@
 #
 # Diggit is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+# along with Diggit.	If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
@@ -21,17 +21,17 @@ require 'spec_helper'
 require 'fileutils'
 
 RSpec.configure do |config|
-  original_stderr = $stderr
-  original_stdout = $stdout
-  config.before(:all) do
-    # Redirect stderr and stdout
-    $stderr = File.open(File::NULL, "w")
-    $stdout = File.open(File::NULL, "w")
-  end
-  config.after(:all) do
-    $stderr = original_stderr
-    $stdout = original_stdout
-  end
+	original_stderr = $stderr
+	original_stdout = $stdout
+	config.before(:all) do
+		# Redirect stderr and stdout
+		$stderr = File.open(File::NULL, "w")
+		$stdout = File.open(File::NULL, "w")
+	end
+	config.after(:all) do
+		$stderr = original_stderr
+		$stdout = original_stdout
+	end
 end
 
 RSpec.describe Diggit::Dig do
@@ -109,6 +109,15 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.init("spec/dgit")
 		expect(Diggit::Dig.it.journal.sources_by_ids.first.url).to eq TEST_URL_INFO1
 		expect(Diggit::Dig.it.journal.sources_by_ids.first.oid).to eq TEST_URL_INFO2
+	end
+
+	it "should delete sources" do
+		Diggit::Dig.it.journal.add_source('http://foo')
+		Diggit::Dig.init("spec/dgit")
+		expect(Diggit::Dig.it.journal.sources_by_ids.size).to eq 2
+		Diggit::Dig.it.journal.del_source(1)
+		Diggit::Dig.init("spec/dgit")
+		expect(Diggit::Dig.it.journal.sources_by_ids.size).to eq 1
 	end
 
 	it "should clone sources" do
