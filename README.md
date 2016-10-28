@@ -4,6 +4,10 @@ A ruby tool to analyze Git repositories
 
 # Installation
 
+## Prerequisites
+
+In order for Ruby's libgit binding, [rugged](Pre-requisites), to work, you need to install several native libraries. To build the libgit version shipped with rugged's gem, you need `pkg-config` and `cmake` installed. If you want rugged to be able to clone ssh or https repositories, you need several additional depenc as listed on [libgit website](https://github.com/libgit2/libgit2#optional-dependencies).
+
 ## From a gem
 
 Just run `gem install diggit`.
@@ -21,7 +25,7 @@ Beware, the gem bin directory must be in your path. Also, the `dgit` command is 
 
 ## From the source, with vagrant
 
-You can automatically get a working VM with all required dependencies with only one command, how cool is that? For this, just install [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/), and `vagrant up` in a freshly cloned diggit folder (see previous section). Beware, this magic only works on Mac OS and Linux because it uses NFS shared folders.
+You can automatically get a working VM with all required dependencies with only one command, how cool is that? For this, just install [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/), and `vagrant up` in a freshly cloned diggit folder (see previous section). Beware, this magic only works on Mac OS and Linux because it uses NFS shared folders. Note that if you use this method, you don't care about the prerequisites.
 
 # Usage
 
@@ -41,11 +45,11 @@ Addons add features the the diggit tool: for instance capability of writing to a
 
 ### Setting-up analyses
 
-An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added.
+An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added. Analyses are provided in the `plugins/analysis` folder (from the diggit installation or in any initialized diggit folder). The filename of an analysis is the underscore cased name of the class where it is defined (which is camel cased).
 
 ### Setting-up joins
 
-A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added.
+A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added. Similarly to analyses, joins are provided in the `plugins/join` folder (from the diggit installation or in any initialized diggit folder). The filename of a join is the underscore cased name of the class where it is defined (which is camel cased). 
 
 ## Running analyses
 

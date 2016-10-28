@@ -1,9 +1,12 @@
 # Changelog of Diggit
 
+### Version 2.1.2
+* Improve documentation
+
 ### Version 2.1.1
 * Fixed small bugs in the CLI
 * Fixed source error not showing up in case of clone error
-* Now urls can have a trailing |id to enable checkout a tag, branch or commit with a specific id
+* Now urls can have a trailing `|id` to enable checkout a tag, branch or commit with a specific id
 * Out addon have more utility methods
 
 ### Version 2.1.0

@@ -55,7 +55,7 @@ module Diggit
 
 		# Check if a runnable has been performed or canceled.
 		# @param runnable_or_string [Runnable, String] the runnable or the name of the runnable.
-		# @param state [Symbol] the status of the runnable: +:performed+, +:canceled+ or +:all+.
+		# @param state [Symbol] the status of the runnable: `:performed`, `:canceled` or `:all`.
 		# @return [Boolean]
 		def has?(runnable_or_string, state = :all)
 			name = retrieve_name(runnable_or_string)

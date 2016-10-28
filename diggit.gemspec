@@ -42,6 +42,7 @@ END
 	spec.add_runtime_dependency 'formatador', '~> 0'
 	spec.add_development_dependency 'rspec', '~> 3'
 	spec.add_development_dependency 'yard', '~> 0'
+	spec.add_development_dependency 'redcarpet', '~> 3'
 	spec.add_development_dependency 'rake', '~> 11'
 	spec.add_development_dependency 'coveralls', '~> 0'
 	spec.add_development_dependency 'rubocop', '~> 0'

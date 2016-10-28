@@ -208,7 +208,7 @@ module Diggit
 
 	# Class to handle loading of diggit plugins.
 	# Diggit plugins are defined in camel cased classes derived from Plugin.
-	# Their name is the underscore cased version of the class name (example +MyPlugin+ becomes +my_plugin+).
+	# Their name is the underscore cased version of the class name (example `MyPlugin` becomes `my_plugin`).
 	# It uses a singleton pattern, so you have to create an instance like that:
 	# @example
 	# 	PluginLoader.instance
@@ -220,8 +220,8 @@ module Diggit
 
 		# Load the plugin with the given name and type.
 		# @param name [String] the name of the plugin
-		# @param type [Symbol] the type of the plugin: +:addon+, +:analysis+ or +:join+.
-		# @param instance [Boolean] +true+ for retrieving an instance or +false+ for retrieving the class.
+		# @param type [Symbol] the type of the plugin: `:addon`, `:analysis` or `:join`.
+		# @param instance [Boolean] `true` for retrieving an instance or `false` for retrieving the class.
 		# @return [Plugin, Class] the instance or class of the plugin.
 		def load_plugin(name, type, instance = false)
 			plugin = search_plugin(name, type)
@@ -279,7 +279,7 @@ module Diggit
 	end
 
 	# Main diggit class.
-	# It must be runned in a folder containing a +.dgit+ folder with a proper configuration.
+	# It must be runned in a folder containing a `.dgit folder with a proper configuration.
 	# Access configuration, options, sources and journal from this object.
 	# It implements the singleton pattern.
 	# You can initialize it via {.init} and retrieve the instance via {.it}.
@@ -325,10 +325,9 @@ module Diggit
 		end
 
 		# Initialize a folder to be a diggit folder by creating an empty configuration.
-		# It creates a +.dgit+ folder containing a +journal+, +config+, +options+ files.
-		# It creates a +sources+ folder.
-		# It creates a +plugins+ folder.
-		# Directory creation is skipped if folder already exist.
+		# It creates a `.dgit` folder containing a `journal`, `config`, `options` files.
+		# It also creates an empty `sources` folder and an empty `plugins` folder.
+		# Directory creation is skipped if the `.dgit` folder already exists.
 		# @param folder [String] the path to the folder.
 		# @return [void]
 		def self.init_dir(folder = '.')
@@ -371,7 +370,7 @@ module Diggit
 			@folder = folder
 		end
 
-		# Load the journal from +.dgit/journal+
+		# Load the journal from `.dgit/journal`
 		# @return [void]
 		def load_journal
 			url_array = []
@@ -382,32 +381,32 @@ module Diggit
 			end
 		end
 
-		# Save the journal to +.dgit/journal+
+		# Save the journal to `.dgit/journal`
 		# @return [void]
 		def save_journal
 			File.open(config_path(DGIT_SOURCES), "w") { |f| @journal.sources.each { |source| f.puts(source.url) } }
 			Oj.to_file(config_path(DGIT_JOURNAL), @journal, indent: 2)
 		end
 
-		# Load the options from +.dgit/options+
+		# Load the options from `.dgit/options`
 		# @return [void]
 		def load_options
 			@options = Oj.load_file(config_path(DGIT_OPTIONS))
 		end
 
-		# Save the options to +.dgit/options+
+		# Save the options to `.dgit/options`
 		# @return [void]
 		def save_options
 			Oj.to_file(config_path(DGIT_OPTIONS), options)
 		end
 
-		# Load the config from +.dgit/config+
+		# Load the config from `.dgit/config`
 		# @return [void]
 		def load_config
 			@config = Config.new(Oj.load_file(config_path(DGIT_CONFIG)))
 		end
 
-		# Save the config to +.dgit/config+
+		# Save the config to `.dgit/config`
 		# @return [void]
 		def save_config
 			config_hash = @config.to_hash
@@ -426,7 +425,7 @@ module Diggit
 		# Perform the given analyses on sources with the given ids using the given mode.
 		# @param source_ids [Array<Integer>] the ids of the sources.
 		# @param analyses [Array<String>] the names of the analyses.
-		# @param mode [Symbol] the mode: +:run+, +:rerun+ or +:clean+.
+		# @param mode [Symbol] the mode: `:run`, `:rerun` or `:clean`.
 		# @return [void]
 		def analyze(source_ids = [], analyses = [], mode = :run)
 			@journal.sources_by_ids(*source_ids).select { |s| s.entry.cloned? }.each do |s|
@@ -443,7 +442,7 @@ module Diggit
 		# Perform the given joins on sources with the given ids using the given mode.
 		# @param source_ids [Array<Integer>] the ids of the sources.
 		# @param joins [Array<String>] the names of the analyses.
-		# @param mode [Symbol] the mode: +:run+, +:rerun+ or +:clean+.
+		# @param mode [Symbol] the mode: `:run`, `:rerun` or `:clean`.
 		# @return [void]
 		def join(source_ids = [], joins = [], mode = :run)
 			@config.get_joins(*joins).each do |klass|
