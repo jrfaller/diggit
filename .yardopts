@@ -8,5 +8,6 @@
 --markup=markdown
 --markup-provider=redcarpet
 lib/**/*.rb
+plugins/addon/*.rb
 -
 CHANGELOG.md

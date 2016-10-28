@@ -39,19 +39,19 @@ The diggit tool is designed to help you analyze software repositories. Firstly y
 
 You can add some repositories to be analyzed with the following command: `dgit sources add https://github.com/jrfaller/diggit.git`.
 
-### Using addons
-
-Addons add features the the diggit tool: for instance capability of writing to a MongoDB database, etc. To enable addons for your current diggit folder you can use the following command: `dgit addons add test_addon`.
-
 ### Setting-up analyses
 
-An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added. Analyses are provided in the `plugins/analysis` folder (from the diggit installation or in any initialized diggit folder). The filename of an analysis is the underscore cased name of the class where it is defined (which is camel cased).
+An analysis is applied to each repository. You can configure the analyses to be performed with the following command: `dgit analyses add test_analysis`. Analyses are performed in the order they have been added. Analyses are provided in the `plugins/analysis` folder (from the diggit installation or in any initialized diggit folder). The filename of an analysis is the underscore cased name of the class where it is defined (which is camel cased). Analyses classes must extend the `Diggit::Analysis` class.
 
 ### Setting-up joins
 
-A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added. Similarly to analyses, joins are provided in the `plugins/join` folder (from the diggit installation or in any initialized diggit folder). The filename of a join is the underscore cased name of the class where it is defined (which is camel cased). 
+A join is performed after all analyses of all repositories have been performed. You can configure the joins to be performed with the following command: `dgit joins add test_join`. Joins are performed in the order they have been added. Similarly to analyses, joins are provided in the `plugins/join` folder (from the diggit installation or in any initialized diggit folder). The filename of a join is the underscore cased name of the class where it is defined (which is camel cased). Joins must provide constraints on the analyses that must have been performed on the sources by using `require_analyses` in the class defining the join. For instance, to require the `test_analysis` analysisn, you need to use the statement `require_analyses test_analysis`. Joins classes must extend the `Diggit::Join` class.
 
-## Running analyses
+### Using addons
+
+Addons add features to analyses or joins: for instance the capability of writing to a MongoDB database, etc. To enable addons for an analysis or a join you need to use `require_addons` in an analysis or join class. For instance, to use the filesytem addon you need the following statement: `require_addons out`
+
+## Running analyses and joins
 
 Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit clones perform`. Then you can launch the analyses by using `dgit analyses perform`. Finally, the joins are executed via the command `dgit joins perform`. You can use the `mode` option to handle the cleaning of joins or analyses.
 
