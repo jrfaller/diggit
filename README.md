@@ -12,7 +12,7 @@ In order for Ruby's libgit binding, [rugged](Pre-requisites), to work, you need 
 
 Just run `gem install diggit`.
 
-## From the source, with bundler
+## From the sources, with bundler
 
 Install diggit using the following commands:
 ```
@@ -23,13 +23,13 @@ bundler install
 ```
 Beware, the gem bin directory must be in your path. Also, the `dgit` command is in the `bin` folder of diggit.
 
-## From the source, with vagrant
+## From the sources, with vagrant
 
 You can automatically get a working VM with all required dependencies with only one command, how cool is that? For this, just install [vagrant](https://www.vagrantup.com/) and [virtualbox](https://www.virtualbox.org/), and `vagrant up` in a freshly cloned diggit folder (see previous section). Beware, this magic only works on Mac OS and Linux because it uses NFS shared folders. Note that if you use this method, you don't care about the prerequisites.
 
 # Usage
 
-Don't forget that dgit binary has an associated help that can be consulted using `dgit help`.
+Don't forget that dgit binary has an associated help that can be consulted using `dgit help`. Additionally, if you have installed Diggit from the sources, you can generate the documentation by running `yard doc` in the cloned folder.
 
 ## Configuration
 
@@ -51,8 +51,8 @@ A join is performed after all analyses of all repositories have been performed. 
 
 Addons add features to analyses or joins: for instance the capability of writing to a MongoDB database, etc. To enable addons for an analysis or a join you need to use `require_addons` in an analysis or join class. For instance, to use the filesytem addon you need the following statement: `require_addons out`
 
-## Running analyses and joins
+## Cloning, analysing and joining
 
-Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit clones perform`. Then you can launch the analyses by using `dgit analyses perform`. Finally, the joins are executed via the command `dgit joins perform`. You can use the `mode` option to handle the cleaning of joins or analyses.
+Once diggit is configured you can perform the analyses. First, you have to clone the repositories by using `dgit clones perform`. Then you can launch the analyses by using `dgit analyses perform`. Finally, the joins are executed via the command `dgit joins perform`. You can use the `mode` option to handle the cleaning of joins or analyses (e.g. `dgit analyses perform -m rerun`).
 
 At all time, you can check the status of your diggit folder by using `dgit status`.
