@@ -3,7 +3,6 @@
 --hide-void-return
 --title 'Diggit Documentation'
 --charset utf-8
---output-dir docs
 --exclude lib/dgit/log.rb
 --markup=markdown
 --markup-provider=redcarpet
