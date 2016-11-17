@@ -2,6 +2,7 @@
 
 ### Version 2.1.2
 * Improve documentation
+* Fix bug of `sources del`
 
 ### Version 2.1.1
 * Fixed small bugs in the CLI

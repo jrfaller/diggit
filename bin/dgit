@@ -104,7 +104,7 @@ module Diggit
 		c.arg_name 'id'
 		c.command :del do |del|
 			del.action do |_global_options, _options, args|
-				Diggit::Dig.it.journal.del_source args[0]
+				Diggit::Dig.it.journal.del_source args[0].to_i
 			end
 		end
 		c.desc 'Import sources from a file.'
