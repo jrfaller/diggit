@@ -22,6 +22,5 @@ class TestAnalysisWithError < Diggit::Analysis
 		raise "Error!"
 	end
 
-	def clean
-	end
+	def clean; end
 end

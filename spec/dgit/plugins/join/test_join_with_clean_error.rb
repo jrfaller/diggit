@@ -20,8 +20,7 @@
 class TestJoinWithCleanError < Diggit::Join
 	require_analyses 'test_analysis'
 
-	def run
-	end
+	def run; end
 
 	def clean
 		raise "Error!"

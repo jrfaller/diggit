@@ -29,6 +29,5 @@ class TestAnalysisWithSourcesOptions < Diggit::Analysis
 		puts src_opt[@source]["myOption"]
 	end
 
-	def clean
-	end
+	def clean; end
 end

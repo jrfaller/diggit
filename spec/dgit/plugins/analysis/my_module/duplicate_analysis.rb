@@ -20,10 +20,8 @@
 
 module MyModule
 	class DuplicateAnalysis < Diggit::Analysis
-		def run
-		end
+		def run; end
 
-		def clean
-		end
+		def clean; end
 	end
 end
