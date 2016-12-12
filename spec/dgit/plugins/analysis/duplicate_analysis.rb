@@ -19,9 +19,7 @@
 # Copyright 2015 Matthieu Foucault <foucaultmatthieu@gmail.com>
 
 class DuplicateAnalysis < Diggit::Analysis
-	def run
-	end
+	def run; end
 
-	def clean
-	end
+	def clean; end
 end
