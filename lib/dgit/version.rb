@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 #
 # This file is part of Diggit.
@@ -18,5 +19,5 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 module Diggit
-	VERSION = '2.1.0'
+	VERSION = '2.1.2'.freeze
 end

@@ -9,19 +9,30 @@
 #
 # Diggit is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU Lesser General Public License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
+# along with Diggit.	If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 require 'spec_helper'
 require 'fileutils'
 
-FileUtils.rm_rf('spec/dgit/.dgit')
-FileUtils.rm_rf('spec/dgit/sources')
+RSpec.configure do |config|
+	original_stderr = $stderr
+	original_stdout = $stdout
+	config.before(:all) do
+		# Redirect stderr and stdout
+		$stderr = File.open(File::NULL, "w")
+		$stdout = File.open(File::NULL, "w")
+	end
+	config.after(:all) do
+		$stderr = original_stderr
+		$stdout = original_stdout
+	end
+end
 
 RSpec.describe Diggit::Dig do
 	it "should refuse to be launched outside a dgit folder" do
@@ -69,6 +80,9 @@ RSpec.describe Diggit::Dig do
 	it "should load a join" do
 		join = Diggit::Dig.it.plugin_loader.load_plugin("test_join", :join)
 		expect(join.to_s).to eq('TestJoin')
+	end
+
+	it "should load a join with addons" do
 		join = Diggit::Dig.it.plugin_loader.load_plugin("test_join_with_addon", :join)
 		expect(join.to_s).to eq('TestJoinWithAddon')
 		join_instance = join.new({})
@@ -93,18 +107,34 @@ RSpec.describe Diggit::Dig do
 	it "should store sources" do
 		Diggit::Dig.it.journal.add_source(TEST_URL)
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
+		expect(Diggit::Dig.it.journal.sources_by_ids.first.url).to eq TEST_URL_INFO1
+		expect(Diggit::Dig.it.journal.sources_by_ids.first.oid).to eq TEST_URL_INFO2
+	end
+
+	it "should delete sources" do
+		Diggit::Dig.it.journal.add_source('http://foo')
+		Diggit::Dig.init("spec/dgit")
+		expect(Diggit::Dig.it.journal.sources_by_ids.size).to eq 2
+		Diggit::Dig.it.journal.del_source(1)
+		Diggit::Dig.init("spec/dgit")
+		expect(Diggit::Dig.it.journal.sources_by_ids.size).to eq 1
 	end
 
 	it "should clone sources" do
 		Diggit::Dig.it.clone
-		expect(File.exist?("spec/dgit/sources/#{TEST_URL.id}/.git")).to be true
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
-		Diggit::Dig.it.journal.sources_by_ids(0)[0].entry.state = :new
+		expect(File.exist?("spec/dgit/sources/#{TEST_URL_INFO1.id}/.git")).to be true
+		expect(File.exist?("spec/dgit/sources/#{TEST_URL_INFO1.id}/test/src/foo/Bar.java")).to be false
+		src = Diggit::Dig.it.journal.sources_by_ids.first
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
+		src.entry.state = :new
 		Diggit::Dig.it.clone
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
 		Diggit::Dig.init("spec/dgit")
-		expect(Diggit::Dig.it.journal.sources_by_ids(0)[0].url).to eq TEST_URL
+		src = Diggit::Dig.it.journal.sources_by_ids.first
+		expect(src.url).to eq TEST_URL_INFO1
+		expect(src.oid).to eq TEST_URL_INFO2
 	end
 
 	it "should perform analyses in order" do
@@ -113,11 +143,11 @@ RSpec.describe Diggit::Dig do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_addon")
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:run)
 		Diggit::Dig.it.analyze
-		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		src = Diggit::Dig.it.journal.sources_by_ids.first
 		expect(src.entry.has?("test_analysis", :performed)).to be true
 		expect(src.entry.has?("test_analysis_with_addon", :performed)).to be true
 		Diggit::Dig.init("spec/dgit")
-		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		src = Diggit::Dig.it.journal.sources_by_ids.first
 		expect(src.entry.has?("test_analysis", :performed)).to be true
 		expect(src.entry.has?("test_analysis_with_addon", :performed)).to be true
 	end
@@ -125,11 +155,11 @@ RSpec.describe Diggit::Dig do
 	it "should handle analyses with error" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_error")
 		Diggit::Dig.it.analyze
-		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		src = Diggit::Dig.it.journal.sources_by_ids.first
 		expect(src.entry.has?("test_analysis_with_error", :performed)).to be false
 		expect(src.entry.has?("test_analysis_with_error", :canceled)).to be true
 		expect(src.entry.error?).to be true
-		expect(src.entry.canceled[0].error.message).to eq("Error!")
+		expect(src.entry.canceled.first.error.message).to eq("Error!")
 	end
 
 	it "should perform joins" do
@@ -148,7 +178,7 @@ RSpec.describe Diggit::Dig do
 		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_error", :performed)).to be false
 		expect(Diggit::Dig.it.journal.workspace.has?("test_join_with_error", :canceled)).to be true
 		expect(Diggit::Dig.it.journal.workspace.error?).to be true
-		expect(Diggit::Dig.it.journal.workspace.canceled[0].error.message).to eq("Error!")
+		expect(Diggit::Dig.it.journal.workspace.canceled.first.error.message).to eq("Error!")
 	end
 
 	it "should clean joins" do
@@ -173,7 +203,7 @@ RSpec.describe Diggit::Dig do
 		expect_any_instance_of(TestAnalysis).to receive(:clean)
 		expect_any_instance_of(TestAnalysisWithAddon).to receive(:clean)
 		Diggit::Dig.it.analyze([], [], :clean)
-		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		src = Diggit::Dig.it.journal.sources_by_ids.first
 		expect(src.entry.has?("test_analysis")).to be false
 		expect(src.entry.has?("test_analysis_with_addon")).to be false
 		Diggit::Dig.it.config.del_all_analyses
@@ -182,7 +212,7 @@ RSpec.describe Diggit::Dig do
 	it "should handle analyses with clean errors" do
 		Diggit::Dig.it.config.add_analysis("test_analysis_with_clean_error")
 		Diggit::Dig.it.analyze([], ["test_analysis_with_clean_error"])
-		src = Diggit::Dig.it.journal.sources_by_ids(0)[0]
+		src = Diggit::Dig.it.journal.sources_by_ids.first
 		expect(src.entry.has?("test_analysis_with_clean_error", :performed)).to be true
 		Diggit::Dig.it.analyze([], [], :clean)
 		expect(src.entry.has?("test_analysis_with_clean_error", :performed)).to be false

@@ -20,9 +20,12 @@
 begin
 	require 'rspec/core/rake_task'
 	require 'rubocop/rake_task'
+	require 'yard'
+	require 'bundler/gem_tasks'
 
 	RuboCop::RakeTask.new(:rubocop)
 	RSpec::Core::RakeTask.new(:spec)
+	YARD::Rake::YardocTask.new(:yard)
 
-	task default: [:spec, :rubocop]
+	task default: [:rubocop, :yard, :spec]
 end
