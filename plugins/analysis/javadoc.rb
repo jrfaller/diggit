@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with Diggit.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Copyright 2016 Jean-Rémy Falleri <jr.falleri@gmail.com>
-# Copyright 2016 Mohamed A. OUMAZIZ <med@oumaziz.com>
+# Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 require 'nokogiri'
 require 'oj'
@@ -56,7 +55,7 @@ class Javadoc < Diggit::Analysis
 
 		# Class Part
 		res["class"] = {}
-		res["class"]["main"] = 	class_comment(doc)
+		res["class"]["main"] = class_comment(doc)
 		res["class"]["tags"] = class_tags(doc)
 
 		# Class Fields Part
@@ -82,52 +81,59 @@ class Javadoc < Diggit::Analysis
 		package = doc.xpath("root/CompilationUnit/PackageDeclaration/QualifiedName/@label").to_s
 
 		doc.xpath("root/CompilationUnit/TypeDeclaration").each do |c|
-			parentFullName = package + "." + c.at_xpath("SimpleName/@label").to_s
-			
-			getMethodsRecursively(c, res, override_count, override_inherit_count, parentFullName)
+			parent_full_name = package + "." + c.at_xpath("SimpleName/@label").to_s
+
+			get_methods_recursively(c, res, override_count, override_inherit_count, parent_full_name)
 		end
 
 		res
 	end
 
-	def getMethodsRecursively(c, res, override_count, override_inherit_count, parentFullName)
-		className = get_class_name(c) 
+	def get_methods_recursively(c, res, override_count, override_inherit_count, parent_full_name)
+		class_name = get_class_name(c)
 
-		if(c.xpath("MethodDeclaration").count > 0)
+		if c.xpath("MethodDeclaration").count > 0
 			c.xpath("MethodDeclaration").each do |m|
 				id = method_id(m)
 
 				javadoc = {}
 
+				javadoc["signature"] = m.at_xpath("@label").to_s
 				javadoc["method_name"] = m.at_xpath("SimpleName/@label").to_s
-				javadoc["class_name"] = className
-				javadoc["full_class_name"] = parentFullName
+				javadoc["class_name"] = class_name
+				javadoc["full_class_name"] = parent_full_name
 				javadoc['main'] = get_method_comment(m)
 				javadoc['params'] = {}
 
 				javadoc['override'] = false
 				javadoc['inheritDoc'] = false
-				m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
+				javadoc["inheritdoc_metrics"] = {}
+				javadoc["inheritdoc_metrics"]["main"] = 0
+				javadoc["inheritdoc_metrics"]["throws"] = 0
+				javadoc["inheritdoc_metrics"]["param"] = 0
+				javadoc["inheritdoc_metrics"]["return"] = 0
 
+				m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
 					next unless k.to_s.casecmp("override") == 0
 					javadoc['override'] = true
 					override_count += 1
-
-					if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count > 0
-						javadoc['inheritDoc'] = true
-						override_inherit_count += 1
-					end
 				end
 
-				javadoc["params"] = get_params(m)
+				if m.xpath("Javadoc/TagElement[not(@label)]/TagElement[@label='@inheritDoc']").count > 0 # metric
+					javadoc['inheritDoc'] = true
+					override_inherit_count += 1
+					javadoc["inheritdoc_metrics"]["main"] = 1
+				end
+
+				javadoc["params"] = get_params(m, javadoc["inheritdoc_metrics"]) # metric
 				javadoc["see"] = get_see(m)
-				javadoc["throws"] = get_throws(m)
-				javadoc["exceptions"] = get_exceptions(m)
+				javadoc["throws"] = get_throws(m, javadoc["inheritdoc_metrics"]) # metric
+				javadoc["exceptions"] = get_exceptions(m, javadoc["inheritdoc_metrics"]) # metric
 				javadoc["links"] = get_links(m)
 
 				javadoc["since"] = m.xpath("Javadoc/TagElement[@label='@since']/TextElement/@label").to_s
 
-				javadoc['return'] = get_return(m)
+				javadoc['return'] = get_return(m, javadoc["inheritdoc_metrics"]) # metric
 
 				res["methods"] << [id, javadoc]
 				res["metrics"]["nb_method_override"] = override_count
@@ -135,17 +141,16 @@ class Javadoc < Diggit::Analysis
 			end
 		end
 
-		if(c.xpath("TypeDeclaration").count > 0)
+		if c.xpath("TypeDeclaration").count > 0
 			c.xpath("TypeDeclaration").each do |t|
-				getMethodsRecursively(t, res, override_count, override_inherit_count, parentFullName + "." + t.at_xpath("SimpleName/@label").to_s)
+				get_methods_recursively(t, res, override_count, override_inherit_count, parent_full_name + "." + t.at_xpath("SimpleName/@label").to_s)
 			end
 		end
-
 	end
 
 	def method_id(m)
 		res = ""
-		modifiers = m.xpath("Modifier").map{ |q| q.xpath("@label")}.join(" ")
+		modifiers = m.xpath("Modifier").map { |q| q.xpath("@label") }.join(" ")
 		res += "#{modifiers} " unless modifiers.empty?
 		res += "#{type(m)} #{m.at_xpath('SimpleName/@label')}("
 		params = m.xpath("SingleVariableDeclaration").map { |p| "#{type(p)} #{p.at_xpath('SimpleName/@label')}" }.join(',')
@@ -173,7 +178,7 @@ class Javadoc < Diggit::Analysis
 		doc
 	end
 
-	def get_params(m)
+	def get_params(m, javadoc)
 		data = {}
 		m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
 			if data[p.at_xpath("SimpleName/@label").to_s].nil?
@@ -181,13 +186,24 @@ class Javadoc < Diggit::Analysis
 			end
 
 			param = ""
+			space = false
 			p.xpath("./*").each do |q|
 				if q.name == "TextElement"
-					param += q.xpath("@label").to_s
+					if space
+						param += " " + q.xpath("@label").to_s
+					else
+						param += q.xpath("@label").to_s
+					end
+					space = true
 				end
 
 				if q.name == "TagElement"
-					param += get_link(q)
+					param += get_link(q, space)
+					space = false
+
+					if q.xpath("@label").to_s == "@inheritDoc"
+						javadoc["param"] += 1
+					end
 				end
 			end
 
@@ -197,36 +213,47 @@ class Javadoc < Diggit::Analysis
 	end
 
 	def get_links(m)
-		m.xpath("Javadoc/TagElement/TagElement[@label='@link']").map { |p| 
-			if p.at_xpath("SimpleName").nil? 
-				p.xpath('QualifiedName/@label').to_s 
+		m.xpath("Javadoc/TagElement/TagElement[@label='@link']").map{ |p|
+			if p.at_xpath("SimpleName").nil?
+				p.xpath('QualifiedName/@label').to_s
 			else
-				p.xpath('SimpleName/@label').to_s 
+				p.xpath('SimpleName/@label').to_s
 			end
 		}
 	end
 
-	def get_throws(m)
+	def get_throws(m, javadoc)
 		throws = {}
 		m.xpath("Javadoc/TagElement[@label='@throws']").each do |p|
 			id = ""
+			space = false
 			p.xpath("./*").each do |q|
 				if q.name == "QualifiedName"
-					id = p.at_xpath("QualifiedName/@label").to_s
+					id = " " + p.at_xpath("QualifiedName/@label").to_s
 					throws[id] = ""
 				end
 
 				if q.name == "SimpleName"
-					id = p.at_xpath("SimpleName/@label").to_s
+					id = " " + p.at_xpath("SimpleName/@label").to_s
 					throws[id] = ""
 				end
 
 				if q.xpath("@label").to_s == "@link" || q.xpath("@label").to_s == "@code"
-					throws[id] += get_link(q)
+					throws[id] += get_link(q, space)
+					space = false
 				end
 
 				if q.name == "TextElement"
-					throws[id] += q.xpath("@label").to_s
+					if space
+						throws[id] += " " + q.xpath("@label").to_s
+					else
+						throws[id] += q.xpath("@label").to_s
+					end
+					space = true
+				end
+
+				if q.xpath("@label").to_s == "@inheritDoc"
+					javadoc["throws"] += 1
 				end
 			end
 		end
@@ -234,27 +261,38 @@ class Javadoc < Diggit::Analysis
 		throws
 	end
 
-	def get_exceptions(m)
+	def get_exceptions(m, javadoc)
 		exceptions = {}
 		m.xpath("Javadoc/TagElement[@label='@exception']").each do |p|
 			id = ""
+			space = false
 			p.xpath("./*").each do |q|
 				if q.name == "QualifiedName"
-					id = p.at_xpath("QualifiedName/@label").to_s
+					id = " " + p.at_xpath("QualifiedName/@label").to_s
 					exceptions[id] = ""
 				end
 
 				if q.name == "SimpleName"
-					id = p.at_xpath("SimpleName/@label").to_s
+					id = " " + p.at_xpath("SimpleName/@label").to_s
 					exceptions[id] = ""
 				end
 
 				if q.xpath("@label").to_s == "@link" || q.xpath("@label").to_s == "@code"
-					exceptions[id] += get_link(q)
+					exceptions[id] += get_link(q, space)
+					space = false
 				end
 
 				if q.name == "TextElement"
-					exceptions[id] += q.xpath("@label").to_s
+					if space
+						exceptions[id] += " " + q.xpath("@label").to_s
+					else
+						exceptions[id] += q.xpath("@label").to_s
+					end
+					space = true
+				end
+
+				if q.xpath("@label").to_s == "@inheritDoc"
+					javadoc["throws"] += 1
 				end
 			end
 		end
@@ -262,64 +300,61 @@ class Javadoc < Diggit::Analysis
 		exceptions
 	end
 
-	def get_return(m)
+	def get_return(m, javadoc)
 		res = ""
+		space = false
 		m.xpath("Javadoc/TagElement[@label='@return']/*").each do |p|
 			if p.name == "TextElement"
-				res += p.xpath("@label").to_s
+				if space
+					res += " " + p.xpath("@label").to_s
+				else
+					res += p.xpath("@label").to_s
+				end
+				space = true
 			else
-				res += get_link(p)
+				res += get_link(p, space)
+				space = false
+			end
+
+			if p.xpath("@label").to_s == "@inheritDoc"
+				javadoc["return"] += 1
 			end
 		end
 		res
 	end
 
 	def get_see(m)
-		m.xpath("Javadoc/TagElement[@label='@see']/MethodRef").map { |p| p.xpath('SimpleName').map{ |q| q.xpath("@label")}.join("#") }
+		m.xpath("Javadoc/TagElement[@label='@see']/MethodRef").map { |p| p.xpath('SimpleName').map { |q| q.xpath("@label") }.join("#") }
 	end
 
 	def get_method_comment(m)
 		main = ""
+		space = false
 		m.xpath("Javadoc/TagElement[not(@label)]/*").each do |p|
 			if p.at_xpath("QualifiedName/@label").nil? && p.at_xpath("SimpleName/@label").nil? && (p.xpath("MethodRef").count == 0) && (p.xpath("TextElement").count == 0) && p.name != "TagElement"
-				main += p.at_xpath("@label").to_s
+				if space
+					main += " " + p.at_xpath("@label").to_s
+				else
+					main += p.at_xpath("@label").to_s
+				end
+				space = true
 			else
-				main += get_link(p)
+				main += get_link(p, space)
+				space = false
 			end
 		end
 		main
 	end
 
-	def get_link(p)
+	def get_link(p, space)
 		link = ""
-
-		if p.xpath("SimpleName").count > 0
-			link += "{@link " + p.at_xpath("SimpleName/@label").to_s + "}"
-		end
-
-		if p.xpath("QualifiedName").count > 0
-			link += "{@link " + p.at_xpath("QualifiedName/@label").to_s  + "}"
-		end
-
-		if p.xpath("TextElement").count > 0
-			if p.xpath("@label").to_s == "@code"
-				link += "{@code " + p.at_xpath("TextElement/@label").to_s.lstrip.rstrip  + "}"
-			else
-				link += "{@link #" + p.at_xpath("TextElement/@label").to_s.lstrip.rstrip  + "}"
-			end
-		end
-
-		if p.xpath("MemberRef").count > 0
-			link += "{@link " + p.xpath("MemberRef").map{ |q| q.xpath("SimpleName/@label")}.join("#") + "}"
-		end
-			
 		methodref = ""
 
-		if p.xpath("MethodRef").count > 0 
+		if p.xpath("MethodRef").count > 0
 			if p.xpath("MethodRef/SimpleName").count > 1
-				methodref += "{@link " + p.xpath("MethodRef").map { |s| s.xpath('SimpleName').map{ |q| q.xpath("@label")}.join("#") }.join("#").to_s + '('
+				methodref += get_space(space) + "{@link " + p.xpath("MethodRef").map { |s| s.xpath('SimpleName').map{ |q| q.xpath("@label") }.join("#") }.join("#").to_s + '('
 			else
-				methodref += "{@link #" + p.xpath("MethodRef/SimpleName/@label").to_s + '('
+				methodref += get_space(space) + "{@link #" + p.xpath("MethodRef/SimpleName/@label").to_s + '('
 			end
 
 			if p.xpath("MethodRef/MethodRefParameter/SimpleName").count > 0
@@ -327,13 +362,41 @@ class Javadoc < Diggit::Analysis
 			else
 				methodref += p.xpath("MethodRef/*/*/@label").map { |q| q }.join(", ")
 			end
-		end
-			
-		if methodref != ""
-			methodref += ')' + p.xpath("TextElement/@label").to_s + '}'
-			link += methodref
+
+			if methodref != ""
+				methodref += ')' + p.xpath("TextElement/@label").to_s + '}'
+				link += methodref
+			end
+		else
+			if p.xpath("SimpleName").count > 0
+				link += get_space(space) + "{@link " + p.at_xpath("SimpleName/@label").to_s + "}"
+			end
+
+			if p.xpath("QualifiedName").count > 0
+				link += get_space(space) + "{@link " + p.at_xpath("QualifiedName/@label").to_s + "}"
+			end
+
+			if p.xpath("TextElement").count > 0
+				if p.xpath("@label").to_s == "@code"
+					link += get_space(space) + "{@code " + p.at_xpath("TextElement/@label").to_s.lstrip.rstrip + "}"
+				else
+					link += get_space(space) + "{@link #" + p.at_xpath("TextElement/@label").to_s.lstrip.rstrip + "}"
+				end
+			end
+
+			if p.xpath("MemberRef").count > 0
+				link += get_space(space) + "{@link " + p.xpath("MemberRef").map { |q| q.xpath("SimpleName/@label") }.join("#") + "}"
+			end
 		end
 		link
+	end
+
+	def get_space(space)
+		if space
+			" "
+		else
+			""
+		end
 	end
 
 	def count_classes(doc)
@@ -362,17 +425,24 @@ class Javadoc < Diggit::Analysis
 
 	def class_comment(doc)
 		main = ""
+		space = false
 		doc.xpath("//TypeDeclaration/Javadoc/TagElement[not(@label)]/*").each do |p|
 			if p.name == "TagElement"
-				main += get_link(p)
+				main += get_link(p, space)
+				space = false
 			else
-				main += p.at_xpath("@label").to_s
+				if space
+					main += " " + p.at_xpath("@label").to_s
+				else
+					main += p.at_xpath("@label").to_s
+				end
+				space = true
 			end
 		end
 		main
 	end
 
-	def class_tags(doc) 
+	def class_tags(doc)
 		tags = {}
 		doc.xpath("//TypeDeclaration/Javadoc/TagElement[@label]").each do |p|
 			if tags[p.xpath("@label").to_s].nil?
@@ -388,23 +458,29 @@ class Javadoc < Diggit::Analysis
 		fields = {}
 
 		doc.xpath("//FieldDeclaration").each do |f|
-			modifiers = ""
 			res = ""
 
-			modifiers = f.xpath("Modifier").map{ |q| q.xpath("@label")}.join(" ")
+			modifiers = f.xpath("Modifier").map { |q| q.xpath("@label") }.join(" ")
 			res += "#{modifiers} " unless modifiers.empty?
 			res += "#{type(f)} #{f.at_xpath('SimpleName/@label')}"
 			res += f.xpath("VariableDeclarationFragment/SimpleName/@label").to_s
 
 			desc = ""
+			space = false
 			f.xpath("Javadoc/TagElement[not(@label)]/*").each do |p|
 				if p.name == "TextElement"
-					desc += p.xpath("@label").to_s
+					if space
+						desc += " " + p.xpath("@label").to_s
+					else
+						desc += p.xpath("@label").to_s
+					end
+					space = true
 				else
-					desc += get_link(p)
+					desc += get_link(p, space)
+					space = false
 				end
 			end
-			
+
 			fields[res] = desc
 		end
 		fields
@@ -414,7 +490,7 @@ class Javadoc < Diggit::Analysis
 		name = doc.at_xpath("SimpleName/@label").to_s
 		if doc.xpath("TypeParameter").count > 0
 			name += "<"
-			name += doc.xpath("TypeParameter/SimpleName/@label").map{|q| q}.join(",")
+			name += doc.xpath("TypeParameter/SimpleName/@label").map { |q| q }.join(",")
 			name += ">"
 		end
 
