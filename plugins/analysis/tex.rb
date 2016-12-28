@@ -32,7 +32,7 @@ class Tex < Diggit::Analysis
 		walker.push(repo.head.name)
 		walker.each do |c|
 			repo.checkout(c.oid, { strategy: [:force, :remove_untracked] })
-			words = Dir["**/*.tex"].reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
+			words = Dir["**/*.tex"].reduce(0) { |a, e| a + `cat "#{e}" | wc -w`.to_i }
 			File.open(file, 'a') { |f| f.puts("#{source.url};#{c.oid};#{words}\n") }
 		end
 	end
