@@ -1,4 +1,5 @@
 FROM ubuntu:xenial
+
 USER root
 
 RUN apt-get update && \
@@ -9,25 +10,15 @@ RUN apt-get update && \
   apt-get install -y libssh2-1-dev && \
   apt-get install -y pkg-config && \
   apt-get install -y cmake
+RUN mkdir /var/diggit
+RUN gem install diggit
 
-RUN useradd -ms /bin/bash diggit
+WORKDIR /var/diggit
 
-USER diggit
-WORKDIR /home/diggit
+ONBUILD RUN dgit init
+ONBUILD COPY plugins plugins
+ONBUILD COPY sources .dgit/sources
+ONBUILD RUN dgit clones perform
+ONBUILD VOLUME /var/diggit
 
-RUN gem install --user-install diggit
-
-USER root
-
-RUN ln -s /home/diggit/.gem/ruby/2.3.0/bin/dgit /usr/bin
-
-USER diggit
-
-RUN dgit init
-
-USER root
-COPY plugins plugins
-COPY sources .dgit/sources
-RUN chown -R diggit:diggit .
-
-USER diggit
+ENTRYPOINT ["/usr/local/bin/dgit"]
