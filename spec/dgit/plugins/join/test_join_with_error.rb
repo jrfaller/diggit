@@ -24,6 +24,5 @@ class TestJoinWithError < Diggit::Join
 		raise "Error!"
 	end
 
-	def clean
-	end
+	def clean; end
 end

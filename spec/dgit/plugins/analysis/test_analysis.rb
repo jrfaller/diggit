@@ -18,9 +18,7 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 class TestAnalysis < Diggit::Analysis
-	def run
-	end
+	def run; end
 
-	def clean
-	end
+	def clean; end
 end
