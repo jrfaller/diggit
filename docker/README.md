@@ -1,17 +1,14 @@
 # Diggit docker image
 
-Diggit's docker image enables you to use diggit without having the burden of installing it. This image is not meant to be used directly, but rather to be extended.
+Diggit's docker image enables you to use diggit without having the burden of installing it.
 
-To work, it needs several files:
-* A `sources` file that contains the list of the URLs of the repositories
-* A `plugins` folder that may contains analyses, joins or addons
-
-To use it, create a new `Dockerfile` based on the one furnished in this repository, and add the analysis sequence as a sequence of `RUN` commands, such as:
+To use it you need to mount a folder from the host to `/diggit`. Then you can use docker run to perform diggit commands.
+Here is an example of usage:
 
 ```
-FROM jrfaller/diggit
-
-RUN dgit analyses add test_analysis
-RUN dgit clones perform
-RUN dgit analyses perform
+docker run -v my_folder:/diggit jrfaller/diggit init
+docker run -v my_folder:/diggit jrfaller/diggit analyses add tex
+docker run -v my_folder:/diggit jrfaller/diggit sources add https://github.com/jrfaller/test-git
+docker run -v my_folder:/diggit jrfaller/diggit clones perform
+docker run -v my_folder:/diggit jrfaller/diggit analyses perform
 ```
