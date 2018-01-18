@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -48,7 +46,7 @@ class Formatador
 
 	def self.visible(method)
 		target = method.to_sym
-		if target == :ok || target == :error || target == :info
+		if %i[ok error info].include?(target)
 			true
 		elsif (target == :warn || target == :debug) && level == :fine
 			true

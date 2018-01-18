@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -27,5 +25,5 @@ begin
 	RSpec::Core::RakeTask.new(:spec)
 	YARD::Rake::YardocTask.new(:yard)
 
-	task default: [:rubocop, :yard, :spec]
+	task default: %i[rubocop yard spec]
 end

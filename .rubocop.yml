@@ -30,10 +30,10 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Max: 15
 
-Style/Tab:
+Layout/Tab:
   Enabled: false
 
-Style/IndentationWidth:
+Layout/IndentationWidth:
   Enabled: false
 
 Style/MethodMissing:
@@ -60,13 +60,13 @@ Style/ModuleFunction:
 Style/BracesAroundHashParameters:
   Enabled: false
 
-Style/AlignHash:
+Layout/AlignHash:
   Enabled: false
 
 Style/Documentation:
   Enabled: false
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
 Style/AsciiComments:

@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -42,7 +40,7 @@ class ConflictMerge < Diggit::Analysis
 			right = parents[1]
 			next if repo.merge_base(left, right).nil?
 			base = repo.lookup(repo.merge_base(left, right))
-			%w(m b l r).each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
+			%w[m b l r].each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
 			populate_merge_directory(out_dir, commit, base, left, right)
 		end
 	end
@@ -90,8 +88,9 @@ class ConflictMerge < Diggit::Analysis
 	def find_oid(tree, components, name)
 		components.each { |c| tree = repo.lookup(tree[c][:oid]) }
 		tree[name][:oid]
-	rescue
-		nil
+	rescue StandardError => e
+		# TODO: better error handling
+		puts e
 	end
 
 	def write(oid, name, *kind)

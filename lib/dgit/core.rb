@@ -1,6 +1,3 @@
-# frozen_string_literal: true
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -24,6 +21,15 @@ require 'rugged'
 require 'singleton'
 require_relative 'log'
 require_relative 'entries'
+
+class Dummy
+	def initialize(_)
+		Object.new
+	end
+end
+
+Oj.default_options = Oj.default_options.merge(mode: :object, auto_define: true, circular: true)
+Oj.register_odd(Rugged::Repository, Dummy, :new, :to_s)
 
 class String
 	# Returns a underscore cased version of the string.
@@ -82,7 +88,7 @@ module Diggit
 			@repository = File.exist?(folder) ? Rugged::Repository.new(folder) : Rugged::Repository.clone_at(url, folder)
 			@repository.checkout(@oid, { strategy: :force })
 			@entry.state = :cloned
-		rescue => e
+		rescue StandardError => e
 			Log.error "Error cloning #{url}: #{e}"
 			e.backtrace.each { |l| Log.debug(l) }
 			@entry.error = e
@@ -96,7 +102,7 @@ module Diggit
 	end
 
 	class Journal
-		attr_reader :sources, :workspace
+		attr_reader :workspace
 
 		def initialize
 			@sources = {}
@@ -216,7 +222,7 @@ module Diggit
 	class PluginLoader
 		include Singleton
 
-		PLUGINS_TYPES = [:addon, :analysis, :join].freeze
+		PLUGINS_TYPES = %i[addon analysis join].freeze
 
 		# Load the plugin with the given name and type.
 		# @param name [String] the name of the plugin
@@ -258,7 +264,7 @@ module Diggit
 		end
 
 		def load_file(name, type)
-			f_glob = PluginLoader.plugin_paths(name, type, File.expand_path('../..', File.dirname(File.realpath(__FILE__))))
+			f_glob = PluginLoader.plugin_paths(name, type, File.expand_path('../..', __dir__))
 			f_home = PluginLoader.plugin_paths(name, type, File.join(Dir.home, Dig::DGIT_FOLDER))
 			f_local = PluginLoader.plugin_paths(name, type, Dig.it.folder)
 			Log.debug "Plugin files in global: #{f_glob}."
@@ -471,7 +477,7 @@ module Diggit
 			entry = RunnableEntry.new(runnable)
 			begin
 				runnable.clean
-			rescue => e
+			rescue StandardError => e
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
@@ -486,7 +492,7 @@ module Diggit
 			entry = RunnableEntry.new(runnable)
 			begin
 				runnable.run
-			rescue => e
+			rescue StandardError => e
 				entry.toc
 				entry.error = e
 				placeholder.canceled << entry
