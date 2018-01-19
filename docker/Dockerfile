@@ -1,25 +1,20 @@
-FROM ubuntu:xenial
+FROM ruby:2.2-alpine
 
-RUN apt-get update && \
-  apt-get install -y ruby && \
-  apt-get install -y ruby-dev && \
-  apt-get install -y libssl-dev && \
-  apt-get install -y libgit2-dev && \
-  apt-get install -y libssh2-1-dev && \
-  apt-get install -y pkg-config && \
-  apt-get install -y cmake && \
-  apt-get install -y git
-
-RUN gem install formatador gli oj rugged
+RUN apk add --update --no-cache \
+    make \
+    cmake \
+    g++ \
+    git \
+    && gem install formatador gli oj rugged \
+    && apk del make cmake g++ \
+    && rm -rf /var/cache/apk/*
 
 WORKDIR /opt
-RUN git clone https://github.com/jrfaller/diggit.git
-RUN ln -s /opt/diggit/bin/dgit /usr/bin/dgit
-
-COPY run.sh /usr/bin/run_diggit.sh
+RUN git clone https://github.com/jrfaller/diggit.git \
+    && ln -s /opt/diggit/bin/dgit /usr/bin/dgit
 
 RUN mkdir /diggit
 VOLUME /diggit
 
 WORKDIR /diggit
-CMD ["bash","run_diggit.sh"]
+CMD ["/bin/sh", "run.sh"]
