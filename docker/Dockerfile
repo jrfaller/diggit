@@ -17,4 +17,4 @@ RUN mkdir /diggit
 VOLUME /diggit
 
 WORKDIR /diggit
-ENTRYPOINT ["/bin/sh", "run.sh"]
+CMD ["/bin/sh", "run.sh"]
