@@ -19,6 +19,9 @@
 
 require 'yaml'
 
+# List all conflicts from a repository.
+# Useful alias to explore the results :
+#   alias fconflicts "find . -iname '*.diff3' | sed -e 's/\.\///g' | sed -e 's/\/.*/\//g' | uniq -u"
 class ConflictMerge < Diggit::Analysis
 	require_addons 'out'
 
@@ -65,14 +68,18 @@ class ConflictMerge < Diggit::Analysis
 			write_commit_log(out_dir, commit, base, left, right)
 
 			diff_file = File.join(out_dir, "#{flat_name}.diff3")
-			File.unlink diff_file unless system(
+			system(
 					DIFF3,
-					"-m",
+					'-x',
+					'-T',
+					'--strip-trailing-cr',
+					'-a',
 					File.join(out_dir, 'l', flat_name),
 					File.join(out_dir, 'b', flat_name),
 					File.join(out_dir, 'r', flat_name),
 					out: diff_file
-			) == false
+			)
+			File.unlink diff_file if File.zero?(diff_file)
 		end
 	end
 
