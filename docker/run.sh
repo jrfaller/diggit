@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 dgit init
 # configure your sources here
 dgit sources add https://github.com/jrfaller/diggit.git
