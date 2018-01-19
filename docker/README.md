@@ -2,13 +2,8 @@
 
 Diggit's docker image enables you to use diggit without having the burden of installing it.
 
-To use it you need to mount a folder from the host to `/diggit`. Then you can use docker run to perform diggit commands.
-Here is an example of usage:
+First you have to hack the `run.sh` script of the `docker` folder to furnish the list of diggit commands you want to perform.
 
-```
-docker run -v my_folder:/diggit jrfaller/diggit init
-docker run -v my_folder:/diggit jrfaller/diggit analyses add tex
-docker run -v my_folder:/diggit jrfaller/diggit sources add https://github.com/jrfaller/test-git
-docker run -v my_folder:/diggit jrfaller/diggit clones perform
-docker run -v my_folder:/diggit jrfaller/diggit analyses perform
-```
+Then you can compile the docker image inside the `docker` folder `docker build . -t diggit`.
+
+Finally you can launch your diggit analyses: `docker run -v my_folder:/diggit diggit`.
