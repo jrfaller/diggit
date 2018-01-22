@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -21,6 +19,9 @@
 
 require 'yaml'
 
+# List all conflicts from a repository.
+# Useful alias to explore the results :
+#   alias fconflicts "find . -iname '*.diff3' | sed -e 's/\.\///g' | sed -e 's/\/.*/\//g' | uniq -u"
 class ConflictMerge < Diggit::Analysis
 	require_addons 'out'
 
@@ -40,41 +41,42 @@ class ConflictMerge < Diggit::Analysis
 			next unless parents.size > 1
 			left = parents[0]
 			right = parents[1]
-			next if repo.merge_base(left, right).nil?
-			base = repo.lookup(repo.merge_base(left, right))
-			%w(m b l r).each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
+			base_oid = repo.merge_base(left, right)
+			next if base_oid.nil?
+			base = repo.lookup(base_oid)
+			%w[m b l r].each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
 			populate_merge_directory(out_dir, commit, base, left, right)
 		end
 	end
 
 	def populate_merge_directory(out_dir, commit, base, left, right)
-		commit.tree.walk(:preorder) do |r, e|
-			next if e[:type] == :tree
+		commit.tree.walk_blobs(:preorder) do |r, e|
 			next if base.tree.get_entry_by_oid(e[:oid])
 			oids = find_oids(r, e[:name], base, left, right)
 			next if oids[:left].nil? || oids[:right].nil? # This would result in a trivial merge
 
-			fname = flatten_name(r + e[:name])
-			write(e[:oid], fname, out_dir, 'm')
+			flat_name = flatten_name(r + e[:name])
+			write(e[:oid], flat_name, out_dir, 'm')
 			if oids[:base].nil?
-				write_file("", fname, out_dir, 'b') # Create a fake file in base
+				write_file("", flat_name, out_dir, 'b') # Create a fake file in base
 			else
-				write(oids[:base], fname, out_dir, 'b')
+				write(oids[:base], flat_name, out_dir, 'b')
 			end
-			write(oids[:left], fname, out_dir, 'l')
-			write(oids[:right], fname, out_dir, 'r')
+			write(oids[:left], flat_name, out_dir, 'l')
+			write(oids[:right], flat_name, out_dir, 'r')
 
 			write_commit_log(out_dir, commit, base, left, right)
 
-			diff_file = File.join(out_dir, "#{fname}.diff3")
-			File.unlink diff_file unless system(
+			diff_file = File.join(out_dir, "#{flat_name}.diff3")
+			system(
 					DIFF3,
-					"-m",
-					File.join(out_dir, 'l', fname),
-					File.join(out_dir, 'b', fname),
-					File.join(out_dir, 'r', fname),
+					'-xTa',
+					File.join(out_dir, 'l', flat_name),
+					File.join(out_dir, 'b', flat_name),
+					File.join(out_dir, 'r', flat_name),
 					out: diff_file
-			) == false
+			)
+			File.unlink diff_file if File.zero?(diff_file)
 		end
 	end
 
@@ -88,10 +90,9 @@ class ConflictMerge < Diggit::Analysis
 	end
 
 	def find_oid(tree, components, name)
-		components.each { |c| tree = repo.lookup(tree[c][:oid]) }
+		components.each { |c| tree = repo.lookup(tree[c][:oid]) unless tree.nil? || tree[c].nil? }
+		return nil if tree.nil? || tree[name].nil?
 		tree[name][:oid]
-	rescue
-		nil
 	end
 
 	def write(oid, name, *kind)

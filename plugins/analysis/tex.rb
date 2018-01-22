@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -31,7 +29,7 @@ class Tex < Diggit::Analysis
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
 		walker.each do |c|
-			repo.checkout(c.oid, { strategy: [:force, :remove_untracked] })
+			repo.checkout(c.oid, { strategy: %i[force remove_untracked] })
 			words = Dir["**/*.tex"].reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
 			File.open(file, 'a') { |f| f.puts("#{source.url};#{c.oid};#{words}\n") }
 		end

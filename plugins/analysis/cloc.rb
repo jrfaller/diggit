@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -31,10 +29,10 @@ class Cloc < Diggit::Analysis
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
 		walker.each do |c|
-			repo.checkout(c.oid, { strategy: [:force, :remove_untracked] })
+			repo.checkout(c.oid, { strategy: %i[force remove_untracked] })
 			cloc = `cloc #{@source.folder} --progress-rate=0 --quiet --yaml`
 			next if cloc.empty?
-			yaml = YAML.load(cloc.lines[2..-1].join)
+			yaml = YAML.safe_load(cloc.lines[2..-1].join)
 			yaml.delete('header')
 			output = { source: @source.url, commit: c.oid, cloc: yaml }
 			db.client['cloc'].insert_one(output)

@@ -1,6 +1,3 @@
-# frozen_string_literal: true
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify

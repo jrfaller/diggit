@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -23,11 +21,11 @@ require 'oj'
 class Javadoc < Diggit::Analysis
 	require_addons 'out'
 
-	VALID_TYPES = %w(
+	VALID_TYPES = %w[
 			root CompilationUnit TypeDeclaration FieldDeclaration MethodDeclaration SimpleName QualifiedName
 			QualifiedName SimpleType PrimitiveType ArrayType SingleVariableDeclaration VariableDeclarationFragment
 			Modifier Javadoc TagElement TextElement MarkerAnnotation MethodRef
-	).freeze
+	].freeze
 
 	def initialize(options)
 		super(options)
@@ -134,9 +132,7 @@ class Javadoc < Diggit::Analysis
 	def get_params(m)
 		data = {}
 		m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
-			if data[p.at_xpath("SimpleName/@label").to_s].nil?
-				data[p.at_xpath("SimpleName/@label").to_s] = []
-			end
+			data[p.at_xpath("SimpleName/@label").to_s] = [] if data[p.at_xpath("SimpleName/@label").to_s].nil?
 
 			data[p.at_xpath("SimpleName/@label").to_s].push(p.xpath("TextElement/@label").to_s)
 		end

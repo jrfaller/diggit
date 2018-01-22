@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -27,24 +25,23 @@ Gem::Specification.new do |spec|
 	spec.email = 'jr.falleri@gmail.com'
 	spec.homepage = 'https://github.com/jrfaller/diggit'
 	spec.licenses = 'LGPL-3.0'
-	spec.description = <<-END
-The Diggit repository analysis tool is a neat swiss knife to enable the analysis of many Git repositories.
-END
+	spec.description = 'The Diggit repository analysis tool is a neat swiss knife to enable\
+		the analysis of many Git repositories.'
 	spec.require_paths = ['lib']
 	spec.files = ['CHANGELOG.md', 'README.md', 'LICENSE', 'bin/dgit'] +
 			Dir['lib/**/*.rb'] + Dir['spec/**/*.rb'] + Dir['plugins/**/*.rb']
 	spec.executables << 'dgit'
 	spec.bindir = 'bin'
-	spec.required_ruby_version = '~> 2.1'
-	spec.add_runtime_dependency 'rugged', '~> 0'
-	spec.add_runtime_dependency 'oj', '~> 2'
-	spec.add_runtime_dependency 'gli', '~> 2'
+	spec.required_ruby_version = '~> 2.2'
 	spec.add_runtime_dependency 'formatador', '~> 0'
-	spec.add_development_dependency 'rspec', '~> 3'
-	spec.add_development_dependency 'yard', '~> 0'
-	spec.add_development_dependency 'redcarpet', '~> 3'
-	spec.add_development_dependency 'rake', '~> 11'
+	spec.add_runtime_dependency 'gli', '~> 2'
+	spec.add_runtime_dependency 'oj', '~> 2'
+	spec.add_runtime_dependency 'rugged', '~> 0'
 	spec.add_development_dependency 'coveralls', '~> 0'
-	spec.add_development_dependency 'rubocop', '~> 0'
 	spec.add_development_dependency 'pry', '~> 0'
+	spec.add_development_dependency 'rake', '~> 11'
+	spec.add_development_dependency 'redcarpet', '~> 3'
+	spec.add_development_dependency 'rspec', '~> 3'
+	spec.add_development_dependency 'rubocop', '~> 0.49.0'
+	spec.add_development_dependency 'yard', '~> 0.9.11'
 end
