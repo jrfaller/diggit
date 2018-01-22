@@ -70,10 +70,7 @@ class ConflictMerge < Diggit::Analysis
 			diff_file = File.join(out_dir, "#{flat_name}.diff3")
 			system(
 					DIFF3,
-					'-x',
-					'-T',
-					'--strip-trailing-cr',
-					'-a',
+					'-xTa',
 					File.join(out_dir, 'l', flat_name),
 					File.join(out_dir, 'b', flat_name),
 					File.join(out_dir, 'r', flat_name),
