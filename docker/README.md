@@ -1,4 +1,4 @@
-# Diggit docker image
+# Diggit docker image
 
 Diggit's docker image enables you to use diggit without having the burden of installing it.
 
