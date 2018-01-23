@@ -1,6 +1,7 @@
 # Changelog of Diggit
 
 ### Version 3.0.2
+* Added version command
 
 ### Version 3.0.1
 * Verbose option now used

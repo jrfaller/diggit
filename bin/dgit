@@ -34,6 +34,14 @@ module Diggit
 	subcommand_option_handling :normal
 	arguments :strict
 
+	desc "Prints diggit version"
+	skips_pre
+	command :version do |c|
+		c.action do |_globals, _options, _args|
+			Log.ok "Diggit version #{Diggit::VERSION}"
+		end
+	end
+
 	desc 'Init a diggit folder.'
 	skips_pre
 	command :init do |c|
