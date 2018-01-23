@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 3.0.2
+
 ### Version 3.0.1
 * Verbose option now used
 * Improved gemspec
