@@ -1,5 +1,17 @@
 # Changelog of Diggit
 
+### Version 3.0.1
+* Verbose option now used
+* Improved gemspec
+* Use new OJ upstream
+* Improve help messages
+
+### Version 3.0.0 (Cod)
+* Compatible with new Oj version
+* Cleaner docker image
+* Updated conflict_merge analysis
+* Fix dependencies vulnerabilities
+
 ### Version 2.1.2
 * Improve documentation
 * Fix bug of `sources del`

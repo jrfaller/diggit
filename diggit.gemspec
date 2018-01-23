@@ -21,12 +21,12 @@ Gem::Specification.new do |spec|
 	spec.name = 'diggit'
 	spec.version = Diggit::VERSION
 	spec.summary = "A Git repository analysis tool."
-	spec.authors = ["Jean-Rémy Falleri", "Matthieu Foucault"]
+	spec.authors = ["Jean-Rémy Falleri", "Floréal Morandat", "Matthieu Foucault", "Mohamed Oumaziz"]
 	spec.email = 'jr.falleri@gmail.com'
 	spec.homepage = 'https://github.com/jrfaller/diggit'
 	spec.licenses = 'LGPL-3.0'
-	spec.description = 'The Diggit repository analysis tool is a neat swiss knife to enable\
-		the analysis of many Git repositories.'
+	spec.description = 'Diggit is an agile tool that allows you to'\
+			' analyze git repositories.'
 	spec.require_paths = ['lib']
 	spec.files = ['CHANGELOG.md', 'README.md', 'LICENSE', 'bin/dgit'] +
 			Dir['lib/**/*.rb'] + Dir['spec/**/*.rb'] + Dir['plugins/**/*.rb']
@@ -42,6 +42,6 @@ Gem::Specification.new do |spec|
 	spec.add_development_dependency 'rake', '~> 11'
 	spec.add_development_dependency 'redcarpet', '~> 3'
 	spec.add_development_dependency 'rspec', '~> 3'
-	spec.add_development_dependency 'rubocop', '~> 0.49.0'
-	spec.add_development_dependency 'yard', '~> 0.9.11'
+	spec.add_development_dependency 'rubocop', '~> 0', '>= 0.49.0'
+	spec.add_development_dependency 'yard', '~> 0', '>= 0.9.11'
 end

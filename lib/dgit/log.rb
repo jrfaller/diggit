@@ -24,20 +24,24 @@ class Formatador
 		attr_accessor :level
 	end
 
-	def self.info(str)
-		Formatador.display_line(str) if visible(__method__)
+	def self.fine(str)
+		Formatador.display_line("[blue]#{str}[/]") if visible(__method__)
 	end
 
-	def self.debug(str)
-		Formatador.display_line(str) if visible(__method__)
+	def self.info(str)
+		Formatador.display_line("[purple]#{str}[/]") if visible(__method__)
 	end
 
 	def self.ok(str)
 		Formatador.display_line("[green]#{str}[/]") if visible(__method__)
 	end
 
-	def self.warn(str)
+	def self.debug(str)
 		Formatador.display_line("[yellow]#{str}[/]") if visible(__method__)
+	end
+
+	def self.warn(str)
+		Formatador.display_line("[orange]#{str}[/]") if visible(__method__)
 	end
 
 	def self.error(str)
@@ -48,7 +52,7 @@ class Formatador
 		target = method.to_sym
 		if %i[ok error info].include?(target)
 			true
-		elsif (target == :warn || target == :debug) && level == :fine
+		elsif %i[warn debug fine].include?(target) && level == :fine
 			true
 		else
 			false
