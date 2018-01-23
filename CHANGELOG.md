@@ -4,8 +4,9 @@
 * Verbose option now used
 * Improved gemspec
 * Use new OJ upstream
+* Improve help messages
 
-### Version 3.0.0
+### Version 3.0.0 (Cod)
 * Compatible with new Oj version
 * Cleaner docker image
 * Updated conflict_merge analysis
