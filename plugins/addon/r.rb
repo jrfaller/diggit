@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -22,7 +20,12 @@ R = nil # fixing SIGPIPE error in some cases. See http://hfeild-software.blogspo
 
 require "rinruby"
 
+# A R addon for Diggit implemented thanks to RinRuby.
+# @!attribute [r] r
+# 	@return [RinRuby] the RinRuby object.
 class R < Diggit::Addon
+	attr_reader :r
+
 	def initialize(*args)
 		super(args)
 		@r = RinRuby.new({ interactive: false, echo: true })

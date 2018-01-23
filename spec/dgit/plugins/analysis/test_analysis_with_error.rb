@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -22,6 +20,5 @@ class TestAnalysisWithError < Diggit::Analysis
 		raise "Error!"
 	end
 
-	def clean
-	end
+	def clean; end
 end

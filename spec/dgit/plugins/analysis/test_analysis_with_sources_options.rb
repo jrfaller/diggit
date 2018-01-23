@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -29,6 +27,5 @@ class TestAnalysisWithSourcesOptions < Diggit::Analysis
 		puts src_opt[@source]["myOption"]
 	end
 
-	def clean
-	end
+	def clean; end
 end

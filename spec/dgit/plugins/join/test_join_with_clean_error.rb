@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -20,8 +18,7 @@
 class TestJoinWithCleanError < Diggit::Join
 	require_analyses 'test_analysis'
 
-	def run
-	end
+	def run; end
 
 	def clean
 		raise "Error!"

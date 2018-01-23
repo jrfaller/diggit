@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -24,11 +22,11 @@ class ClocPerFile < Diggit::Analysis
 	def run
 		commit_oid = src_opt[@source]["cloc-commit-id"] unless src_opt[@source].nil?
 		commit_oid = 'HEAD' if commit_oid.nil?
-		repo.checkout(commit_oid, { strategy: [:force, :remove_untracked] })
+		repo.checkout(commit_oid, { strategy: %i[force emove_untracked] })
 		folder = File.expand_path(@source.folder)
 		cloc = `cloc #{folder} --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		return if cloc.empty?
-		yaml = YAML.load(cloc.lines[2..-1].join)
+		yaml = YAML.safe_load(cloc.lines[2..-1].join)
 		yaml.delete('header')
 		yaml.delete('SUM')
 		cloc_a = []

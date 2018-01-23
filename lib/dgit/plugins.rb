@@ -1,5 +1,3 @@
-# encoding: utf-8
-#
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -85,14 +83,12 @@ module Diggit
 		# Run the runnable.
 		# @abstract This method must be overrided.
 		# @return [void]
-		def run
-		end
+		def run; end
 
 		# Clean the runnable.
 		# @abstract This method must be overrided.
 		# @return [void]
-		def clean
-		end
+		def clean; end
 
 		# Add an addon as a required addon.
 		#

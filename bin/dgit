@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
 #
 # This file is part of Diggit.
 #
@@ -27,8 +26,8 @@ module Diggit
 	extend self
 	program_desc 'A git repository analysis tool.'
 
-	switch [:v, :verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
-	flag [:f, :folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
+	switch %i[v verbose], default_value: false, negatable: false, desc: "Indicates if the debug information are visible."
+	flag %i[f folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
 
 	version Diggit::VERSION
 
@@ -104,7 +103,7 @@ module Diggit
 		c.arg_name 'id'
 		c.command :del do |del|
 			del.action do |_global_options, _options, args|
-				Diggit::Dig.it.journal.del_source args[0]
+				Diggit::Dig.it.journal.del_source args[0].to_i
 			end
 		end
 		c.desc 'Import sources from a file.'
@@ -178,9 +177,9 @@ module Diggit
 		end
 		c.desc 'Perform joins.'
 		c.command :perform do |perform|
-			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
-			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
-			perform.flag [:m, :mode], desc: "running mode",
+			perform.flag %i[s sources], desc: "list of sources", type: Array, default_value: []
+			perform.flag %i[a analyses], desc: "list of analyses", type: Array, default_value: []
+			perform.flag %i[m mode], desc: "running mode",
 			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
 			perform.action do |_global_options, options, _args|
 				Diggit::Dig.it.join(options[:s], options[:a], options[:m])
@@ -213,9 +212,9 @@ module Diggit
 		end
 		c.desc 'Perform analyses.'
 		c.command :perform do |perform|
-			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
-			perform.flag [:a, :analyses], desc: "list of analyses", type: Array, default_value: []
-			perform.flag [:m, :mode], desc: "running mode",
+			perform.flag %i[s sources], desc: "list of sources", type: Array, default_value: []
+			perform.flag %i[a analyses], desc: "list of analyses", type: Array, default_value: []
+			perform.flag %i[m mode], desc: "running mode",
 			must_match: { "run" => :run, "clean" => :clean, "rerun" => :rerun }, default_value: :run
 			perform.action do |_global_options, options, _args|
 				Diggit::Dig.it.analyze(options[:s], options[:a], options[:m])
@@ -228,7 +227,7 @@ module Diggit
 	command :clones do |c|
 		c.desc 'Perform the clones.'
 		c.command :perform do |perform|
-			perform.flag [:s, :sources], desc: "list of sources", type: Array, default_value: []
+			perform.flag %i[s sources], desc: "list of sources", type: Array, default_value: []
 			perform.action do |_global_options, options, _args|
 				Diggit::Dig.it.clone(*options[:s])
 			end
