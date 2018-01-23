@@ -28,7 +28,12 @@ class Dummy
 	end
 end
 
-Oj.default_options = Oj.default_options.merge(mode: :object, auto_define: true, circular: true)
+Oj.default_options = Oj.default_options.merge(
+		mode: :object,
+		indent: 2,
+		auto_define: true,
+		circular: true
+)
 Oj.register_odd(Rugged::Repository, Dummy, :new, :to_s)
 
 class String
@@ -148,11 +153,11 @@ module Diggit
 	class Config
 		attr_reader :analyses, :joins
 
-		def initialize(hash)
+		def initialize(config_hash)
 			@analyses = []
 			@joins = []
-			hash[:analyses].each { |a| load_analysis(a) }
-			hash[:joins].each { |j| load_join(j) }
+			config_hash[:analyses].each { |a| load_analysis(a) }
+			config_hash[:joins].each { |j| load_join(j) }
 		end
 
 		def to_hash
@@ -267,9 +272,6 @@ module Diggit
 			f_glob = PluginLoader.plugin_paths(name, type, File.expand_path('../..', __dir__))
 			f_home = PluginLoader.plugin_paths(name, type, File.join(Dir.home, Dig::DGIT_FOLDER))
 			f_local = PluginLoader.plugin_paths(name, type, Dig.it.folder)
-			Log.debug "Plugin files in global: #{f_glob}."
-			Log.debug "Plugin files in home: #{f_home}."
-			Log.debug "Plugin files in local directory: #{f_local}."
 			found = true
 			if !f_local.empty?
 				f_local.each { |f| require File.expand_path(f) }
@@ -391,7 +393,7 @@ module Diggit
 		# @return [void]
 		def save_journal
 			File.open(config_path(DGIT_SOURCES), "w") { |f| @journal.sources.each { |source| f.puts(source.url) } }
-			Oj.to_file(config_path(DGIT_JOURNAL), @journal, indent: 2)
+			Oj.to_file(config_path(DGIT_JOURNAL), @journal)
 		end
 
 		# Load the options from `.dgit/options`
@@ -423,7 +425,10 @@ module Diggit
 		# @param source_ids [Array<Integer>] the ids of the sources.
 		# @return [void]
 		def clone(*source_ids)
-			@journal.sources_by_ids(*source_ids).select { |s| s.entry.new? }.each(&:clone)
+			@journal.sources_by_ids(*source_ids).select { |s| s.entry.new? }.each do |s|
+				Log.fine("cloning  #{s.url} (#{s.oid})")
+				s.clone
+			end
 		ensure
 			save_journal
 		end
@@ -436,6 +441,7 @@ module Diggit
 		def analyze(source_ids = [], analyses = [], mode = :run)
 			@journal.sources_by_ids(*source_ids).select { |s| s.entry.cloned? }.each do |s|
 				@config.get_analyses(*analyses).each do |klass|
+					Log.fine("Performing analysis #{klass} (#{mode}) on #{s.url}")
 					a = klass.new(@options)
 					s.load_repository
 					a.source = s
@@ -452,6 +458,7 @@ module Diggit
 		# @return [void]
 		def join(source_ids = [], joins = [], mode = :run)
 			@config.get_joins(*joins).each do |klass|
+				Log.fine("Performing join #{klass}")
 				j = klass.new(@options)
 				clean(j, @journal.workspace) if clean_mode?(mode) && @journal.workspace.has?(j)
 				source_array = @journal.sources_by_ids(*source_ids).select do |s|
