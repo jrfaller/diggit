@@ -61,14 +61,23 @@ module Diggit
 		end
 	end
 
-	desc 'Add an option.'
+	desc 'Manage the options of the diggit folder.'
 	command :options do |c|
-		c.flag %i[h hash], desc: "hash to store (format: 'foo=bar,baz=val1|val2')", type: Hash, default_value: {}
-		c.action do |_global_options, options, _args|
-			Diggit::Dig.it.options.merge!(options[:h])
-			Diggit::Dig.it.save_options
-			Log.fine Dig.it.options
+		c.desc 'Set an option'
+		c.command :set do |set|
+			set.flag %i[h hash], desc: "hash to store (format: 'foo=bar,baz=val1|val2')", type: Hash, default_value: {}
+			set.action do |_global_options, options, _args|
+				Diggit::Dig.it.options.merge!(options[:h])
+				Diggit::Dig.it.save_options
+			end
 		end
+		c.desc 'Display the options'
+		c.command :show do |show|
+			show.action do |_global_options, _options, _args|
+				Log.info Diggit::Dig.it.options
+			end
+		end
+		c.default_command :show
 	end
 
 	desc 'Display the status of the diggit folder.'
