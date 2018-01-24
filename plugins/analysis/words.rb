@@ -17,11 +17,12 @@
 
 require 'fileutils'
 
-class Tex < Diggit::Analysis
+class Words < Diggit::Analysis
 	require_addons 'out'
 
 	def initialize(options)
 		super(options)
+		@extensions = options[name]
 	end
 
 	def run
@@ -31,9 +32,13 @@ class Tex < Diggit::Analysis
 		walker.push(repo.head.name)
 		walker.each do |c|
 			repo.checkout(c.oid, { strategy: %i[force remove_untracked] })
-			words = Dir["**/*.rb"].reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
+			words = words_files.reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
 			File.open(file, 'a') { |f| f.puts("#{source.url};#{c.oid};#{words}\n") }
 		end
+	end
+
+	def words_files
+		@extensions.reduce([]) { |acc, elem| acc + Dir["**/*.#{elem}"] }
 	end
 
 	def clean
