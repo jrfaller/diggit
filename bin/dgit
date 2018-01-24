@@ -34,6 +34,16 @@ module Diggit
 	subcommand_option_handling :normal
 	arguments :strict
 
+	accept(Hash) do |value|
+		result = {}
+		value.split(/,/).each do |pair|
+			k, v = pair.split(/=/)
+			i = v.split(/\|/)
+			result[k] = i
+		end
+		result
+	end
+
 	desc "Prints diggit version"
 	skips_pre
 	command :version do |c|
@@ -48,6 +58,16 @@ module Diggit
 		c.action do |globals, _options, _args|
 			Diggit::Dig.init_dir globals[:f]
 			Log.ok "Diggit folder initialized."
+		end
+	end
+
+	desc 'Add an option.'
+	command :options do |c|
+		c.flag %i[h hash], desc: "hash to store (format: 'foo=bar,baz=val1|val2')", type: Hash, default_value: {}
+		c.action do |_global_options, options, _args|
+			Diggit::Dig.it.options.merge!(options[:h])
+			Diggit::Dig.it.save_options
+			Log.fine Dig.it.options
 		end
 	end
 
