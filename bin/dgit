@@ -30,7 +30,6 @@ module Diggit
 	flag %i[f folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
 
 	version Diggit::VERSION
-
 	subcommand_option_handling :normal
 	arguments :strict
 
@@ -42,6 +41,23 @@ module Diggit
 			result[k] = i
 		end
 		result
+	end
+
+	pre do |globals, _command, _options, _args|
+		Diggit::Dig.init globals[:f]
+		Log.level = :fine if globals[:v]
+		true
+	end
+
+	post do |_global, _command, _options, _args|
+			# Post logic here, skips_post to skip commands
+	end
+
+	on_error do |exception|
+		Log.error "Error running diggit."
+		Log.error exception.message
+		Log.info exception.backtrace.join("\n")
+		false
 	end
 
 	desc "Prints diggit version"
@@ -271,22 +287,6 @@ module Diggit
 			end
 		end
 		c.default_command :perform
-	end
-	pre do |globals, _command, _options, _args|
-		Diggit::Dig.init globals[:f]
-		Log.level = :fine if globals[:v]
-		true
-	end
-
-	post do |_global, _command, _options, _args|
-			# Post logic here, skips_post to skip commands
-	end
-
-	on_error do |exception|
-		Log.error "Error running diggit."
-		Log.error exception.message
-		Log.info exception.backtrace.join("\n")
-		false
 	end
 
 	exit run(ARGV)
