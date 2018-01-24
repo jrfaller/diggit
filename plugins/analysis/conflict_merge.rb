@@ -36,7 +36,7 @@ class ConflictMerge < Diggit::Analysis
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
 		walker.each do |commit|
-			out_dir = out.out_path(source.id, commit.oid)
+			out_dir = out.out_path_for_analysis(self, commit.oid)
 			parents = commit.parents
 			next unless parents.size > 1
 			left = parents[0]
@@ -114,6 +114,6 @@ class ConflictMerge < Diggit::Analysis
 	end
 
 	def clean
-		out.clean
+		out.clean_analysis(self)
 	end
 end

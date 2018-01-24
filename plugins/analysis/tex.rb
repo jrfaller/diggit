@@ -25,21 +25,22 @@ class Tex < Diggit::Analysis
 	end
 
 	def run
+		FileUtils.mkdir_p(out.out_path_for_analysis(self))
 		walker = Rugged::Walker.new(repo)
 		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 		walker.push(repo.head.name)
 		walker.each do |c|
 			repo.checkout(c.oid, { strategy: %i[force remove_untracked] })
-			words = Dir["**/*.tex"].reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
+			words = Dir["**/*.rb"].reduce(0) { |acc, elem| acc + `cat "#{elem}" | wc -w`.to_i }
 			File.open(file, 'a') { |f| f.puts("#{source.url};#{c.oid};#{words}\n") }
 		end
 	end
 
 	def clean
-		out.clean
+		out.clean_analysis(self)
 	end
 
 	def file
-		"#{out.out}/words.csv"
+		out.out_path_for_analysis(self, "words.csv")
 	end
 end

@@ -2,6 +2,7 @@
 
 ### Version 3.0.2
 * Added version command
+* `out` plugin is now able to furnish and clean folder dedicated for an analysis bound to a source
 
 ### Version 3.0.1
 * Verbose option now used

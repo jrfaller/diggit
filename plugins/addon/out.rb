@@ -50,6 +50,13 @@ class Out < Diggit::Addon
 		File.join(@out, *paths)
 	end
 
+	# Get an output path for an analysis bound to a source.
+	# @param analysis [Analysis] an analysis object.
+	# @return [String] the absolute path.
+	def out_path_for_analysis(analysis, *paths)
+		out_path(analysis.name, analysis.source.id, *paths)
+	end
+
 	# Get a temporary path for a file/directory.
 	# @param paths [Array<String>] the different folders of the path.
 	# @return [String] the absolute path.
@@ -57,10 +64,22 @@ class Out < Diggit::Addon
 		File.join(@tmp, *paths)
 	end
 
+	# Get a temporary path for an analysis bound to a source.
+	# @param analysis [Analysis] an analysis object.
+	# @return [String] the absolute path.
+	def tmp_path_for_analysis(analysis, *paths)
+		tmp_path(analysis.name, analysis.source.id, *paths)
+	end
+
 	# Clean the output and temporary folders.
 	# @return [void]
-	def clean
+	def clean_all
 		FileUtils.rm_rf(@out)
 		FileUtils.rm_rf(@tmp)
+	end
+
+	def clean_analysis(analysis)
+		FileUtils.rm_rf(out_path_for_analysis(analysis))
+		FileUtils.rm_rf(tmp_path_for_analysis(analysis))
 	end
 end

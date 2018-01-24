@@ -32,6 +32,7 @@ class Javadoc < Diggit::Analysis
 	end
 
 	def run
+		FileUtils.mkdir_p(out.out_path_for_analysis(self))
 		files = Dir["#{@source.folder}/src/main/java/**/*.java"]
 		puts "#{files.length} files to process"
 		db = {}
@@ -43,7 +44,7 @@ class Javadoc < Diggit::Analysis
 			db[f] = index_methods(doc)
 		end
 
-		Oj.to_file("#{out.out}/#{@source.id}.json", db)
+		Oj.to_file(file, db)
 	end
 
 	def index_methods(doc)
@@ -176,6 +177,10 @@ class Javadoc < Diggit::Analysis
 	end
 
 	def clean
-		out.clean
+		out.clean_analysis(self)
+	end
+
+	def file
+		out.out_path_for_analysis(self, "javadoc.json")
 	end
 end
