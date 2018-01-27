@@ -22,12 +22,6 @@ require 'singleton'
 require_relative 'log'
 require_relative 'entries'
 
-class Dummy
-	def initialize(_)
-		Object.new
-	end
-end
-
 Oj.default_options = Oj.default_options.merge(
 		mode: :object,
 		indent: 2,
