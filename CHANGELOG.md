@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 3.0.3
+
 ### Version 3.0.2
 * Added version command
 * `out` plugin is now able to furnish and clean folder dedicated for an analysis bound to a source
