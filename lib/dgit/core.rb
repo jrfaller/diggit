@@ -32,9 +32,9 @@ Oj.default_options = Oj.default_options.merge(
 		mode: :object,
 		indent: 2,
 		auto_define: true,
+		ignore: [Rugged::Repository],
 		circular: true
 )
-Oj.register_odd(Rugged::Repository, Dummy, :new, :to_s)
 
 class String
 	# Returns a underscore cased version of the string.
