@@ -30,9 +30,43 @@ module Diggit
 	flag %i[f folder], default_value: ".", desc: "Path to the diggit folder. Default: current folder."
 
 	version Diggit::VERSION
-
 	subcommand_option_handling :normal
 	arguments :strict
+
+	accept(Hash) do |value|
+		result = {}
+		value.split(/,/).each do |pair|
+			k, v = pair.split(/=/)
+			i = v.split(/\|/)
+			result[k] = i
+		end
+		result
+	end
+
+	pre do |globals, _command, _options, _args|
+		Diggit::Dig.init globals[:f]
+		Log.level = :fine if globals[:v]
+		true
+	end
+
+	post do |_global, _command, _options, _args|
+			# Post logic here, skips_post to skip commands
+	end
+
+	on_error do |exception|
+		Log.error "Error running diggit."
+		Log.error exception.message
+		Log.info exception.backtrace.join("\n")
+		false
+	end
+
+	desc "Prints diggit version"
+	skips_pre
+	command :version do |c|
+		c.action do |_globals, _options, _args|
+			Log.ok "Diggit version #{Diggit::VERSION}"
+		end
+	end
 
 	desc 'Init a diggit folder.'
 	skips_pre
@@ -41,6 +75,25 @@ module Diggit
 			Diggit::Dig.init_dir globals[:f]
 			Log.ok "Diggit folder initialized."
 		end
+	end
+
+	desc 'Manage the options of the diggit folder.'
+	command :options do |c|
+		c.desc 'Set an option'
+		c.command :set do |set|
+			set.flag %i[h hash], desc: "hash to store (format: 'foo=bar,baz=val1|val2')", type: Hash, default_value: {}
+			set.action do |_global_options, options, _args|
+				Diggit::Dig.it.options.merge!(options[:h])
+				Diggit::Dig.it.save_options
+			end
+		end
+		c.desc 'Display the options'
+		c.command :show do |show|
+			show.action do |_global_options, _options, _args|
+				Log.info Diggit::Dig.it.options
+			end
+		end
+		c.default_command :show
 	end
 
 	desc 'Display the status of the diggit folder.'
@@ -234,22 +287,6 @@ module Diggit
 			end
 		end
 		c.default_command :perform
-	end
-	pre do |globals, _command, _options, _args|
-		Diggit::Dig.init globals[:f]
-		Log.level = :fine if globals[:v]
-		true
-	end
-
-	post do |_global, _command, _options, _args|
-			# Post logic here, skips_post to skip commands
-	end
-
-	on_error do |exception|
-		Log.error "Error running diggit."
-		Log.error exception.message
-		Log.info exception.backtrace.join("\n")
-		false
 	end
 
 	exit run(ARGV)
