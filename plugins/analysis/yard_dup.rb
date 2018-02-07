@@ -17,6 +17,7 @@
 
 require 'yaml'
 require 'yard'
+require 'damerau-levenshtein'
 
 # List all yardoc duplications
 class YardDup < Diggit::Analysis
@@ -45,8 +46,31 @@ class YardDup < Diggit::Analysis
 				insert_to_map(tag_tokens.join(' '), doc_hash, obj)
 			end
 		end
-		File.open(File.join(out_dir, "duplications.txt"), 'w') do |f|
+		write_doc_hash(File.join(out_dir, "duplications.txt"), doc_hash)
+		write_near_miss(File.join(out_dir, "near-miss.txt"), doc_hash)
+	end
+
+	def similarity(s1, s2)
+		d_norm = DamerauLevenshtein.distance(s1, s2).to_f / [s1.size.to_f, s2.size.to_f].max
+		1 - d_norm
+	end
+
+	def write_doc_hash(file, doc_hash)
+		File.open(file, 'w') do |f|
 			doc_hash.each { |key, value| f.write "#{key} (#{value.size}) #{value}\n" if value.size > 1 }
+		end
+	end
+
+	def write_near_miss(file, doc_hash)
+		File.open(file, 'w') do |f|
+			doc_hash.each_key do |key1|
+				doc_hash.each_key do |key2|
+					unless key1.eql?(key2)
+						sim = similarity(key1, key2)
+						f.write "(#{sim}) #{key1} || #{key2}\n" if sim > 0.9
+					end
+				end
+			end
 		end
 	end
 
