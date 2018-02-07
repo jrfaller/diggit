@@ -5,6 +5,7 @@
 * `out` plugin is now able to furnish and clean folder dedicated for an analysis bound to a source
 * New command to handle options
 * Use ignore option of Oj to avoid weird serialization
+* New yard analysis
 
 ### Version 3.0.1
 * Verbose option now used
