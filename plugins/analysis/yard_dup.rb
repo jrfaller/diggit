@@ -29,8 +29,9 @@ class YardDup < Diggit::Analysis
 	end
 
 	def run
+		Log.info "processing #{@source.id}"
 		doc_hash = {}
-		YARD::Registry.load(Dir["**/*.rb"])
+		YARD::Registry.load(Dir["**/*.rb"], true)
 		objects = YARD::Registry.all(:method)
 		Log.info "processing #{objects.size} documented methods"
 		objects.each do |obj|
