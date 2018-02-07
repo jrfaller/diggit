@@ -46,7 +46,7 @@ class YardDup < Diggit::Analysis
 				insert_to_map(tag_tokens.join(' '), doc_hash, obj)
 			end
 		end
-		write_doc_hash(File.join(out_dir, "duplications.txt"), doc_hash)
+		write_duplications(File.join(out_dir, "duplications.txt"), doc_hash)
 		write_near_miss(File.join(out_dir, "near-miss.txt"), doc_hash)
 	end
 
@@ -55,7 +55,7 @@ class YardDup < Diggit::Analysis
 		1 - d_norm
 	end
 
-	def write_doc_hash(file, doc_hash)
+	def write_duplications(file, doc_hash)
 		File.open(file, 'w') do |f|
 			doc_hash.each { |key, value| f.write "#{key} (#{value.size}) #{value}\n" if value.size > 1 }
 		end
