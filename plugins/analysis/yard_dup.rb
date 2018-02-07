@@ -20,14 +20,18 @@ require 'yard'
 
 # List all yardoc duplications
 class YardDup < Diggit::Analysis
+	require_addons 'out'
+
 	def initialize(options)
 		super(options)
 	end
 
 	def run
-		Log.info "processing #{@source.id}"
+		Log.info "processing yardoc of #{@source.id}"
+		out_dir = out.out_path_for_analysis(self)
+		FileUtils.mkdir_p(out_dir)
 		doc_hash = {}
-		YARD::Registry.load(Dir["**/*.rb"], true)
+		YARD::Registry.load(Dir["#{source.folder}/**/*.rb"], true)
 		objects = YARD::Registry.all(:method)
 		Log.info "processing #{objects.size} documented methods"
 		objects.each do |obj|
@@ -41,7 +45,9 @@ class YardDup < Diggit::Analysis
 				insert_to_map(tag_tokens.join(' '), doc_hash, obj)
 			end
 		end
-		doc_hash.each { |key, value| Log.info "#{key}: #{value}" if value.size > 1 }
+		File.open(File.join(out_dir, "duplications.txt"), 'w') do |f|
+			doc_hash.each { |key, value| f.write "#{key} (#{value.size}) #{value}\n" if value.size > 1 }
+		end
 	end
 
 	def insert_to_map(key, hash, obj)
@@ -49,5 +55,7 @@ class YardDup < Diggit::Analysis
 		hash[key] << "#{obj.file} #{obj.path}"
 	end
 
-	def clean; end
+	def clean
+		out.clean_analysis(self)
+	end
 end
