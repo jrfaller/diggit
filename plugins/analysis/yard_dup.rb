@@ -18,12 +18,8 @@
 require 'yaml'
 require 'yard'
 
-# List all conflicts from a repository.
-# Useful alias to explore the results :
-#   alias fconflicts "find . -iname '*.diff3' | sed -e 's/\.\///g' | sed -e 's/\/.*/\//g' | uniq -u"
+# List all yardoc duplications
 class YardDup < Diggit::Analysis
-	require_addons 'out'
-
 	def initialize(options)
 		super(options)
 	end
@@ -35,28 +31,23 @@ class YardDup < Diggit::Analysis
 		objects = YARD::Registry.all(:method)
 		Log.info "processing #{objects.size} documented methods"
 		objects.each do |obj|
-			insert_to_map("@main #{obj.docstring}", doc_hash) unless obj.docstring.empty?
+			insert_to_map("@main #{obj.docstring}", doc_hash, obj) unless obj.docstring.empty?
 			obj.tags.each do |tag|
 				next if tag.nil?
 				tag_tokens = []
 				tag_tokens << "@#{tag.tag_name}" unless tag.tag_name.nil?
 				tag_tokens << tag.types.join(',') unless tag.types.nil? || tag.types.empty?
 				tag_tokens << tag.text unless tag.text.nil?
-				insert_to_map(tag_tokens.join(' '), doc_hash)
+				insert_to_map(tag_tokens.join(' '), doc_hash, obj)
 			end
 		end
-		doc_hash.each { |key, value| Log.info "#{key}: #{value}" if value > 1 }
+		doc_hash.each { |key, value| Log.info "#{key}: #{value}" if value.size > 1 }
 	end
 
-	def insert_to_map(key, hash)
-		hash[key] = if hash.key?(key)
-															hash[key] + 1
-														else
-															0
-														end
+	def insert_to_map(key, hash, obj)
+		hash[key] = [] unless hash.key?(key)
+		hash[key] << "#{obj.file} #{obj.path}"
 	end
 
-	def clean
-		out.clean_analysis(self)
-	end
+	def clean; end
 end
