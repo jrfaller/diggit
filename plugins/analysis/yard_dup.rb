@@ -49,6 +49,7 @@ class YardDup < Diggit::Analysis
 			end
 		end
 		write_duplications(File.join(out_dir, "duplications.txt"), doc_hash)
+		puts_duplicated_methods(doc_hash)
 		plot_duplications(File.join(out_dir, "duplications.png"), doc_hash)
 		write_near_miss(File.join(out_dir, "near-miss.txt"), doc_hash)
 	end
@@ -56,6 +57,14 @@ class YardDup < Diggit::Analysis
 	def similarity(s1, s2)
 		d_norm = Levenshtein.distance(s1, s2).to_f / [s1.size.to_f, s2.size.to_f].max
 		1 - d_norm
+	end
+
+	def puts_duplicated_methods(doc_hash)
+		obj_hash = {}
+		doc_hash.each_value do |value|
+			value.each { |obj| obj_hash[obj] = true } if value.size > 2
+		end
+		Log.info "#{obj_hash.each_key.to_a.size} method involved in duplications"
 	end
 
 	def write_duplications(file, doc_hash)
