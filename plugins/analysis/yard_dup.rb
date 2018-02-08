@@ -17,7 +17,8 @@
 
 require 'yaml'
 require 'yard'
-require 'damerau-levenshtein'
+require 'levenshtein'
+require 'gruff'
 
 # List all yardoc duplications
 class YardDup < Diggit::Analysis
@@ -32,6 +33,7 @@ class YardDup < Diggit::Analysis
 		out_dir = out.out_path_for_analysis(self)
 		FileUtils.mkdir_p(out_dir)
 		doc_hash = {}
+		YARD::Registry.clear
 		YARD::Registry.load(Dir["#{source.folder}/**/*.rb"], true)
 		objects = YARD::Registry.all(:method)
 		Log.info "processing #{objects.size} documented methods"
@@ -47,11 +49,12 @@ class YardDup < Diggit::Analysis
 			end
 		end
 		write_duplications(File.join(out_dir, "duplications.txt"), doc_hash)
+		plot_duplications(File.join(out_dir, "duplications.png"), doc_hash)
 		write_near_miss(File.join(out_dir, "near-miss.txt"), doc_hash)
 	end
 
 	def similarity(s1, s2)
-		d_norm = DamerauLevenshtein.distance(s1, s2).to_f / [s1.size.to_f, s2.size.to_f].max
+		d_norm = Levenshtein.distance(s1, s2).to_f / [s1.size.to_f, s2.size.to_f].max
 		1 - d_norm
 	end
 
@@ -61,15 +64,37 @@ class YardDup < Diggit::Analysis
 		end
 	end
 
+	def plot_duplications(file, doc_hash)
+		dup_hash = {}
+		doc_hash.each_value do |value|
+			dup_hash[value.size] = if dup_hash.key?(value.size)
+																											dup_hash[value.size] + 1
+																										else
+																											1
+																										end
+		end
+		g = Gruff::Bar.new
+		g.hide_legend = true
+		dup_numbers = 2..dup_hash.each_key.to_a.max
+		dup_numbers.each do |dup|
+			if dup_hash.key?(dup)
+				g.data(dup, dup_hash[dup])
+			else
+				g.data(dup, 0)
+			end
+		end
+		g.write(file)
+	end
+
 	def write_near_miss(file, doc_hash)
+		keys = doc_hash.each_key.to_a
+		return if keys.size < 2
 		File.open(file, 'w') do |f|
-			doc_hash.each_key do |key1|
-				doc_hash.each_key do |key2|
-					unless key1.eql?(key2)
-						sim = similarity(key1, key2)
-						f.write "(#{sim}) #{key1} || #{key2}\n" if sim > 0.9
-					end
-				end
+			(0..(keys.size - 2)).each do |i|
+				key1 = keys[i]
+				key2 = keys[i + 1]
+				sim = similarity(key1, key2)
+				f.write "(#{sim}) #{key1} || #{key2}\n" if sim > 0.8
 			end
 		end
 	end
