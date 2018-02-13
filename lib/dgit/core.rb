@@ -74,6 +74,11 @@ module Diggit
 			@repository = nil
 		end
 
+		def full_url
+			return @url if @oid.eql?(DEFAULT_BRANCH)
+			"#{@url}|#{@oid}"
+		end
+
 		def id
 			@url.id
 		end
@@ -386,7 +391,7 @@ module Diggit
 		# Save the journal to `.dgit/journal`
 		# @return [void]
 		def save_journal
-			File.open(config_path(DGIT_SOURCES), "w") { |f| @journal.sources.each { |source| f.puts(source.url) } }
+			File.open(config_path(DGIT_SOURCES), "w") { |f| @journal.sources.each { |source| f.puts(source.full_url) } }
 			Oj.to_file(config_path(DGIT_JOURNAL), @journal)
 		end
 

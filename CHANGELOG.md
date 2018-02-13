@@ -3,6 +3,7 @@
 ### Version 3.0.3
 * New yard analysis
 * Add code of conduct
+* Fix bug with oid being erased in .dgit/sources
 
 ### Version 3.0.2
 * Added version command
