@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 3.0.4
+
 ### Version 3.0.3
 * New yard analysis
 * Add code of conduct
