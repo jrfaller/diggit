@@ -100,20 +100,23 @@ class Javadoc < Diggit::Analysis
 		res
 	end
 
-	def method_id(m)
+	def method_id(method)
 		res = ""
-		modifiers = m.xpath("Modifier/@label")
+		modifiers = method.xpath("Modifier/@label")
 		res += "#{modifiers} " unless modifiers.empty?
-		res += "#{type(m)} #{m.at_xpath('SimpleName/@label')}("
-		params = m.xpath("SingleVariableDeclaration").map { |p| "#{type(p)} #{p.at_xpath('SimpleName/@label')}" }.join(',')
+		res += "#{type(method)} #{method.at_xpath('SimpleName/@label')}("
+		param_list = method.xpath("SingleVariableDeclaration").map do |p|
+			"#{type(p)} #{p.at_xpath('SimpleName/@label')}"
+		end
+		params = param_list.join(',')
 		res += "#{params})"
 		res
 	end
 
-	def type(e)
-		return e.at_xpath('SimpleType/@label').to_s unless e.at_xpath('SimpleType').nil?
-		return e.at_xpath('PrimitiveType/@label').to_s unless e.at_xpath('PrimitiveType').nil?
-		return e.at_xpath('ArrayType/@label').to_s unless e.at_xpath('ArrayType').nil?
+	def type(element)
+		return element.at_xpath('SimpleType/@label').to_s unless element.at_xpath('SimpleType').nil?
+		return element.at_xpath('PrimitiveType/@label').to_s unless element.at_xpath('PrimitiveType').nil?
+		return element.at_xpath('ArrayType/@label').to_s unless element.at_xpath('ArrayType').nil?
 		""
 	end
 
@@ -130,9 +133,9 @@ class Javadoc < Diggit::Analysis
 		doc
 	end
 
-	def get_params(m)
+	def get_params(method)
 		data = {}
-		m.xpath("Javadoc/TagElement[@label='@param']").each do |p|
+		method.xpath("Javadoc/TagElement[@label='@param']").each do |p|
 			data[p.at_xpath("SimpleName/@label").to_s] = [] if data[p.at_xpath("SimpleName/@label").to_s].nil?
 
 			data[p.at_xpath("SimpleName/@label").to_s].push(p.xpath("TextElement/@label").to_s)
@@ -140,20 +143,20 @@ class Javadoc < Diggit::Analysis
 		data
 	end
 
-	def get_links(m)
-		m.xpath("Javadoc/TagElement/TagElement[@label='@link']").map { |p| p.xpath('QualifiedName/@label').to_s }
+	def get_links(method)
+		method.xpath("Javadoc/TagElement/TagElement[@label='@link']").map { |p| p.xpath('QualifiedName/@label').to_s }
 	end
 
-	def get_throws(m)
+	def get_throws(method)
 		throws = {}
-		m.xpath("Javadoc/TagElement[@label='@throws']").each do |p|
+		method.xpath("Javadoc/TagElement[@label='@throws']").each do |p|
 			throws[p.at_xpath("SimpleName/@label").to_s] = p.xpath("TextElement/@label").to_s
 		end
 		throws
 	end
 
-	def get_see(m)
-		m.xpath("Javadoc/TagElement[@label='@see']/MethodRef").map { |p| p.xpath('SimpleName/@label').to_s }
+	def get_see(method)
+		method.xpath("Javadoc/TagElement[@label='@see']/MethodRef").map { |p| p.xpath('SimpleName/@label').to_s }
 	end
 
 	def count_classes(doc)

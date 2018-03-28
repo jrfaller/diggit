@@ -54,8 +54,8 @@ class YardDup < Diggit::Analysis
 		write_near_miss(File.join(out_dir, "near-miss.txt"), doc_hash)
 	end
 
-	def similarity(s1, s2)
-		d_norm = Levenshtein.distance(s1, s2).to_f / [s1.size.to_f, s2.size.to_f].max
+	def similarity(left, right)
+		d_norm = Levenshtein.distance(left, right).to_f / [left.size.to_f, right.size.to_f].max
 		1 - d_norm
 	end
 

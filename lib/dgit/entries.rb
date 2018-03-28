@@ -24,10 +24,10 @@ module Diggit
 		attr_reader :error
 
 		# Set the error of the entry.
-		# @param e [Exception, nil] the error, to indicate an absence of error, pass +nil+.
+		# @param err [Exception, nil] the error, to indicate an absence of error, pass +nil+.
 		# @return [void]
-		def error=(e)
-			@error = e.nil? ? nil : ErrorEntry.new(e)
+		def error=(err)
+			@error = err.nil? ? nil : ErrorEntry.new(err)
 		end
 	end
 

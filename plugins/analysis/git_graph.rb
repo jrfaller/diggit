@@ -31,8 +31,8 @@ class GitGraph < Diggit::Analysis
 			walker = Rugged::Walker.new(repo)
 			walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
 			walker.push(repo.head.name)
-			walker.each do
-				|commit|  f.puts "\tc_#{commit.oid} [label=\"#{commit.oid.to_s[0..6]}\"];"
+			walker.each do |commit|
+				f.puts "\tc_#{commit.oid} [label=\"#{commit.oid.to_s[0..6]}\"];"
 			end
 			walker = Rugged::Walker.new(repo)
 			walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)

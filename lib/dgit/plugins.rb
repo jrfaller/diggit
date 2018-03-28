@@ -43,12 +43,12 @@ module Diggit
 		end
 
 		# Returns the value of a plugin option
-		# @param ns [Symbol] the name of the option's namespace
+		# @param namespace [Symbol] the name of the option's namespace
 		# @param opt [Symbol] the name of the option
 		# @param default [Object] the default value
 		# @return [Object]
-		def read_option(ns, opt, default)
-			return @options[ns][opt] if @options.key?(ns) && @options[ns].key?(opt)
+		def read_option(namespace, opt, default)
+			return @options[namespace][opt] if @options.key?(namespace) && @options[namespace].key?(opt)
 			default
 		end
 	end
