@@ -1,6 +1,7 @@
 # Changelog of Diggit
 
 ### Version 3.0.4
+* New graph analysis
 
 ### Version 3.0.3
 * New yard analysis
