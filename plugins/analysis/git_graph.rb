@@ -28,20 +28,29 @@ class GitGraph < Diggit::Analysis
 		File.open(file, 'w') do |f|
 			f.puts "digraph repository {"
 			f.puts "\tnode [shape=rect, color=lightblue2, style=filled];"
-			walker = Rugged::Walker.new(repo)
-			walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
-			walker.push(repo.head.name)
-			walker.each do |commit|
-				f.puts "\tc_#{commit.oid} [label=\"#{commit.oid.to_s[0..6]}\"];"
-			end
-			walker = Rugged::Walker.new(repo)
-			walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
-			walker.push(repo.head.name)
-			walker.each do |commit|
-				commit.parents.each { |parent| f.puts "\tc_#{commit.oid} -> c_#{parent.oid};" }
-			end
+			append_dot_nodes(f)
+			append_dot_links(f)
 			f.puts "}"
 		end
+	end
+
+	def append_dot_nodes(file)
+		init_walker.each do |commit|
+			file.puts "\tc_#{commit.oid} [label=\"#{commit.oid.to_s[0..6]}\"];"
+		end
+	end
+
+	def append_dot_links(file)
+		init_walker.each do |commit|
+			commit.parents.each { |parent| file.puts "\tc_#{commit.oid} -> c_#{parent.oid};" }
+		end
+	end
+
+	def init_walker
+		walker = Rugged::Walker.new(repo)
+		walker.sorting(Rugged::SORT_TOPO | Rugged::SORT_REVERSE)
+		walker.push(repo.head.name)
+		walker
 	end
 
 	def clean
