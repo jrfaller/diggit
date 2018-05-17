@@ -36,7 +36,10 @@ Layout/Tab:
 Layout/IndentationWidth:
   Enabled: false
 
-Style/MethodMissing:
+Style/MissingRespondToMissing:
+  Enabled: false
+
+Style/MethodMissingSuper:
   Enabled: false
 
 Style/StringLiterals:
