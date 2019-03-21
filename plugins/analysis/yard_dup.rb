@@ -41,6 +41,7 @@ class YardDup < Diggit::Analysis
 			insert_to_map("@main #{obj.docstring}", doc_hash, obj) unless obj.docstring.empty?
 			obj.tags.each do |tag|
 				next if tag.nil?
+
 				tag_tokens = []
 				tag_tokens << "@#{tag.tag_name}" unless tag.tag_name.nil?
 				tag_tokens << tag.types.join(',') unless tag.types.nil? || tag.types.empty?
@@ -98,6 +99,7 @@ class YardDup < Diggit::Analysis
 	def write_near_miss(file, doc_hash)
 		keys = doc_hash.each_key.to_a
 		return if keys.size < 2
+
 		File.open(file, 'w') do |f|
 			(0..(keys.size - 2)).each do |i|
 				key1 = keys[i]

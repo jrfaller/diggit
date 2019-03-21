@@ -21,7 +21,7 @@ require 'yaml'
 class DiffExtractor < Diggit::Analysis
 	require_addons 'out'
 
-	ALLOWED_EXTENSIONS = ['.java']
+	ALLOWED_EXTENSIONS = ['.java'].freeze
 
 	def initialize(options)
 		super(options)
@@ -35,17 +35,19 @@ class DiffExtractor < Diggit::Analysis
 			out_dir = out.out_path_for_analysis(self, commit.oid)
 			parents = commit.parents
 			next unless parents.size == 1
+
 			parent = parents[0]
 			populate_diff_directory(out_dir, commit, parent)
 		end
 	end
 
 	def populate_diff_directory(out_dir, commit, parent)
-		directory_created  = false
+		directory_created = false
 		diff = parent.diff(commit)
 		diff.each_delta do |delta_entry|
 			next unless delta_entry.status == :modified
 			next unless ALLOWED_EXTENSIONS.include?(File.extname(delta_entry.new_file[:path]))
+
 			unless directory_created
 				FileUtils.mkdir_p(out_dir)
 				directory_created = true

@@ -32,6 +32,7 @@ class Cloc < Diggit::Analysis
 			repo.checkout(c.oid, { strategy: %i[force remove_untracked] })
 			cloc = `cloc #{@source.folder} --progress-rate=0 --quiet --yaml`
 			next if cloc.empty?
+
 			yaml = YAML.safe_load(cloc.lines[2..-1].join)
 			yaml.delete('header')
 			output = { source: @source.url, commit: c.oid, cloc: yaml }

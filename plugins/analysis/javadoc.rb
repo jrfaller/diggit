@@ -77,6 +77,7 @@ class Javadoc < Diggit::Analysis
 
 			m.xpath("MarkerAnnotation/SimpleName/@label").each do |k|
 				next unless k.to_s.casecmp("override")
+
 				javadoc['override'] = true
 				override_count += 1
 
@@ -117,6 +118,7 @@ class Javadoc < Diggit::Analysis
 		return element.at_xpath('SimpleType/@label').to_s unless element.at_xpath('SimpleType').nil?
 		return element.at_xpath('PrimitiveType/@label').to_s unless element.at_xpath('PrimitiveType').nil?
 		return element.at_xpath('ArrayType/@label').to_s unless element.at_xpath('ArrayType').nil?
+
 		""
 	end
 

@@ -41,6 +41,7 @@ class String
 	# @return [String]
 	def camel_case
 		return self if self !~ /_/ && self =~ /[A-Z]+.*/
+
 		split('_').map(&:capitalize).join
 	end
 
@@ -76,6 +77,7 @@ module Diggit
 
 		def full_url
 			return @url if @oid.eql?(DEFAULT_BRANCH)
+
 			"#{@url}|#{@oid}"
 		end
 
@@ -100,6 +102,7 @@ module Diggit
 
 		def load_repository
 			raise "Source not cloned #{url}." if @entry.new?
+
 			@repository = Rugged::Repository.new(folder)
 			@repository.checkout(@oid, { strategy: :force })
 		end
@@ -123,10 +126,12 @@ module Diggit
 
 		def sources_by_ids(*ids)
 			return sources if ids.empty?
+
 			source_array = sources
 			result = []
 			ids.each do |id|
 				raise "No such source index #{id}." if id >= source_array.length
+
 				result << source_array[id]
 			end
 			result
@@ -184,6 +189,7 @@ module Diggit
 
 		def get_analyses(*names)
 			return analyses if names.empty?
+
 			analyses.select { |a| names.include?(a.simple_name) }
 		end
 
@@ -208,6 +214,7 @@ module Diggit
 
 		def get_joins(*names)
 			return joins if names.empty?
+
 			joins.select { |j| joins.include?(j.simple_name) }
 		end
 
@@ -237,6 +244,7 @@ module Diggit
 			plugin = search_plugin(name, type)
 			raise "Plugin #{name} not found." unless plugin
 			return plugin.new(Dig.it.options) if instance
+
 			plugin
 		end
 
@@ -261,6 +269,7 @@ module Diggit
 			plugins = ObjectSpace.each_object(Class).select { |c| c < base_class && c.simple_name == name }
 
 			raise "No plugin #{name} of kind #{type} found." if plugins.empty?
+
 			warn "Ambiguous plugin name: several plugins of kind #{type} named #{name} were found." if plugins.size > 1
 
 			@plugins[name] = plugins[0]
@@ -317,6 +326,7 @@ module Diggit
 		# @return [Dig] the instance.
 		def self.it
 			raise "Diggit has not been initialized." if @diggit.nil?
+
 			@diggit
 		end
 
@@ -348,6 +358,7 @@ module Diggit
 			end
 			FileUtils.mkdir(File.expand_path('sources', folder)) unless File.exist?(File.expand_path('sources', folder))
 			return if File.exist?(File.expand_path("plugins", folder))
+
 			FileUtils.mkdir_p(File.expand_path("plugins", folder))
 			FileUtils.mkdir_p(File.expand_path("plugins/analysis", folder))
 			FileUtils.mkdir_p(File.expand_path("plugins/addon", folder))
@@ -373,6 +384,7 @@ module Diggit
 		# @return [Dig] a diggit object.
 		def initialize(folder)
 			raise "Folder #{folder} is not a diggit folder." unless File.exist?(File.expand_path(DGIT_FOLDER, folder))
+
 			@plugin_loader = PluginLoader.instance
 			@folder = folder
 		end
@@ -471,11 +483,11 @@ module Diggit
 			private
 
 		def clean_mode?(mode)
-			mode == :rerun || mode == :clean
+			%i[rerun clean].include?(mode)
 		end
 
 		def run_mode?(mode)
-			mode == :rerun || mode == :run
+			%i[rerun run].include?(mode)
 		end
 
 		def clean(runnable, placeholder)

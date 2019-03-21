@@ -39,10 +39,12 @@ class ConflictMerge < Diggit::Analysis
 			out_dir = out.out_path_for_analysis(self, commit.oid)
 			parents = commit.parents
 			next unless parents.size > 1
+
 			left = parents[0]
 			right = parents[1]
 			base_oid = repo.merge_base(left, right)
 			next if base_oid.nil?
+
 			base = repo.lookup(base_oid)
 			%w[m b l r].each { |p| FileUtils.mkdir_p(File.join(out_dir, p)) }
 			populate_merge_directory(out_dir, commit, base, left, right)
@@ -52,6 +54,7 @@ class ConflictMerge < Diggit::Analysis
 	def populate_merge_directory(out_dir, commit, base, left, right)
 		commit.tree.walk_blobs(:preorder) do |r, e|
 			next if base.tree.get_entry_by_oid(e[:oid])
+
 			oids = find_oids(r, e[:name], base, left, right)
 			next if oids[:left].nil? || oids[:right].nil? # This would result in a trivial merge
 
@@ -92,6 +95,7 @@ class ConflictMerge < Diggit::Analysis
 	def find_oid(tree, components, name)
 		components.each { |c| tree = repo.lookup(tree[c][:oid]) unless tree.nil? || tree[c].nil? }
 		return nil if tree.nil? || tree[name].nil?
+
 		tree[name][:oid]
 	end
 

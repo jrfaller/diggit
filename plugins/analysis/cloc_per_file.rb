@@ -26,6 +26,7 @@ class ClocPerFile < Diggit::Analysis
 		folder = File.expand_path(@source.folder)
 		cloc = `cloc #{folder} --progress-rate=0 --quiet --by-file --yaml --script-lang=Python,python`
 		return if cloc.empty?
+
 		yaml = YAML.safe_load(cloc.lines[2..-1].join)
 		yaml.delete('header')
 		yaml.delete('SUM')

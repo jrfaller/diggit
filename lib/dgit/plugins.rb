@@ -49,6 +49,7 @@ module Diggit
 		# @return [Object]
 		def read_option(namespace, opt, default)
 			return @options[namespace][opt] if @options.key?(namespace) && @options[namespace].key?(opt)
+
 			default
 		end
 	end
@@ -102,6 +103,7 @@ module Diggit
 		def self.required_addons
 			base_addons = superclass < Runnable ? superclass.required_addons : []
 			return base_addons if @required_addons.nil?
+
 			base_addons + @required_addons
 		end
 	end
@@ -149,6 +151,7 @@ module Diggit
 
 		def self.required_analyses
 			return [] if @required_analyses.nil?
+
 			@required_analyses
 		end
 	end

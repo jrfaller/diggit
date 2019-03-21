@@ -75,6 +75,7 @@ module Diggit
 
 		def retrieve_name(runnable_or_string)
 			return runnable_or_string if runnable_or_string.is_a? String
+
 			runnable_or_string.name
 		end
 	end
