@@ -2,6 +2,7 @@
 
 ### Version 3.0.4
 * New graph analysis
+* New diff extractor analysis
 
 ### Version 3.0.3
 * New yard analysis
