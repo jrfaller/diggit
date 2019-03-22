@@ -42,19 +42,20 @@ class DiffExtractor < Diggit::Analysis
 	end
 
 	def populate_diff_directory(out_dir, commit, parent)
-		directory_created = false
+		directories_created = false
 		diff = parent.diff(commit)
 		diff.each_delta do |delta_entry|
 			next unless delta_entry.status == :modified
 			next unless ALLOWED_EXTENSIONS.include?(File.extname(delta_entry.new_file[:path]))
 
-			unless directory_created
-				FileUtils.mkdir_p(out_dir)
-				directory_created = true
+			unless directories_created
+				FileUtils.mkdir_p(File.join(out_dir, 'src'))
+				FileUtils.mkdir_p(File.join(out_dir, 'dst'))
+				directories_created = true
 			end
 			flat_name = flatten_name(delta_entry.new_file[:path])
-			write(delta_entry.new_file[:oid], 'dst_' + flat_name, out_dir)
-			write(delta_entry.old_file[:oid], 'src_' + flat_name, out_dir)
+			write(delta_entry.new_file[:oid], flat_name, File.join(out_dir, 'src'))
+			write(delta_entry.old_file[:oid], flat_name, File.join(out_dir, 'dst'))
 		end
 	end
 
