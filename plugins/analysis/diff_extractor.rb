@@ -21,7 +21,7 @@ require 'yaml'
 class DiffExtractor < Diggit::Analysis
 	require_addons 'out'
 
-	ALLOWED_EXTENSIONS = ['.java'].freeze
+	ALLOWED_EXTENSIONS = ['.java', '.rb'].freeze
 
 	def initialize(options)
 		super(options)
