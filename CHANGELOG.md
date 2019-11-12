@@ -4,6 +4,7 @@
 * New graph analysis
 * New diff extractor analysis
 * Updated dependencies
+* Upgrade min ruby version to 2.4
 
 ### Version 3.0.3
 * New yard analysis
