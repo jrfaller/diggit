@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
 	spec.add_runtime_dependency 'rugged', '~> 0'
 	spec.add_development_dependency 'coveralls', '~> 0'
 	spec.add_development_dependency 'pry', '~> 0'
-	spec.add_development_dependency 'rake', '~> 11'
+	spec.add_development_dependency 'rake', '~> 13'
 	spec.add_development_dependency 'redcarpet', '~> 3'
 	spec.add_development_dependency 'rspec', '~> 3'
 	spec.add_development_dependency 'rubocop', '~> 0', '>= 0.49.0'
