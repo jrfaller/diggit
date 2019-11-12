@@ -1,5 +1,8 @@
 # Changelog of Diggit
 
+### Version 3.0.5
+* Dummy version to fix travis errors
+
 ### Version 3.0.4
 * New graph analysis
 * New diff extractor analysis
