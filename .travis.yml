@@ -13,4 +13,6 @@ deploy:
     api_key:
       secure: RrDi5mthB7t4BSt86TzXLS0oR0Zx7F5f0Tu1mtLZuKNiKOT89JQJgnTb+BlYM1NSV055q/a/c9LA+GLydRdiYmJxdQFu3VHsZQwT7xmRHq1MeYHwyC+19xnea9irnli2CKNWmoM4ndoJGT0RW5CGIZFxI49cAs4m2ZEVkjHzZKV8DwCoDOkxWr0VXuCDfZecVeyzSHOy9HB2yKojlo3vLQq4ewD3Pt/B80bIQrcB51aDEBIpXPghwzIbfCcFEoI8RP6gp3mI3PdKrLomHnlvzEUw5nvFb702WSp/1bbFgEJa41rF7z9GxoV37A9+xX8VLrPTlukQkb1eWS5q3D+ZRnBvO4DrjD9jvMWSMpt2wnyYsjIoTS7u1tDGz9qkHYP4I5REDpfi8Ak3izf5aMrWVjJZ2GRis1KYUg1p9LYAnR4e4OgIh3+w7ACzRcnEgFsoleFSuLlZv7FOmeCqeRgiei0tn/LK7aUAvlVJJX6BmKLwBG39ZH60odbHPMD4XB+A/DUupy/JmsDNUTa1G4As0Gim/BYC0RnmVGju9MSbpyahx4k8qef8ToPPQgBstOfWLtsyVAFP+rjvQpqPrZ+oWB1X65ZNkI5e+JoQrwAkONKIwGLc94CIg/VR0Iw0TCYjcmG4fZQfn2eYSzGYbqKKBQ/RHc+/3WdQsce0nxeZM1s=
     on:
+      branch: master
+      tags: true
       repo: jrfaller/diggit
