@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 3.0.5
+
 ### Version 3.0.4
 * New graph analysis
 * New diff extractor analysis
