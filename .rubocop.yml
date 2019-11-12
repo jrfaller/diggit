@@ -5,7 +5,8 @@ AllCops:
     - 'Vagrantfile'
   TargetRubyVersion: 2.4
 
-ModuleLength:
+Metrics/ModuleLength:
+  Max: 200
   Exclude:
     - 'bin/dgit'
 
@@ -23,9 +24,6 @@ Metrics/BlockLength:
     - 'bin/dgit'
 
 Metrics/ClassLength:
-  Max: 200
-
-Metrics/ModuleLength:
   Max: 200
 
 Metrics/ParameterLists:
