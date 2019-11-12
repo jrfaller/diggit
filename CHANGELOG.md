@@ -1,5 +1,7 @@
 # Changelog of Diggit
 
+### Version 3.0.6
+
 ### Version 3.0.5
 * Dummy version to fix travis errors
 
