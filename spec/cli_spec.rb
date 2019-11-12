@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify

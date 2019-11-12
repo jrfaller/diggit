@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -20,9 +22,9 @@ Coveralls.wear!
 
 require_relative('../lib/dgit')
 
-TEST_URL = 'https://github.com/jrfaller/test-git.git|0a8267929977bf800ababb6ae1bf3b0ed08827a4'.freeze
-TEST_URL_INFO1 = 'https://github.com/jrfaller/test-git.git'.freeze
-TEST_URL_INFO2 = '0a8267929977bf800ababb6ae1bf3b0ed08827a4'.freeze
+TEST_URL = 'https://github.com/jrfaller/test-git.git|0a8267929977bf800ababb6ae1bf3b0ed08827a4'
+TEST_URL_INFO1 = 'https://github.com/jrfaller/test-git.git'
+TEST_URL_INFO2 = '0a8267929977bf800ababb6ae1bf3b0ed08827a4'
 
 RSpec.configure do |config|
 	config.before(:all) do

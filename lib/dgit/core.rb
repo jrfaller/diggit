@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -63,7 +65,7 @@ end
 
 module Diggit
 	class Source
-		DEFAULT_BRANCH = "origin/master".freeze
+		DEFAULT_BRANCH = "origin/master"
 
 		attr_reader :url, :repository, :entry, :oid
 
@@ -310,11 +312,11 @@ module Diggit
 	# @!attribute [r] plugin_loader
 	# 	@return [PluginLoader] utility classes to load plugins.
 	class Dig
-		DGIT_FOLDER = ".dgit".freeze
-		DGIT_SOURCES = "sources".freeze
-		DGIT_CONFIG = "config".freeze
-		DGIT_OPTIONS = "options".freeze
-		DGIT_JOURNAL = "journal".freeze
+		DGIT_FOLDER = ".dgit"
+		DGIT_SOURCES = "sources"
+		DGIT_CONFIG = "config"
+		DGIT_OPTIONS = "options"
+		DGIT_JOURNAL = "journal"
 
 		private_constant :DGIT_SOURCES, :DGIT_CONFIG, :DGIT_OPTIONS, :DGIT_JOURNAL
 

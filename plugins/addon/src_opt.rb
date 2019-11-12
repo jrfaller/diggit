@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -26,7 +28,7 @@
 # }
 # ```
 class SrcOpt < Diggit::Addon
-	SOURCES_OPTIONS_FILE = 'sources_options'.freeze
+	SOURCES_OPTIONS_FILE = 'sources_options'
 
 	def initialize(*args)
 		super

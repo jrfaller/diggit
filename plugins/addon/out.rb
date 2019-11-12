@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -25,8 +27,8 @@
 class Out < Diggit::Addon
 	attr_reader :out, :tmp
 
-	DEFAULT_OUT = 'out'.freeze
-	DEFAULT_TMP = 'tmp'.freeze
+	DEFAULT_OUT = 'out'
+	DEFAULT_TMP = 'tmp'
 
 	def initialize(*args)
 		super

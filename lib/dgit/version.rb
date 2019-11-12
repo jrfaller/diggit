@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -16,5 +18,5 @@
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
 module Diggit
-	VERSION = '3.0.4'.freeze
+	VERSION = '3.0.4'
 end

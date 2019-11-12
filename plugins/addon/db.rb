@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -22,8 +24,8 @@ require 'mongo'
 # @!attribute [r] client
 # 	@return [Mongo::Client] the mongodb client object.
 class Db < Diggit::Addon
-	DEFAULT_SERVER = '127.0.0.1:27017'.freeze
-	DEFAULT_DB = 'diggit'.freeze
+	DEFAULT_SERVER = '127.0.0.1:27017'
+	DEFAULT_DB = 'diggit'
 
 	attr_reader :client
 

@@ -3,7 +3,7 @@ AllCops:
     - 'spec/dgit/sources/**/*'
     - 'tmp/**/*'
     - 'Vagrantfile'
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.4
 
 ModuleLength:
   Exclude:

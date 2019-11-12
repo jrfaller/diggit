@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -32,7 +34,7 @@ Gem::Specification.new do |spec|
 			Dir['lib/**/*.rb'] + Dir['spec/**/*.rb'] + Dir['plugins/**/*.rb']
 	spec.executables << 'dgit'
 	spec.bindir = 'bin'
-	spec.required_ruby_version = '~> 2.2'
+	spec.required_ruby_version = '~> 2.4'
 	spec.add_runtime_dependency 'formatador', '~> 0'
 	spec.add_runtime_dependency 'gli', '~> 2'
 	spec.add_runtime_dependency 'oj', '~> 3', ' >= 3.4.0'
@@ -43,5 +45,5 @@ Gem::Specification.new do |spec|
 	spec.add_development_dependency 'redcarpet', '~> 3'
 	spec.add_development_dependency 'rspec', '~> 3'
 	spec.add_development_dependency 'rubocop', '~> 0', '>= 0.49.0'
-	spec.add_development_dependency 'yard', '~> 0', '>= 0.9.11'
+	spec.add_development_dependency 'yard', '~> 0', '>= 0.9.20'
 end

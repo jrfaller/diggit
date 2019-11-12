@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -57,9 +59,9 @@ module Diggit
 		# @return [Boolean]
 		def has?(runnable_or_string, state = :all)
 			name = retrieve_name(runnable_or_string)
-			return @performed.count { |e| e.name == name } > 0 if state == :performed
-			return @canceled.count { |e| e.name == name } > 0 if state == :canceled
-			return (@performed + @canceled).count { |e| e.name == name } > 0 if state == :all
+			return @performed.count { |e| e.name == name }.positive? if state == :performed
+			return @canceled.count { |e| e.name == name }.positive? if state == :canceled
+			return (@performed + @canceled).count { |e| e.name == name }.positive? if state == :all
 		end
 
 		# Remove a runnable from all the entries.

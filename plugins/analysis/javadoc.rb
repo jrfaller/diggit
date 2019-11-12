@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This file is part of Diggit.
 #
 # Diggit is free software: you can redistribute it and/or modify
@@ -81,7 +83,7 @@ class Javadoc < Diggit::Analysis
 				javadoc['override'] = true
 				override_count += 1
 
-				if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count > 0
+				if m.xpath("Javadoc/TagElement/TagElement[@label='@inheritDoc']").count.positive?
 					javadoc['inheritDoc'] = true
 					override_inherit_count += 1
 				end
