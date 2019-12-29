@@ -11,7 +11,7 @@ Metrics/ModuleLength:
   Exclude:
     - 'bin/dgit'
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Metrics/BlockLength:
@@ -63,7 +63,7 @@ Style/ModuleFunction:
 Style/BracesAroundHashParameters:
   Enabled: false
 
-Layout/AlignHash:
+Layout/HashAlignment:
   Enabled: false
 
 Style/Documentation:
