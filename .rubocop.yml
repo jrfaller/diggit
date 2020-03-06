@@ -60,14 +60,17 @@ Metrics/PerceivedComplexity:
 Style/ModuleFunction:
   Enabled: false
 
-Style/BracesAroundHashParameters:
-  Enabled: false
-
 Layout/HashAlignment:
   Enabled: false
 
 Style/Documentation:
   Enabled: false
+
+Style/HashTransformKeys:
+  Enabled: false
+
+Style/HashTransformValues:
+    Enabled: false
 
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
@@ -78,3 +81,6 @@ Style/AsciiComments:
 Style/Copyright:
   Enabled: true
   Notice: '^.*Copyright.*'
+
+Style/HashEachMethods:
+  Enabled: true
