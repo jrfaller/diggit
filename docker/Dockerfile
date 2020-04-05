@@ -17,8 +17,7 @@ RUN apk add --update --no-cache \
 WORKDIR /opt
 COPY . /opt/diggit
 WORKDIR /opt/diggit
-RUN bundle config set deployment 'true' \
-    && bundle install
+RUN bundle install
 ENV BUNDLE_GEMFILE /opt/diggit/Gemfile
 
 RUN mkdir /data
