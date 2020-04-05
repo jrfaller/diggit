@@ -1,5 +1,6 @@
-FROM ruby:2.5-alpine
+FROM ruby:2.7.1-alpine3.11
 
+# Install dependencies
 RUN apk add --update --no-cache \
     make \
     cmake \
@@ -7,16 +8,21 @@ RUN apk add --update --no-cache \
     git \
     diffutils \
     cloc \
-    && gem install formatador gli oj rugged \
-    && apk del make cmake g++ \
+    libgit2 \
+    openssl-dev \
+    && gem install bundler \
     && rm -rf /var/cache/apk/*
 
+# Install dgit
 WORKDIR /opt
-RUN git clone https://github.com/jrfaller/diggit.git \
-    && ln -s /opt/diggit/bin/dgit /usr/bin/dgit
+COPY . /opt/diggit
+WORKDIR /opt/diggit
+RUN bundle config set deployment 'true' \
+    && bundle install
+ENV BUNDLE_GEMFILE /opt/diggit/Gemfile
 
-RUN mkdir /diggit
-VOLUME /diggit
+RUN mkdir /data
+VOLUME /data
+WORKDIR /data
 
-WORKDIR /diggit
-CMD ["/bin/sh", "run.sh"]
+ENTRYPOINT ["bundle", "exec", "/opt/diggit/bin/dgit"]

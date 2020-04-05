@@ -1,9 +1,15 @@
-# Diggit docker image
+# Diggit's docker image
 
 Diggit's docker image enables you to use diggit without having the burden of installing it.
 
-First you have to compile the docker image using the `Dockerfile` of our `docker` folder using this command: `docker build . -t diggit`.
+## Installation
 
-Then you have to hack the `run.sh` script of our `docker` folder to furnish the list of diggit commands you want to perform. Place this file in an empty folder that will be the folder where you will perform your diggit commands.
+You can just pull the image by running `docker pull jrfaller/diggit`.
 
-Finally you have to launch diggit: `docker run -v /my_folder:/diggit diggit`, `my_folder` being the folder where the `run.sh` file is located.
+You can also compile it your self, from the root of the diggit repository clone. Just run `docker build . -f docker/Dockerfile -t jrfaller/diggit` and you're done.
+
+## Usage
+
+To run a diggit container you have to bind the `data` folder to a folder from the host. I recommend create an empty folder and run docker directly from inside it such as: `docker run -v $PWD:/data jrfaller/diggit init`.
+
+Of course you can run any diggit command after that, such as `docker run -v $PWD:/data jrfaller/diggit status`.
