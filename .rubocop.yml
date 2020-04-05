@@ -4,7 +4,7 @@ AllCops:
     - 'tmp/**/*'
     - 'Vagrantfile'
     - 'vendor/**/*'
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
 
 Metrics/ModuleLength:
   Max: 200
