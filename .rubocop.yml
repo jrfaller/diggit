@@ -5,6 +5,7 @@ AllCops:
     - 'Vagrantfile'
     - 'vendor/**/*'
   TargetRubyVersion: 2.5
+  NewCops: enable
 
 Metrics/ModuleLength:
   Max: 200
@@ -30,8 +31,8 @@ Metrics/ClassLength:
 Metrics/ParameterLists:
   Max: 15
 
-Layout/Tab:
-  Enabled: false
+Layout/IndentationStyle:
+  EnforcedStyle: tabs
 
 Layout/IndentationWidth:
   Enabled: false
@@ -39,14 +40,14 @@ Layout/IndentationWidth:
 Style/MissingRespondToMissing:
   Enabled: false
 
-Style/MethodMissingSuper:
+Lint/MissingSuper:
   Enabled: false
 
 Style/StringLiterals:
   Enabled: false
 
 Metrics/AbcSize:
-  Max: 50
+  Max: 55
 
 Metrics/MethodLength:
   Max: 50
@@ -58,6 +59,9 @@ Metrics/PerceivedComplexity:
   Max: 10
 
 Style/ModuleFunction:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
   Enabled: false
 
 Layout/HashAlignment:
@@ -75,6 +79,9 @@ Style/HashTransformValues:
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
+Lint/UselessMethodDefinition:
+  Enabled: false
+
 Style/AsciiComments:
   Enabled: false
 
@@ -84,3 +91,9 @@ Style/Copyright:
 
 Style/HashEachMethods:
   Enabled: true
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Lint/DuplicateBranch:
+  Enabled: false

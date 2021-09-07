@@ -36,7 +36,7 @@ class String
 	# Returns a underscore cased version of the string.
 	# @return [String]
 	def underscore
-		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2'). tr("-", "_").downcase
+		gsub(/::/, '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').gsub(/([a-z\d])([A-Z])/, '\1_\2').tr("-", "_").downcase
 	end
 
 	# Returns a camel cased version of the string.

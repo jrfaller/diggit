@@ -34,7 +34,8 @@ class ClocPerFile < Diggit::Analysis
 		yaml.delete('SUM')
 		cloc_a = []
 		yaml.each do |key, value|
-			# transform the hash so the filenames are not keys anymore (as they may contain a '.' it is incompatible with mongo)
+			# transform the hash so the filenames are not keys anymore
+			# (as they may contain a '.' it is incompatible with mongo)
 			path = File.expand_path(key).gsub(folder, '').gsub(%r{^/}, '')
 			cloc_a << value.merge({ path: path })
 		end

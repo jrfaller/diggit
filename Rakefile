@@ -17,15 +17,13 @@
 #
 # Copyright 2015 Jean-Rémy Falleri <jr.falleri@gmail.com>
 
-begin
-	require 'rspec/core/rake_task'
-	require 'rubocop/rake_task'
-	require 'yard'
-	require 'bundler/gem_tasks'
+require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
+require 'yard'
+require 'bundler/gem_tasks'
 
-	RuboCop::RakeTask.new(:rubocop)
-	RSpec::Core::RakeTask.new(:spec)
-	YARD::Rake::YardocTask.new(:yard)
+RuboCop::RakeTask.new(:rubocop)
+RSpec::Core::RakeTask.new(:spec)
+YARD::Rake::YardocTask.new(:yard)
 
-	task default: %i[rubocop yard spec]
-end
+task default: %i[rubocop yard spec]

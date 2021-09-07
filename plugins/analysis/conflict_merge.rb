@@ -88,9 +88,9 @@ class ConflictMerge < Diggit::Analysis
 	def find_oids(root, name, base, left, right)
 		components = root == "" ? [] : root.split(File::SEPARATOR)
 		{
-		  base: find_oid(base.tree, components, name),
-		  left: find_oid(left.tree, components, name),
-		  right: find_oid(right.tree, components, name)
+			base: find_oid(base.tree, components, name),
+			left: find_oid(left.tree, components, name),
+			right: find_oid(right.tree, components, name)
 		}
 	end
 
